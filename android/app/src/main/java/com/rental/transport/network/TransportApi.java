@@ -1,5 +1,7 @@
 package com.rental.transport.network;
 
+import com.rental.transport.model.Transport;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -15,10 +17,10 @@ public interface TransportApi {
 
     @Headers("Content-Type: application/json")
     @GET("/transport")
-    public Call<com.rental.transport.model.Transport> getTransport(@Query("id") Long id);
+    public Call<Transport> getTransport(@Query("id") Long id);
 
     @GET("/transport/list")
-    public Call<List<com.rental.transport.model.Transport>> getTransportList(
+    public Call<List<Transport>> getTransportList(
             @Query("page") Integer page,
             @Query("size") Integer size);
 
