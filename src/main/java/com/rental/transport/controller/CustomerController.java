@@ -1,12 +1,13 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.TransportApplication;
-import com.rental.transport.dto.UserProfile;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import com.rental.transport.dto.Customer;
+import com.rental.transport.service.CustomerService;
+import java.security.Principal;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,29 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CustomerController {
 
-    @GetMapping
-    public UserProfile doGetCustomerRequest(
-            @RequestParam(value = "id", required = false) Long id) {
+    @Autowired
+    private CustomerService customerService;
 
-        UserProfile user = new UserProfile();
-        System.out.println(user.toString());
-        return user;
+    @GetMapping
+    public Customer doGetCustomerRequest(
+            Principal principal) {
+
+        Customer customer = customerService.getCustomer(principal.getName());
+        return customer;
+    }
+
+    @GetMapping(value = "/list")
+    public List<Customer> doGetCustomerListRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+        return customerService.getList(page, size);
     }
 
     @PutMapping
-    public UserProfile doPutCustomerRequest(
-            @RequestHeader(TransportApplication.USER_HEADER) UserProfile user,
-            @RequestParam(value = "id", required = false) Long id) {
-
-        return new UserProfile();
-    }
-
-    @PostMapping
-    public void doPostCustomerRequest() {
-    }
-
-    @DeleteMapping
-    public void doDeleteCustomerRequest(
-            @RequestParam(value = "id", required = true) Long id) {
+    public void doPutCustomerRequest(
+            Principal principal,
+            @RequestBody Customer customer) {
+        customer.setAccount(principal.getName());
+        customerService.setCustomer(customer);
     }
 }

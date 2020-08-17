@@ -1,5 +1,10 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Transport;
+import com.rental.transport.service.TransportService;
+import java.security.Principal;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,22 +17,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TransportController {
 
+    @Autowired
+    private TransportService transportService;
+
     @GetMapping
-    public void doGetTransportRequest (
-            @RequestParam(value = "id", required = false) Long id) {
+    public Transport doGetTransportRequest(
+            @RequestParam(value = "id", required = true) Long id) {
+        return transportService.findById(id);
     }
 
-    @PutMapping
-    public void doPutTransportRequest(
-            @RequestParam(value = "id", required = true) Long id) {
+    @GetMapping(value = "/list")
+    public List<Transport> doGetTransportListRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+        return transportService.getList(page, size);
     }
 
     @PostMapping
-    public void doPostTransportRequest() {
+    public Long doPostTransportRequest(
+            Principal principal,
+            @RequestParam(value = "type", required = true) String type) {
+        return transportService.newTransport(principal.getName(), type);
     }
 
     @DeleteMapping
     public void doDeleteTransportRequest(
+            Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
+        transportService.deleteTransport(principal.getName(), id);
+    }
+
+    @PutMapping
+    public void doPutTransportRequest(
+            Principal principal,
+            @RequestParam(value = "transport", required = true) Transport transport) {
+        transportService.updateTransport(principal.getName(), transport);
     }
 }

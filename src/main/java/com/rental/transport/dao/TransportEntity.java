@@ -1,10 +1,12 @@
 package com.rental.transport.dao;
 
+import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -15,7 +17,11 @@ import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="transport", schema = "public", catalog = "relationship")
+@Table(name="transport", schema = "public", catalog = "relationship", indexes = {
+        @Index(columnList = "type", name = "type_id_idx")
+    }
+)
+
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,10 +29,10 @@ public class TransportEntity extends EntityId  {
 
     private String name;
     private String type;
-    private String number;
+    private Blob image;
     private Integer capacity;
     private String description;
-    private Set<UserEntity> drivers = new HashSet<>();
+    private Set<CustomerEntity> customer = new HashSet<>();
 
     @Basic
     @Column(name = "name", nullable = true, insertable = true, updatable = true)
@@ -41,9 +47,9 @@ public class TransportEntity extends EntityId  {
     }
 
     @Basic
-    @Column(name = "number", nullable = true, insertable = true, updatable = true)
-    public String getNumber() {
-        return number;
+    @Column(name = "image", nullable = true, insertable = true, updatable = true)
+    public Blob getImage() {
+        return image;
     }
 
     @Basic
@@ -60,11 +66,15 @@ public class TransportEntity extends EntityId  {
     }
 
     @ManyToMany
-    @JoinTable(name="user_transport",
+    @JoinTable(name="customer_transport",
             joinColumns=@JoinColumn(name="transport_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="user_id", nullable = false)
+            inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
     )
-    public Set<UserEntity> getDrivers() {
-        return drivers;
+    public Set<CustomerEntity> getCustomer() {
+        return customer;
+    }
+
+    public void addCustomer(CustomerEntity entity) {
+        customer.add(entity);
     }
 }

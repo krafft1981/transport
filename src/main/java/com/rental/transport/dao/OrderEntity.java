@@ -1,43 +1,59 @@
 package com.rental.transport.dao;
 
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="orders", schema = "public", catalog = "relationship")
+@Table(name="orders", schema = "public", catalog = "relationship",
+	indexes = {
+            @Index(columnList = "driver_id", name = "driver_id_idx"),
+            @Index(columnList = "customer_id", name = "customer_id_idx"),
+            @Index(columnList = "transport_id", name = "transport_id_idx"),
+            @Index(columnList = "start_at", name = "start_id_idx"),
+            @Index(columnList = "stop_at", name = "stop_id_idx")
+    }
+)
+
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderEntity extends EntityId  {
 
-    private Long customer;
-    private Long transport;
-    private Long driver;
+    private Long customerId;
+    private Long transportId;
+    private Long driverId;
     private Date startAt;
     private Date stopAt;
     private float price;
-    private Byte count;
     private String comment;
 
     @Basic
     @Column(name = "customer_id", nullable = false, insertable = true, updatable = false)
-    public Long getCustomer() {
-        return customer;
+    public Long getCustomerId() {
+        return customerId;
     }
 
     @Basic
     @Column(name = "transport_id", nullable = false, insertable = true, updatable = false)
-    public Long getTransport() {
-        return transport;
+    public Long getTransportId() {
+        return transportId;
     }
 
     @Basic
     @Column(name = "driver_id", nullable = false, insertable = true, updatable = false)
-    public Long getDriver() {
-        return driver;
+    public Long getDriverId() {
+        return driverId;
     }
 
     @Basic
@@ -60,12 +76,6 @@ public class OrderEntity extends EntityId  {
     @Column(name = "price", nullable = false, insertable = true, updatable = false)
     public float getPrice() {
         return price;
-    }
-
-    @Basic
-    @Column(name = "count", nullable = false, insertable = true, updatable = false)
-    public float getCount() {
-        return count;
     }
 
     @Basic

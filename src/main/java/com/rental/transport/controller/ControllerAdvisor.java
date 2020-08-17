@@ -1,7 +1,6 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.utils.exceptions.CustomerNotFoundException;
-import com.rental.transport.utils.exceptions.DriverNotFoundException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.OrderNotFoundException;
 import com.rental.transport.utils.exceptions.ParkingNotFoundException;
@@ -25,16 +24,6 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<Object> handleCustomerNotFoundException(
             CustomerNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(DriverNotFoundException.class)
-    public ResponseEntity<Object> handleDriverNotFoundException(
-            DriverNotFoundException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", ex.getMessage());
