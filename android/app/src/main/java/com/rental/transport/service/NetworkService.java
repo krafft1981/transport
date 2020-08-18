@@ -30,8 +30,8 @@ public class NetworkService {
     @Getter
     private Retrofit mRetrofit;
 
-//    @Getter
-//    private Retrofit mRetrofitDidest;
+    @Getter
+    private Retrofit mRetrofitDidest;
 
     public static NetworkService getInstance(@NonNull String account) {
         if (mInstance == null) {
@@ -46,7 +46,6 @@ public class NetworkService {
         final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials(account, PASSWORD));
         final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
 
-/*
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
                 .addInterceptor(new AuthenticationCacheInterceptor(authCache))
@@ -62,13 +61,12 @@ public class NetworkService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();
-*/
     }
 
     public RegistrationApi getRegistrationApi() {
         return mRetrofit.create(RegistrationApi.class);
     }
-/*
+
     public CustomerApi getCustomerApi() {
         return mRetrofitDidest.create(CustomerApi.class);
     }
@@ -84,5 +82,4 @@ public class NetworkService {
     public ParkingApi getParkingApi() {
         return mRetrofitDidest.create(ParkingApi.class);
     }
-*/
 }

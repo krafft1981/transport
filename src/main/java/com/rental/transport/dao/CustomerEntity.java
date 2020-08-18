@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,10 +37,11 @@ public class CustomerEntity extends EntityId {
 
     @Basic
     @Column(name = "account", unique = true, nullable = false, insertable = true, updatable = false)
+    @NotEmpty
     public String getAccount() {
         return account;
     }
-
+    
     @Basic
     @Column(name = "firstName", nullable = true, insertable = true, updatable = true)
     public String getFirstName() {
