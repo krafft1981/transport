@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         return accounts.get(0).name;
     }
 
-    Boolean getPermissionsError() {
+    void getPermissionsError() {
 
         String[] accessRight  = {
                 Manifest.permission.INTERNET,
@@ -65,23 +65,9 @@ public class MainActivity extends AppCompatActivity {
         for (String access : accessRight) {
             if (ContextCompat.checkSelfPermission(this, access) != PackageManager.PERMISSION_GRANTED) {
 
-                if (access.equals(Manifest.permission.INTERNET)) {
-                    msgAlertBox("Да заебало уже !", "Нет разрешения ходить в инет");
-                }
-
-                if (access.equals(Manifest.permission.READ_CONTACTS)) {
-                    msgAlertBox("Да заебало уже !", "Нет разрешения читать адресную книгу");
-                }
-
-                if (access.equals(Manifest.permission.ACCESS_NETWORK_STATE)) {
-                    msgAlertBox("Да заебало уже !", "Нет дразрешения проверить сеть");
-                }
-
-                return true;
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_ASK_PERMISSIONS);
             }
         }
-
-        return false;
     }
 
     public void msgAlertBox(String title, String message) {
@@ -104,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        if (getPermissionsError()) {}
+        getPermissionsError();
 
         GridView gridView = findViewById(R.id.gridview);
 
