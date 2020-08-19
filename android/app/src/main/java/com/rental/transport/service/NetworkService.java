@@ -45,12 +45,7 @@ public class NetworkService {
 
         final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials(account, PASSWORD));
         final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
-                .addInterceptor(new AuthenticationCacheInterceptor(authCache))
-                .build();
-
+        
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -59,7 +54,11 @@ public class NetworkService {
         mRetrofitDidest = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient)
+                .client(new OkHttpClient.Builder()
+                    .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+                    .addInterceptor(new AuthenticationCacheInterceptor(authCache))
+                    .build()
+                )
                 .build();
     }
 
