@@ -25,6 +25,9 @@ public class TransportService {
 
     @Autowired
     private CustomerRepository customerRepository;
+    
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Transport findById(@NonNull Long id) throws TransportNotFoundException {
 
