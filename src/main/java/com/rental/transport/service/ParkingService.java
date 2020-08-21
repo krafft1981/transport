@@ -29,6 +29,9 @@ public class ParkingService {
 
     @Autowired
     private TransportRepository transportRepository;
+            
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Parking findById(@NonNull Long id) throws ParkingNotFoundException {
 
