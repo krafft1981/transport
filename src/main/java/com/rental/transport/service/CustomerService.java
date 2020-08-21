@@ -35,7 +35,10 @@ public class CustomerService implements UserDetailsService {
 
     @Autowired
     private TransportRepository transportRepository;
-
+    
+    @Autowired
+    private ModelMapper modelMapper;
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws CustomerNotFoundException {
 
