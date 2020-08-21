@@ -15,6 +15,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private ModelMapper modelMapper;
 
     public Order findById(@NonNull String account, @NonNull Long id) {
 
