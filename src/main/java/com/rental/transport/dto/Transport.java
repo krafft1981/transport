@@ -15,7 +15,7 @@ public class Transport {
     private Long id;
     private String name;
     private String type;
-    private Blob image;;
+    private Set<Blob> image = new HashSet<>();
     private Integer capacity;
     private String description;
     private Set<Long> drivers = new HashSet<>();
