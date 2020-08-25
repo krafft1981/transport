@@ -6,9 +6,9 @@ import com.rental.transport.dto.Transport;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TransportService extends AbstractService<TransportEntity, TransportRepository, Transport> {
+public class TransportService extends AbstractService<TransportEntity, TransportRepository, TransportMapper, Transport> {
 
-    public TransportService(TransportRepository repository) {
-        super(repository);
+    public TransportService(TransportRepository repository, TransportMapper mapper) {
+        super(repository, mapper);
     }
 }

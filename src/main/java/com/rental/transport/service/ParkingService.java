@@ -6,9 +6,9 @@ import com.rental.transport.dto.Parking;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ParkingService extends AbstractService<ParkingEntity, ParkingRepository, Parking> {
+public class ParkingService extends AbstractService<ParkingEntity, ParkingRepository, ParkingMapper, Parking> {
 
-    public ParkingService(ParkingRepository repository) {
-        super(repository);
+    public ParkingService(ParkingRepository repository, ParkingMapper mapper) {
+        super(repository, mapper);
     }
 }

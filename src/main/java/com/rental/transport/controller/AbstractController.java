@@ -3,6 +3,7 @@ package com.rental.transport.controller;
 import com.rental.transport.dao.AbstractEntity;
 import com.rental.transport.dao.AbstractRepository;
 import com.rental.transport.dto.AbstractDto;
+import com.rental.transport.service.AbstractMapper;
 import com.rental.transport.service.AbstractService;
 import java.security.Principal;
 import java.util.List;
@@ -23,10 +24,11 @@ public abstract class AbstractController<
         E extends AbstractEntity,
         D extends AbstractDto,
         R extends AbstractRepository<E>,
-        S extends AbstractService<E, R, D>>
+        M extends AbstractMapper<E, D>,
+        S extends AbstractService<E, R, M, D>>
         implements AbstractInterface<D> {
 
-    private final S service;
+    protected final S service;
 
     @Autowired
     protected AbstractController(S service) {

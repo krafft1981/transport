@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 
 @Primary
 @Service
-public class CustomerService extends AbstractService<CustomerEntity, CustomerRepository, Customer> implements UserDetailsService {
+public class CustomerService extends AbstractService<CustomerEntity, CustomerRepository, CustomerMapper, Customer> implements UserDetailsService {
 
-    public CustomerService(CustomerRepository repository) {
-        super(repository);
+    public CustomerService(CustomerRepository repository, CustomerMapper mapper) {
+        super(repository, mapper);
     }
 
     @Override
