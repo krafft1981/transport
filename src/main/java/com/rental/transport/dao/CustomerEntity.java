@@ -17,15 +17,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="customer", schema = "public", catalog = "relationship", indexes = {
-        @Index(columnList = "account", name = "account_idx"),
-    }
+@Table(
+        name="customer",
+        schema = "public",
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "account", name = "account_idx")
+        }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerEntity extends EntityId {
+public class CustomerEntity extends AbstractEntity {
 
     private String account;
     private String firstName;
@@ -34,6 +38,10 @@ public class CustomerEntity extends EntityId {
     private String phone;
     private Blob image;
     private Set<TransportEntity> transport = new HashSet<>();
+
+    public CustomerEntity(String account) {
+        this.account = account;
+    }
 
     @Basic
     @Column(name = "account", unique = true, nullable = false, insertable = true, updatable = false)

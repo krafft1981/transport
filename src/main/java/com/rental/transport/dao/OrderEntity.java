@@ -15,20 +15,23 @@ import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="orders", schema = "public", catalog = "relationship",
-	indexes = {
-            @Index(columnList = "driver_id", name = "driver_id_idx"),
-            @Index(columnList = "customer_id", name = "customer_id_idx"),
-            @Index(columnList = "transport_id", name = "transport_id_idx"),
-            @Index(columnList = "start_at", name = "start_id_idx"),
-            @Index(columnList = "stop_at", name = "stop_id_idx")
-    }
+@Table(
+        name="orders",
+        schema = "public",
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "driver_id", name = "driver_id_idx"),
+                @Index(columnList = "customer_id", name = "customer_id_idx"),
+                @Index(columnList = "transport_id", name = "transport_id_idx"),
+                @Index(columnList = "start_at", name = "start_id_idx"),
+                @Index(columnList = "stop_at", name = "stop_id_idx")
+        }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderEntity extends EntityId  {
+public class OrderEntity extends AbstractEntity  {
 
     private Long customerId;
     private Long transportId;

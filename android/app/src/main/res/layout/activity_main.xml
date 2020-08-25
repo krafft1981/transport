@@ -1,48 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/btnTransport"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/transport">
-        </Button>
-        <Button
-            android:id="@+id/btnOrder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/order">
-        </Button>
-        <Button
-            android:id="@+id/btnParking"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/parking">
-        </Button>
-        <Button
-            android:id="@+id/btnCustomer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/customer">
-        </Button>
 
-    </LinearLayout>
     <FrameLayout
-        android:id="@+id/data"
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" >
     </FrameLayout>
+
 </LinearLayout>

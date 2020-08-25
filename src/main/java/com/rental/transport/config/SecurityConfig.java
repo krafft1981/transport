@@ -65,7 +65,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(digestEntryPoint())
                 .and()
                 .addFilterAfter(digestAuthenticationFilter(digestEntryPoint()), BasicAuthenticationFilter.class)
-//                .antMatcher("/**")
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/registration**").permitAll()

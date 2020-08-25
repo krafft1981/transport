@@ -27,15 +27,4 @@ public class Parking {
     public void addTransport(Long id) {
         transport.add(id);
     }
-
-    @Override
-    public String toString() {
-        return "Parking{" +
-                "id=" + id +
-                ", address='" + address + '\'' +
-                ", description='" + description + '\'' +
-                ", customer=" + customer +
-                ", transport=" + transport +
-                '}';
-    }
 }

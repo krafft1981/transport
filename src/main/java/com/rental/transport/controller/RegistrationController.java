@@ -18,9 +18,6 @@ public class RegistrationController {
     public Long doPostRegistrationRequest(
             @RequestParam(value = "account", required = true) String account) {
 
-        if (account == null) {
-            throw new IllegalArgumentException("account can't be null");
-        }
-        return customerService.newCustomer(account);
+        return customerService.create(account);
     }
 }

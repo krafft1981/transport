@@ -13,17 +13,23 @@ import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="parking", schema = "public", catalog = "relationship", indexes = {
-		@Index(columnList = "address", name = "address_idx"),
-	}
+@Table(
+		name="parking",
+		schema = "public",
+		catalog = "relationship",
+		indexes = {
+				@Index(columnList = "address", name = "address_idx")
+		}
 )
 
 @Setter
 @NoArgsConstructor
-public class ParkingEntity extends EntityId {
+public class ParkingEntity extends AbstractEntity {
 
 	private String address;
 	private String description;
+	private Double latitude;
+	private Double Longitude;
 	private Set<CustomerEntity> customer = new HashSet<>();
 	private Set<TransportEntity> transport = new HashSet<>();
 
@@ -39,6 +45,18 @@ public class ParkingEntity extends EntityId {
 	@Type(type="text")
 	public String getDescription() {
 		return description;
+	}
+
+	@Basic
+	@Column(name = "latitude", nullable = true, insertable = true, updatable = true)
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	@Basic
+	@Column(name = "Longitude", nullable = true, insertable = true, updatable = true)
+	public Double getLongitude() {
+		return Longitude;
 	}
 
 	@OneToMany

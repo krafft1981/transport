@@ -10,13 +10,13 @@ import lombok.Setter;
 
 @Setter
 @MappedSuperclass
-public class EntityId implements Serializable {
+public class AbstractEntity implements Serializable {
 
     private Long id;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", unique = true, updatable = false, nullable = false)
+    @Column(name = "id", unique = true, updatable = false, nullable = false)
     public Long getId() {
         return id;
     }

@@ -1,12 +1,9 @@
 package com.rental.transport.dto;
 
 import java.util.Date;
-import lombok.Data;
 
-@Data
-public class Order {
+public class Order extends AbstractDto {
 
-    private Long id;
     private Long driverId;
     private Long transportId;
     private Long customerId;

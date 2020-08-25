@@ -1,6 +1,13 @@
+package com.rental.transport.config;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.modelmapper.config.Configuration.AccessLevel;
 
 @Configuration
-public ModelMapperConfig() {
+public class ModelMapperConfig {
   @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
@@ -8,7 +15,7 @@ public ModelMapperConfig() {
                 .setMatchingStrategy(MatchingStrategies.STRICT)
                 .setFieldMatchingEnabled(true)
                 .setSkipNullEnabled(true)
-                .setFieldAccessLevel(PRIVATE);
+                .setFieldAccessLevel(AccessLevel.PRIVATE);
         return mapper;
     }
 }

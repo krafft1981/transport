@@ -17,15 +17,19 @@ import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="transport", schema = "public", catalog = "relationship", indexes = {
-        @Index(columnList = "type", name = "type_id_idx")
-    }
+@Table(
+        name="transport",
+        schema = "public",
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "type", name = "type_id_idx")
+        }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransportEntity extends EntityId  {
+public class TransportEntity extends AbstractEntity  {
 
     private String name;
     private String type;

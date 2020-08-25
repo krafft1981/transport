@@ -1,10 +1,10 @@
 package com.rental.transport.dao;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TransportRepository extends PagingAndSortingRepository<TransportEntity, Long> {
+public interface TransportRepository extends AbstractRepository<TransportEntity> {
 
-//    List<TransportEntity> findByAccount(@NonNull String account);
+    TransportEntity findByType(@NonNull String type);
 }

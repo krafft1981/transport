@@ -41,15 +41,20 @@ public class NetworkService {
         return mInstance;
     }
 
+    public static NetworkService getInstance() {
+
+        return mInstance;
+    }
+
     private NetworkService(String account) {
 
-        final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials(account, PASSWORD));
-        final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
-        
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+        final DigestAuthenticator authenticator = new DigestAuthenticator(new Credentials(account, PASSWORD));
+        final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
 
         mRetrofitDidest = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

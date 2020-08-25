@@ -7,7 +7,6 @@
     <RelativeLayout
         android:id="@+id/gridviewdata"
         android:layout_width="190dp"
-        android:background="#fff"
         android:layout_height="180dp">
 
         <TextView
@@ -28,3 +27,4 @@
 
     </RelativeLayout>
 </RelativeLayout>
+

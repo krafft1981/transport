@@ -1,10 +1,8 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.utils.exceptions.CustomerNotFoundException;
+import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
-import com.rental.transport.utils.exceptions.OrderNotFoundException;
-import com.rental.transport.utils.exceptions.ParkingNotFoundException;
-import com.rental.transport.utils.exceptions.TransportNotFoundException;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +19,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<Object> handleCustomerNotFoundException(
-            CustomerNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public ResponseEntity<Object> handleObjectNotFoundException(
+            ObjectNotFoundException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", ex.getMessage());
@@ -31,29 +29,9 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<Object> handleOrderNotFoundException(
-            OrderNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(ParkingNotFoundException.class)
-    public ResponseEntity<Object> handleParkingNotFoundException(
-            ParkingNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(TransportNotFoundException.class)
-    public ResponseEntity<Object> handleTransportNotFoundException(
-            TransportNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(
+            AccessDeniedException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("message", ex.getMessage());

@@ -24,18 +24,4 @@ public class Order {
     private String description;
     @SerializedName("comment")
     private String comment;
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", driverId=" + driverId +
-                ", transportId=" + transportId +
-                ", customerId=" + customerId +
-                ", startAt=" + startAt +
-                ", stopAt=" + stopAt +
-                ", description='" + description + '\'' +
-                ", comment='" + comment + '\'' +
-                '}';
-    }
 }
