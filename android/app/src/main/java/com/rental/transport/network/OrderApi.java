@@ -17,10 +17,11 @@ public interface OrderApi {
 
     @Headers("Content-Type: application/json")
     @GET("/order")
-    public Call<Order> getOrder(@Query("id") Long id);
+    public Call<Order> doGetOrder(@Query("id") Long id);
 
+    @Headers("Content-Type: application/json")
     @GET("/order/list")
-    public Call<List<Order>> getOrderList(
+    public Call<List<Order>> doGetOrderList(
             @Query("page") Integer page,
             @Query("size") Integer size);
 
@@ -33,6 +34,6 @@ public interface OrderApi {
     public Call doDeleteOrder(@Query("id")Long id);
 
     @Headers("Content-Type: application/json")
-    @PUT("/orderApi")
-    public Call doPutOrder(@Body OrderApi orderApi);
+    @PUT("/order")
+    public Call doPutOrder(@Body Order order);
 }

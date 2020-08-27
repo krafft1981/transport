@@ -58,7 +58,7 @@ public abstract class AbstractController<
         service.update(principal, dto);
     }
 
-    @GetMapping(value = "/list/my")
+    @GetMapping(value = "/list")
     public List<D> getPages(@RequestParam(value = "page", required = true) Integer page,
                            @RequestParam(value = "size", required = true) Integer size) {
 
@@ -66,7 +66,7 @@ public abstract class AbstractController<
         return service.getPage(pageable);
     }
 
-    @GetMapping(value = "/list")
+    @GetMapping(value = "/list/my")
     public List<D> getMyPages(Principal principal,
                            @RequestParam(value = "page", required = true) Integer page,
                            @RequestParam(value = "size", required = true) Integer size) {

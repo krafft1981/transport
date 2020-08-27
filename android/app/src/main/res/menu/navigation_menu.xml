@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/transport"
+        android:title="@string/transports"
+        android:icon="@mipmap/ic_launcher" />
+
+    <item android:id="@+id/order"
+        android:title="@string/order"
+        android:icon="@mipmap/ic_launcher" />
+
+    <item android:id="@+id/customer"
+        android:title="@string/customer"
+        android:icon="@mipmap/ic_launcher" />
+
+    <item android:id="@+id/parking"
+        android:title="@string/parking"
+        android:icon="@mipmap/ic_launcher" />
+</menu>

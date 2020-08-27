@@ -58,6 +58,7 @@ public abstract class AbstractService<
         E entity = repository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException(id));
+
         return mapper.toDto(entity);
     }
 
@@ -66,7 +67,7 @@ public abstract class AbstractService<
         // filter
         E entity = repository
                 .findById(dto.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("", dto.getId()));
+                .orElseThrow(() -> new ObjectNotFoundException(dto.getId()));
 
         entity = mapper.toEntity(dto);
         repository.save(entity);

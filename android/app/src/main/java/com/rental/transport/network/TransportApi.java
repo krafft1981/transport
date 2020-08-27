@@ -17,10 +17,10 @@ public interface TransportApi {
 
     @Headers("Content-Type: application/json")
     @GET("/transport")
-    public Call<Transport> getTransport(@Query("id") Long id);
+    public Call<Transport> doGetTransport(@Query("id") Long id);
 
     @GET("/transport/list")
-    public Call<List<Transport>> getTransportList(
+    public Call<List<Transport>> doGetTransportList(
             @Query("page") Integer page,
             @Query("size") Integer size);
 
@@ -33,6 +33,6 @@ public interface TransportApi {
     public Call doDeleteTransport(@Query("id")Long id);
 
     @Headers("Content-Type: application/json")
-    @PUT("/transportApi")
-    public Call doPutTransport(@Body TransportApi transportApi);
+    @PUT("/transport")
+    public Call doPutTransport(@Body Transport transport);
 }

@@ -15,15 +15,15 @@ public interface CustomerApi {
 
     @Headers("Content-Type: application/json")
     @GET("/customer")
-    public Call<Customer> getCustomer(@Query("id") Long id);
+    public Call<Customer> doGetCustomer(@Query("id") Long id);
 
+    @Headers("Content-Type: application/json")
     @GET("/customer/list")
-    public Call<List<Customer>> getCustomerList(
+    public Call<List<Customer>> doGetCustomerList(
             @Query("page") Integer page,
             @Query("size") Integer size);
 
-
     @Headers("Content-Type: application/json")
-    @PUT("/customerApi")
-    public Call doPutOrder(@Body CustomerApi customerApi);
+    @PUT("/customer")
+    public Call doPutOrder(@Body Customer customer);
 }

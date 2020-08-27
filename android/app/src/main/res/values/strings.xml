@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">Транспорт</string>
-    <string name="customer">Клиент</string>
-    <string name="parking">Стоянка</string>
-    <string name="order">Заказ</string>
+    <string name="customer">Клиенты</string>
+    <string name="parking">Стоянки</string>
+    <string name="order">Заказы</string>
     <string name="transports">Транспорт</string>
     <string name="settings">Свойства</string>
-    <string name="title_activity_main2">Main2Activity</string>
 </resources>

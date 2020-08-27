@@ -2,6 +2,7 @@ package com.rental.transport.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,9 +24,8 @@ public class Customer {
     @SerializedName("phone")
     private String phone;
     @SerializedName("image")
-    private byte[] image;
+    private Blob image;
 
-    @SerializedName("id")
     private Set<Long> transport = new HashSet<>();
 
     public void addTransport(Long id) {

@@ -9,5 +9,5 @@ public interface RegistrationApi {
 
     @Headers("Content-Type: application/json")
     @POST("/registration")
-    public Call<Long> postRegistration(@Query("account") String account);
+    public Call<Long> doPostRegistration(@Query("account") String account);
 }

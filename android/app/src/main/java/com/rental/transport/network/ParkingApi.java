@@ -17,10 +17,11 @@ public interface ParkingApi {
 
     @Headers("Content-Type: application/json")
     @GET("/parking")
-    public Call<Parking> getParking(@Query("id") Long id);
+    public Call<Parking> doGetParking(@Query("id") Long id);
 
+    @Headers("Content-Type: application/json")
     @GET("/parking/list")
-    public Call<List<Parking>> getParkingList(
+    public Call<List<Parking>> doGetParkingList(
             @Query("page") Integer page,
             @Query("size") Integer size);
 
@@ -33,6 +34,6 @@ public interface ParkingApi {
     public Call doDeleteParking(@Query("id")Long id);
 
     @Headers("Content-Type: application/json")
-    @PUT("/parkingApi")
-    public Call doPutParking(@Body ParkingApi parkingApi);
+    @PUT("/parking")
+    public Call doPutParking(@Body Parking parking);
 }

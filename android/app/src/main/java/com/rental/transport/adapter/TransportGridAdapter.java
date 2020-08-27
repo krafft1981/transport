@@ -8,30 +8,31 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.rental.transport.model.Transport;
 import com.rental.transport.R;
+import com.rental.transport.model.Transport;
 
 import java.util.List;
 
 public class TransportGridAdapter extends BaseAdapter {
 
     private Context context;
-    private List<Transport> transports;
+    private List<Transport> data;
 
-    public TransportGridAdapter(Context context, List<Transport> transports) {
+    public TransportGridAdapter(Context context, List<Transport> data) {
+
         this.context = context;
-        this.transports = transports;
+        this.data = data;
     }
 
     @Override
     public int getCount() {
-        return transports.size();
+        return data.size();
     }
 
     @Override
     public Object getItem(int id) {
 
-        return transports.get(id);
+        return data.get(id);
     }
 
     @Override
@@ -49,18 +50,10 @@ public class TransportGridAdapter extends BaseAdapter {
         TextView type   = item.findViewById(R.id.transport_type);
         TextView name   = item.findViewById(R.id.transport_name);
 
-        Transport t = transports.get(id);
+        Transport element = data.get(id);
 
-/*
-        if (t.getImage().length != 0) {
-            byte[] data = Base64.decode(t.getImage(), 0);
-            Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-            image.setImageBitmap(bmp);
-        }
-*/
-
-        type.setText(t.getType());
-        name.setText(t.getName());
+        type.setText(element.getType());
+        name.setText(element.getName());
 
         return item;
     }

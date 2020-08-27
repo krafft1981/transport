@@ -5,30 +5,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
-import com.rental.transport.model.Parking;
 import com.rental.transport.R;
+import com.rental.transport.model.Parking;
 
 import java.util.List;
 
 public class ParkingGridAdapter extends BaseAdapter {
 
     private Context context;
-    private List<Parking> parkings;
+    private List<Parking> data;
 
-    public ParkingGridAdapter(Context context, List<Parking> parkings) {
+    public ParkingGridAdapter(Context context, List<Parking> data) {
+
         this.context = context;
-        this.parkings = parkings;
+        this.data = data;
     }
 
     @Override
     public int getCount() {
-        return parkings.size();
+        return data.size();
     }
 
     @Override
     public Object getItem(int id) {
-        return parkings.get(id);
+
+        return data.get(id);
     }
 
     @Override
@@ -40,23 +43,15 @@ public class ParkingGridAdapter extends BaseAdapter {
     public View getView(int id, View view, ViewGroup viewGroup) {
 
         LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View item = inflater.inflate(R.layout.transport_element, null);
+        View item = inflater.inflate(R.layout.parking_element, null);
 
-//        TextView type   = item.findViewById(R.id);
-//        TextView name   = item.findViewById(R.id.transport_name);
+        TextView name = item.findViewById(R.id.parking_name);
+        TextView address = item.findViewById(R.id.parking_address);
 
-        Parking p = parkings.get(id);
+        Parking element = data.get(id);
 
-/*
-        if (t.getImage().length != 0) {
-            byte[] data = Base64.decode(t.getImage(), 0);
-            Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-            image.setImageBitmap(bmp);
-        }
-*/
-
-//        type.setText(p.getAddress());
-//        name.setText(p.getDescription());
+        name.setText(element.getName());
+        address.setText(element.getAddress());
 
         return item;
     }

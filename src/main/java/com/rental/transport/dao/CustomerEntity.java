@@ -51,19 +51,19 @@ public class CustomerEntity extends AbstractEntity {
     }
     
     @Basic
-    @Column(name = "firstName", nullable = true, insertable = true, updatable = true)
+    @Column(name = "firstName", nullable = false, insertable = true, updatable = true)
     public String getFirstName() {
         return firstName;
     }
 
     @Basic
-    @Column(name = "lastName", nullable = true, insertable = true, updatable = true)
+    @Column(name = "lastName", nullable = false, insertable = true, updatable = true)
     public String getLastName() {
         return lastName;
     }
 
     @Basic
-    @Column(name = "family", nullable = true, insertable = true, updatable = true)
+    @Column(name = "family", nullable = false, insertable = true, updatable = true)
     public String getFamily() {
         return family;
     }

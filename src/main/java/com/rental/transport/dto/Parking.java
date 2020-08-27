@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Parking extends AbstractDto {
 
+    private String name;
     private String address;
     private String description;
     private Double latitude;

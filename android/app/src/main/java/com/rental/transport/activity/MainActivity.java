@@ -3,16 +3,19 @@ package com.rental.transport.activity;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.rental.transport.R;
 import com.rental.transport.service.NetworkService;
 
@@ -59,26 +62,37 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private Long accountId;
+
+    public void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.animator.card_flip_right_in, R.animator.card_flip_right_out,
+                R.animator.card_flip_left_in, R.animator.card_flip_left_out);
+        transaction.replace(R.id.container, fragment);
+        transaction.commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         if (checkPermissions() == false) {
-
+            // exit
         }
 
         String account = getAccount();
         if (account.isEmpty()) {
-
+            // exit
         }
 
         NetworkService
                 .getInstance(account)
                 .getRegistrationApi()
-                .postRegistration(account)
+                .doPostRegistration(account)
                 .enqueue(new Callback<Long>() {
                     @Override
                     public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
-
+                        accountId = response.body();
                     }
 
                     @Override
@@ -92,9 +106,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.container, new TransportDetails(), "Fragment 1");
-        fragmentTransaction.setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.commit();
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.transport:
+                                loadFragment(new TransportFragment());
+                                break;
+
+                            case R.id.order:
+                                loadFragment(new OrderFragment());
+                                break;
+
+                            case R.id.customer:
+                                loadFragment(new CustomerFragment());
+                                break;
+
+                            case R.id.parking:
+                                loadFragment(new ParkingFragment());
+                                break;
+                        }
+
+                        return true;
+                    }
+                });
+
+        loadFragment(new TransportFragment());
     }
 }

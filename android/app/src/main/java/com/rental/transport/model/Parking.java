@@ -11,8 +11,14 @@ public class Parking {
 
     @SerializedName("id")
     private Long id;
+    @SerializedName("name")
+    private String name;
     @SerializedName("address")
     private String address;
+    @SerializedName("latitude")
+    private Double latitude;
+    @SerializedName("longitude")
+    private Double longitude;
     @SerializedName("description")
     private String description;
     @SerializedName("customer")
