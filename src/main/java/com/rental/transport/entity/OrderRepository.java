@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;

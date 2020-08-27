@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +32,10 @@ public class ParkingEntity extends AbstractEntity {
 	private Double Longitude;
 	private Set<CustomerEntity> customer = new HashSet<>();
 	private Set<TransportEntity> transport = new HashSet<>();
+
+	public ParkingEntity(CustomerEntity customer) {
+		addCustomer(customer);
+	}
 
 	@Basic
 	@Column(name = "address", nullable = true, insertable = true, updatable = true)

@@ -1,6 +1,6 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.AbstractEntity;
+import com.rental.transport.entity.AbstractEntity;
 import com.rental.transport.dto.AbstractDto;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;

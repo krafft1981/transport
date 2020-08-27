@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;

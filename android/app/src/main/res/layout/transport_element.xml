@@ -22,7 +22,7 @@
             android:id="@+id/transport_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Фрегат"
+            android:text="Тип (не заполнено)"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
             android:id="@+id/transport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Королева мери"
+            android:text="Имя (не заполнено)"
             android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>

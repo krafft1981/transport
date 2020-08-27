@@ -16,7 +16,7 @@
             android:id="@+id/customer_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="89084007388"
+            android:text="Телефон (не заполнено)"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -28,10 +28,25 @@
             android:src="@drawable/nobody" />
 
         <TextView
-            android:id="@+id/customer_fio"
+            android:id="@+id/customer_family"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Королева мери"
-            android:textSize="14sp" />
+            android:text="Фамилия (не заполнено)"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/customer_first_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Имя (не заполнено)"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/customer_last_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Отчество (не заполнено)"
+            android:textSize="12sp" />
+
     </LinearLayout>
 </LinearLayout>

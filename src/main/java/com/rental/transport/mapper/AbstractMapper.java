@@ -1,6 +1,6 @@
-package com.rental.transport.service;
+package com.rental.transport.mapper;
 
-import com.rental.transport.dao.AbstractEntity;
+import com.rental.transport.entity.AbstractEntity;
 import com.rental.transport.dto.AbstractDto;
 
 public interface AbstractMapper<E extends AbstractEntity, D extends AbstractDto> {

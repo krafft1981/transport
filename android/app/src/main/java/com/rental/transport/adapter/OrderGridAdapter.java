@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.rental.transport.R;
 import com.rental.transport.model.Order;
@@ -45,13 +44,10 @@ public class OrderGridAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View item = inflater.inflate(R.layout.order_element, null);
 
-        TextView name = item.findViewById(R.id.parking_name);
-        TextView address = item.findViewById(R.id.parking_address);
+//        TextView name = item.findViewById(R.id.order_name);
+//        TextView address = item.findViewById(R.id.parking_address);
 
-        Order element = data.get(id);
-
-//        name.setText(element.getName());
-//        address.setText(element.getAddress());
+//        Order element = data.get(id);
 
         return item;
     }

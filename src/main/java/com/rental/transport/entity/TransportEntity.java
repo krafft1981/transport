@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import java.sql.Blob;
 import java.util.HashSet;
@@ -80,5 +80,19 @@ public class TransportEntity extends AbstractEntity  {
 
     public void addCustomer(CustomerEntity entity) {
         customer.add(entity);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("TransportEntity{");
+        sb.append("id='").append(getId()).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", type='").append(type).append('\'');
+        sb.append(", image=").append(image);
+        sb.append(", capacity=").append(capacity);
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", customer=").append(customer);
+        sb.append('}');
+        return sb.toString();
     }
 }

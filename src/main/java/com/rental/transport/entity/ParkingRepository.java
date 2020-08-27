@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface ParkingRepository extends AbstractRepository<ParkingEntity> {
 
     ParkingEntity findByAddress(@NonNull String address);
+    ParkingEntity findByCustomer(@NonNull String customer);
 }

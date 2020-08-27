@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import java.util.Date;
 import javax.persistence.Basic;

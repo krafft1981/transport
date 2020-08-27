@@ -1,8 +1,9 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.OrderEntity;
-import com.rental.transport.dao.OrderRepository;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.dto.Order;
+import com.rental.transport.mapper.OrderMapper;
 import org.springframework.stereotype.Service;
 
 @Service

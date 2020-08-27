@@ -1,9 +1,9 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dao.OrderEntity;
-import com.rental.transport.dao.OrderRepository;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.dto.Order;
-import com.rental.transport.service.OrderMapper;
+import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.service.OrderService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

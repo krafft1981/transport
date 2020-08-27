@@ -1,9 +1,9 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dao.AbstractEntity;
-import com.rental.transport.dao.AbstractRepository;
+import com.rental.transport.entity.AbstractEntity;
+import com.rental.transport.entity.AbstractRepository;
 import com.rental.transport.dto.AbstractDto;
-import com.rental.transport.service.AbstractMapper;
+import com.rental.transport.mapper.AbstractMapper;
 import com.rental.transport.service.AbstractService;
 import java.security.Principal;
 import java.util.List;
@@ -37,11 +37,13 @@ public abstract class AbstractController<
 
     @GetMapping(value = "/count")
     public Long getCount() {
+
         return service.count();
     }
 
     @GetMapping(value = "/count/my")
     public Long getMyCount(Principal principal) {
+
         return service.count(principal);
     }
 
@@ -49,12 +51,14 @@ public abstract class AbstractController<
     public void delete(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
+
         service.delete(principal, id);
     }
 
     @PutMapping
     public void update(Principal principal,
                        @RequestBody D dto) {
+
         service.update(principal, dto);
     }
 
@@ -78,11 +82,13 @@ public abstract class AbstractController<
     @GetMapping
     public D findById(Principal principal,
                       @RequestParam(value = "id", required = true) Long id) {
+
         return service.findById(id);
     }
 
     @PostMapping
     public Long create(Principal principal) {
+
         return service.create(principal);
     }
 }

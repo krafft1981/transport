@@ -46,6 +46,7 @@ public class ParkingFragment extends Fragment {
                 .enqueue(new Callback<List<Parking>>() {
                     @Override
                     public void onResponse(@NonNull Call<List<Parking>> call, @NonNull Response<List<Parking>> response) {
+
                         List<Parking> data = response.body();
                         if (data != null) {
                             grid.setAdapter(new ParkingGridAdapter(getActivity(), data));

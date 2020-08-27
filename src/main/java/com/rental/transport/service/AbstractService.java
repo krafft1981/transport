@@ -1,8 +1,9 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.AbstractEntity;
-import com.rental.transport.dao.AbstractRepository;
+import com.rental.transport.entity.AbstractEntity;
+import com.rental.transport.entity.AbstractRepository;
 import com.rental.transport.dto.AbstractDto;
+import com.rental.transport.mapper.AbstractMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.security.Principal;

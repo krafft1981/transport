@@ -26,7 +26,7 @@ import retrofit2.Response;
 public class TransportFragment extends Fragment {
 
     private Integer page = 0;
-    private Integer size = 10;
+    private Integer size = 100;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +47,7 @@ public class TransportFragment extends Fragment {
                 .enqueue(new Callback<List<Transport>>() {
                     @Override
                     public void onResponse(@NonNull Call<List<Transport>> call, @NonNull Response<List<Transport>> response) {
+
                         List<Transport> data = response.body();
                         if (data != null) {
                             grid.setAdapter(new TransportGridAdapter(getActivity(), data));

@@ -1,8 +1,9 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.ParkingEntity;
-import com.rental.transport.dao.ParkingRepository;
+import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.dto.Parking;
+import com.rental.transport.mapper.ParkingMapper;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import java.io.Serializable;
 import javax.persistence.Column;

@@ -1,4 +1,4 @@
-package com.rental.transport.dao;
+package com.rental.transport.entity;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;

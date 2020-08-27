@@ -1,8 +1,9 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.CustomerEntity;
-import com.rental.transport.dao.CustomerRepository;
+import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.dto.Customer;
+import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import org.springframework.context.annotation.Primary;

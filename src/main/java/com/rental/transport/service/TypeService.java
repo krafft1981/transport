@@ -1,8 +1,9 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dao.TypeEntity;
-import com.rental.transport.dao.TypeRepository;
+import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TypeRepository;
 import com.rental.transport.dto.Type;
+import com.rental.transport.mapper.TypeMapper;
 import org.springframework.stereotype.Service;
 
 @Service

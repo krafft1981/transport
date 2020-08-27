@@ -46,21 +46,25 @@ public class CustomerGridAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View item = inflater.inflate(R.layout.customer_element, null);
 
-        TextView phone  = item.findViewById(R.id.customer_phone);
-        TextView fio    = item.findViewById(R.id.customer_fio);
-        ImageView image = item.findViewById(R.id.gridview_image);
+        TextView phone      = item.findViewById(R.id.customer_phone);
+        ImageView image     = item.findViewById(R.id.gridview_image);
+        TextView family     = item.findViewById(R.id.customer_family);
+        TextView first_name = item.findViewById(R.id.customer_first_name);
+        TextView last_name  = item.findViewById(R.id.customer_last_name);
 
         Customer element = data.get(id);
 
-        StringBuilder data = new StringBuilder();
-        data.append(element.getFamily());
-        data.append(" ");
-        data.append(element.getFirstName());
-        data.append(" ");
-        data.append(element.getLastName());
+        if ((element.getFamily() != null) && (!element.getFamily().isEmpty()))
+                family.setText(element.getFamily());
 
-        phone.setText(element.getPhone());
-        fio.setText(data.toString());
+        if ((element.getFirstName() != null) && (!element.getFirstName().isEmpty()))
+            first_name.setText(element.getFirstName());
+
+        if ((element.getLastName() != null) && (!element.getLastName().isEmpty()))
+            last_name.setText(element.getLastName());
+
+        if ((element.getPhone() != null) && (!element.getPhone().isEmpty()))
+            phone.setText(element.getPhone());
 
         return item;
     }

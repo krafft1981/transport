@@ -1,15 +1,15 @@
-package com.rental.transport.service;
+package com.rental.transport.mapper;
 
-import com.rental.transport.dao.OrderEntity;
-import com.rental.transport.dao.ParkingEntity;
+import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.dto.Order;
+import com.rental.transport.mapper.AbstractMapper;
 import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderMapper implements AbstractMapper<OrderEntity, Order>{
+public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
     @Autowired
     private ModelMapper mapper;

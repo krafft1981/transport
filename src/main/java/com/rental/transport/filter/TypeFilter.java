@@ -1,4 +1,4 @@
-package com.rental.transport.service;
+package com.rental.transport.filter;
 
 import org.springframework.stereotype.Service;
 

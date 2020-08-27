@@ -19,9 +19,9 @@ public class Transport  extends AbstractDto {
     private Blob image;
     private Integer capacity;
     private String description;
-    private Set<Long> drivers = new HashSet<>();
+    private Set<Long> customer = new HashSet<>();
 
-    public void addDrivers(Long id) {
-        drivers.add(id);
+    public void addCustomer(Long id) {
+        customer.add(id);
     }
 }

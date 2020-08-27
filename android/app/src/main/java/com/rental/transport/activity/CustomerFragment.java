@@ -46,6 +46,7 @@ public class CustomerFragment extends Fragment {
                 .enqueue(new Callback<List<Customer>>() {
                     @Override
                     public void onResponse(@NonNull Call<List<Customer>> call, @NonNull Response<List<Customer>> response) {
+
                         List<Customer> data = response.body();
                         if (data != null) {
                             grid.setAdapter(new CustomerGridAdapter(getActivity(), data));
