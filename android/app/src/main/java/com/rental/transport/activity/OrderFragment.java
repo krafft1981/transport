@@ -42,6 +42,28 @@ public class OrderFragment extends Fragment {
         NetworkService
                 .getInstance()
                 .getOrderApi()
+                .doGetCount()
+                .enqueue(new Callback<Long>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
+
+                        Long count = response.body();
+                        Toast
+                                .makeText(getActivity(), "Всего: " + count.toString() + " объектов", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
+                        Toast
+                                .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+        NetworkService
+                .getInstance()
+                .getOrderApi()
                 .doGetOrderList(page, size)
                 .enqueue(new Callback<List<Order>>() {
                     @Override
@@ -65,13 +87,11 @@ public class OrderFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Order order = (Order)parent.getAdapter().getItem(position);
-
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, new OrderDetails())
-                        .commit();
+                Order element = (Order)parent.getAdapter().getItem(position);
+                Toast
+                        .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
+                        .show();
+                ((MainActivity)getActivity()).loadFragment("OrderDetails");
             }
         });
 

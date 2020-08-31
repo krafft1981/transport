@@ -36,8 +36,30 @@ public class CustomerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.customer_fragment, container,false);
+       View root = inflater.inflate(R.layout.customer_fragment, container,false);
         GridView grid = (GridView) root.findViewById(R.id.customer_gridview);
+
+        NetworkService
+                .getInstance()
+                .getCustomerApi()
+                .doGetCount()
+                .enqueue(new Callback<Long>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
+
+                        Long count = response.body();
+                        Toast
+                                .makeText(getActivity(), "Всего: " + count.toString() + " объектов", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
+                        Toast
+                                .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
 
         NetworkService
                 .getInstance()
@@ -65,13 +87,23 @@ public class CustomerFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Customer customer = (Customer)parent.getAdapter().getItem(position);
 
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, new CustomerDetails())
-                        .commit();
+                Customer element = (Customer)parent.getAdapter().getItem(position);
+                Toast
+                        .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
+                        .show();
+
+//                View details = inflater.inflate(R.layout.customer_details, container,false);
+
+//                ImageView image = (ImageView) details.findViewById(R.id.image);
+
+//                TextView name = (TextView) details.findViewById(R.id.customer_name);
+//                TextView address = (TextView) details.findViewById(R.id.customer_address);
+
+//                if ((element.getName() != null) && (!element.getName().isEmpty())) name.setText(element.getName());
+//                if ((element.getAddress() != null) && (!element.getAddress().isEmpty())) address.setText(element.getAddress());
+
+                ((MainActivity)getActivity()).loadFragment("CustomerDetails");
             }
         });
 

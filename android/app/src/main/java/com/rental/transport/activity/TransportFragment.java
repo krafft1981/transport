@@ -4,16 +4,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.rental.transport.R;
 import com.rental.transport.adapter.TransportGridAdapter;
+import com.rental.transport.adapter.TypeSpinnerAdapter;
 import com.rental.transport.model.Transport;
+import com.rental.transport.model.Type;
 import com.rental.transport.service.NetworkService;
 
 import java.util.List;
@@ -39,23 +41,27 @@ public class TransportFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.transport_fragment, container,false);
         GridView grid = (GridView) root.findViewById(R.id.transport_gridview);
+        Spinner spinner = (Spinner) root.findViewById(R.id.type_list);
 
         NetworkService
                 .getInstance()
-                .getTransportApi()
-                .doGetTransportList(page, size)
-                .enqueue(new Callback<List<Transport>>() {
+                .getTypeApi()
+                .doGetTypeList(0, 50)
+                .enqueue(new Callback<List<Type>>() {
                     @Override
-                    public void onResponse(@NonNull Call<List<Transport>> call, @NonNull Response<List<Transport>> response) {
-
-                        List<Transport> data = response.body();
+                    public void onResponse(@NonNull Call<List<Type>> call, @NonNull Response<List<Type>> response) {
+                        List<Type> data = response.body();
                         if (data != null) {
-                            grid.setAdapter(new TransportGridAdapter(getActivity(), data));
+
+                            TypeSpinnerAdapter adapter = new TypeSpinnerAdapter(getActivity(), R.layout.transport_type_item, R.id.title, data);
+                            adapter.setDropDownViewResource(R.layout.transport_type_item);
+                            spinner.setAdapter(adapter);
+                            spinner.setSelection(0);
                         }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<List<Transport>> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<List<Type>> call, @NonNull Throwable t) {
                         Toast
                                 .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
                                 .show();
@@ -67,38 +73,65 @@ public class TransportFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                Transport transport = (Transport)parent.getAdapter().getItem(position);
+                Transport element = (Transport)parent.getAdapter().getItem(position);
 
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, new TransportDetails())
-                        .commit();
+                Toast
+                        .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
+                        .show();
+/*
+                View details = inflater.inflate(R.layout.transport_details, container,false);
+
+                ImageView image = (ImageView) details.findViewById(R.id.image);
+
+                TextView type = (TextView) details.findViewById(R.id.transportType);
+                TextView name = (TextView) details.findViewById(R.id.transportName);
+                TextView capacity = (TextView) details.findViewById(R.id.transportCapacity);
+
+                type.setText(element.getType() == null ? "Не заполнено" : element.getType());
+                name.setText(element.getName() == null ? "Не заполнено" : element.getName());
+                capacity.setText(element.getCapacity() == null ? "Не заполнено" : element.getCapacity().toString());
+*/
+                ((MainActivity)getActivity()).loadFragment("TransportDetails");
             }
         });
 
-        grid.setOnScrollListener(new AbsListView.OnScrollListener() {
-
+        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                Type item = (Type)parent.getItemAtPosition(position);
+                NetworkService
+                        .getInstance()
+                        .getTransportApi()
+                        .doGetTransportListByType(page, size, item.getName())
+                        .enqueue(new Callback<List<Transport>>() {
+                            @Override
+                            public void onResponse(@NonNull Call<List<Transport>> call, @NonNull Response<List<Transport>> response) {
+
+                                List<Transport> data = response.body();
+                                if (data != null) {
+                                    TransportGridAdapter adapter = new TransportGridAdapter(getActivity(), data);
+                                    grid.setAdapter(adapter);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<List<Transport>> call, @NonNull Throwable t) {
+                                Toast
+                                        .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
 
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            public void onNothingSelected(AdapterView<?> parent) {
 
-//                if (totalItemCount > 0) {
-                    int lastVisibleItem = firstVisibleItem + visibleItemCount;
-//                    if (!isLoading && hasMoreItems && (lastVisibleItem == totalItemCount)) {
-//                        isLoading = true;
-//                    }
-//                }
-
-//                Toast
-//                        .makeText(getActivity(), firstVisibleItem + " " + visibleItemCount + " " + totalItemCount, Toast.LENGTH_SHORT)
-//                        .show();
             }
-        });
+        };
+
+        spinner.setOnItemSelectedListener(itemSelectedListener);
 
         return root;
     }

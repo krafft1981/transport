@@ -52,8 +52,8 @@ public class TransportGridAdapter extends BaseAdapter {
 
         Transport element = data.get(id);
 
-        if ((element.getType() != null) && (!element.getType().isEmpty())) type.setText(element.getType());
-        if ((element.getName() != null) && (!element.getName().isEmpty())) name.setText(element.getName());
+        if (element.getType() != null) type.setText(element.getType());
+        if (element.getName() != null) name.setText(element.getName());
 
         return item;
     }

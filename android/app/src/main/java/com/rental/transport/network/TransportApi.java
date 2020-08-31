@@ -24,6 +24,12 @@ public interface TransportApi {
             @Query("page") Integer page,
             @Query("size") Integer size);
 
+    @GET("/transport/list/type")
+    public Call<List<Transport>> doGetTransportListByType(
+            @Query("page") Integer page,
+            @Query("size") Integer size,
+            @Query("type") String type);
+
     @Headers("Content-Type: application/json")
     @POST("/transport")
     public Call<Long> doPostTransport(@Query("type")String type);
@@ -35,4 +41,12 @@ public interface TransportApi {
     @Headers("Content-Type: application/json")
     @PUT("/transport")
     public Call doPutTransport(@Body Transport transport);
+
+    @Headers("Content-Type: application/json")
+    @GET("/transport/count")
+    public Call<Long> doGetCount();
+
+    @Headers("Content-Type: application/json")
+    @GET("/transport/count/type")
+    public Call<Long> doGetCountByType(@Query("type")String type);
 }

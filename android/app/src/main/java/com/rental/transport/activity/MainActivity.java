@@ -20,7 +20,9 @@ import com.rental.transport.R;
 import com.rental.transport.service.NetworkService;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.NonNull;
 import retrofit2.Call;
@@ -34,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         AccountManager accountManager = AccountManager.get(context);
         List<Account> accounts = Arrays.asList(accountManager.getAccountsByType("com.google"));
         if (accounts.size() == 0) {
+            Toast
+                    .makeText(getApplicationContext(), "Не шмогла я аккаунт добыть (((", Toast.LENGTH_LONG)
+                    .show();
             return "";
         }
 
@@ -45,33 +50,36 @@ public class MainActivity extends AppCompatActivity {
         String[] permissions  = {
                 Manifest.permission.INTERNET,
                 Manifest.permission.READ_CONTACTS,
-                Manifest.permission.ACCESS_NETWORK_STATE
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
         };
 
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                    return false;
-                }
-                else {
-                    // ?????
-                }
+                ActivityCompat.requestPermissions(this, permissions, 1);
             }
         }
 
         return true;
     }
 
-    private Long accountId;
-
-    public void loadFragment(Fragment fragment) {
+    public void loadFragment(String name) {
+        Fragment fragment = fragmentMap.get(name);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.addToBackStack(null);
         transaction.setCustomAnimations(
                 R.animator.card_flip_right_in, R.animator.card_flip_right_out,
                 R.animator.card_flip_left_in, R.animator.card_flip_left_out);
         transaction.replace(R.id.container, fragment);
         transaction.commit();
     }
+
+    public BottomNavigationView bottomNavigationView;
+
+    public Map<String, Fragment> fragmentMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +89,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String account = getAccount();
-        if (account.isEmpty()) {
-            // exit
-        }
+
+        fragmentMap.put("Transport"       , new TransportFragment());
+        fragmentMap.put("TransportDetails", new TransportDetails() );
+        fragmentMap.put("Customer"        , new CustomerFragment() );
+        fragmentMap.put("CustomerDetails" , new CustomerDetails()  );
+        fragmentMap.put("Parking"         , new ParkingFragment()  );
+        fragmentMap.put("ParkingDetails"  , new ParkingDetails()   );
+        fragmentMap.put("Order"           , new OrderFragment()    );
+        fragmentMap.put("OrderDetails"    , new OrderDetails()     );
 
         NetworkService
                 .getInstance(account)
@@ -92,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 .enqueue(new Callback<Long>() {
                     @Override
                     public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
-                        accountId = response.body();
+
                     }
 
                     @Override
@@ -106,26 +120,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
-                            case R.id.transport:
-                                loadFragment(new TransportFragment());
+                            case R.id.transport_menu:
+                                loadFragment("Transport");
                                 break;
 
-                            case R.id.order:
-                                loadFragment(new OrderFragment());
+                            case R.id.order_menu:
+                                loadFragment("Order");
                                 break;
 
-                            case R.id.customer:
-                                loadFragment(new CustomerFragment());
+                            case R.id.customer_menu:
+                                loadFragment("Customer");
                                 break;
 
-                            case R.id.parking:
-                                loadFragment(new ParkingFragment());
+                            case R.id.parking_menu:
+                                loadFragment("Parking");
                                 break;
                         }
 
@@ -133,6 +147,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        loadFragment(new TransportFragment());
+        loadFragment("Transport");
     }
 }

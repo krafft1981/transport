@@ -42,6 +42,28 @@ public class ParkingFragment extends Fragment {
         NetworkService
                 .getInstance()
                 .getParkingApi()
+                .doGetCount()
+                .enqueue(new Callback<Long>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
+
+                        Long count = response.body();
+                        Toast
+                                .makeText(getActivity(), "Всего: " + count.toString() + " объектов", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
+                        Toast
+                                .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+        NetworkService
+                .getInstance()
+                .getParkingApi()
                 .doGetParkingList(page, size)
                 .enqueue(new Callback<List<Parking>>() {
                     @Override
@@ -65,13 +87,23 @@ public class ParkingFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Parking parking = (Parking)parent.getAdapter().getItem(position);
 
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, new ParkingDetails())
-                        .commit();
+                Parking element = (Parking)parent.getAdapter().getItem(position);
+                Toast
+                        .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
+                        .show();
+
+//                View details = inflater.inflate(R.layout.parking_details, container,false);
+/*
+                ImageView image = (ImageView) details.findViewById(R.id.image);
+
+                TextView name = (TextView) details.findViewById(R.id.parking_name);
+                TextView address = (TextView) details.findViewById(R.id.parking_address);
+
+                if ((element.getName() != null) && (!element.getName().isEmpty())) name.setText(element.getName());
+                if ((element.getAddress() != null) && (!element.getAddress().isEmpty())) address.setText(element.getAddress());
+*/
+                ((MainActivity)getActivity()).loadFragment("ParkingDetails");
             }
         });
 

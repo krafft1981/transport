@@ -36,4 +36,8 @@ public interface OrderApi {
     @Headers("Content-Type: application/json")
     @PUT("/order")
     public Call doPutOrder(@Body Order order);
+
+    @Headers("Content-Type: application/json")
+    @GET("/order/count")
+    public Call<Long> doGetCount();
 }

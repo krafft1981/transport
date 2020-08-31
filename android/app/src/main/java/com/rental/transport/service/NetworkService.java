@@ -10,11 +10,11 @@ import com.rental.transport.network.OrderApi;
 import com.rental.transport.network.ParkingApi;
 import com.rental.transport.network.RegistrationApi;
 import com.rental.transport.network.TransportApi;
+import com.rental.transport.network.TypeApi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.Getter;
 import lombok.NonNull;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -28,10 +28,7 @@ public class NetworkService {
 
     private static NetworkService mInstance;
 
-    @Getter
     private Retrofit mRetrofit;
-
-    @Getter
     private Retrofit mRetrofitDidest;
 
     public static NetworkService getInstance(@NonNull String account) {
@@ -86,5 +83,9 @@ public class NetworkService {
 
     public ParkingApi getParkingApi() {
         return mRetrofitDidest.create(ParkingApi.class);
+    }
+
+    public TypeApi getTypeApi() {
+        return mRetrofitDidest.create(TypeApi.class);
     }
 }

@@ -11,4 +11,11 @@ public class Type {
     private Long id;
     @SerializedName("name")
     private String name;
+    @SerializedName("image")
+    private String image;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

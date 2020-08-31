@@ -26,4 +26,8 @@ public interface CustomerApi {
     @Headers("Content-Type: application/json")
     @PUT("/customer")
     public Call doPutOrder(@Body Customer customer);
+
+    @Headers("Content-Type: application/json")
+    @GET("/customer/count")
+    public Call<Long> doGetCount();
 }

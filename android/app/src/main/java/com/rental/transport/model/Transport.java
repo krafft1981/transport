@@ -2,7 +2,6 @@ package com.rental.transport.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +17,7 @@ public class Transport {
     @SerializedName("type")
     private String type;
     @SerializedName("image")
-    private Blob image;
+    private String image;
     @SerializedName("capacity")
     private Integer capacity;
     @SerializedName("description")
@@ -28,18 +27,5 @@ public class Transport {
 
     public void addDrivers(Long id) {
         drivers.add(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Transport{" +
-                "id = " + id +
-                ", name = '" + name + '\'' +
-                ", type = '" + type + '\'' +
-                ", image = " + image +
-                ", capacity = " + capacity +
-                ", description = '" + description + '\'' +
-                ", drivers = " + drivers +
-                '}';
     }
 }

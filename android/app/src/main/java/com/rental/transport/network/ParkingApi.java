@@ -36,4 +36,8 @@ public interface ParkingApi {
     @Headers("Content-Type: application/json")
     @PUT("/parking")
     public Call doPutParking(@Body Parking parking);
+
+    @Headers("Content-Type: application/json")
+    @GET("/parking/count")
+    public Call<Long> doGetCount();
 }
