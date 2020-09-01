@@ -26,6 +26,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class ParkingEntity extends AbstractEntity {
 
+	private String name;
 	private String address;
 	private String description;
 	private Double latitude;
@@ -35,6 +36,12 @@ public class ParkingEntity extends AbstractEntity {
 
 	public ParkingEntity(CustomerEntity customer) {
 		addCustomer(customer);
+	}
+
+	@Basic
+	@Column(name = "name", nullable = true, insertable = true, updatable = true)
+	public String getName() {
+		return name;
 	}
 
 	@Basic

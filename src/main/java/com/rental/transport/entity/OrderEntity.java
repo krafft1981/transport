@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(
@@ -60,7 +61,7 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "start_at", columnDefinition = "timestamp with time zone not null")
+    @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone not null")
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     public Date getStartAt() {
@@ -68,7 +69,7 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "stop_at", columnDefinition = "timestamp with time zone not null")
+    @Column(name = "stop_at", nullable = false, columnDefinition = "timestamp with time zone not null")
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     public Date getStopAt() {

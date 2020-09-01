@@ -1,6 +1,7 @@
 package com.rental.transport.entity;
 
 import java.sql.Blob;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -11,10 +12,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(
@@ -22,7 +27,7 @@ import org.hibernate.annotations.Type;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "type", name = "type_id_idx")
+                @Index(columnList = "transport_type", name = "transport_type_idx")
         }
 )
 
@@ -38,6 +43,10 @@ public class TransportEntity extends AbstractEntity  {
     private String description;
     private Set<CustomerEntity> customer = new HashSet<>();
 
+    public TransportEntity(CustomerEntity customer) {
+        addCustomer(customer);
+    }
+
     @Basic
     @Column(name = "name", nullable = true, insertable = true, updatable = true)
     public String getName() {
@@ -45,7 +54,7 @@ public class TransportEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "type", nullable = true, insertable = true, updatable = true)
+    @Column(name = "transport_type", nullable = true, insertable = true, updatable = true)
     public String getType() {
         return type;
     }
@@ -80,19 +89,5 @@ public class TransportEntity extends AbstractEntity  {
 
     public void addCustomer(CustomerEntity entity) {
         customer.add(entity);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("TransportEntity{");
-        sb.append("id='").append(getId()).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", image=").append(image);
-        sb.append(", capacity=").append(capacity);
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", customer=").append(customer);
-        sb.append('}');
-        return sb.toString();
     }
 }

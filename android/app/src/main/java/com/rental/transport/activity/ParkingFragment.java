@@ -42,28 +42,6 @@ public class ParkingFragment extends Fragment {
         NetworkService
                 .getInstance()
                 .getParkingApi()
-                .doGetCount()
-                .enqueue(new Callback<Long>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
-
-                        Long count = response.body();
-                        Toast
-                                .makeText(getActivity(), "Всего: " + count.toString() + " объектов", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
-                        Toast
-                                .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-
-        NetworkService
-                .getInstance()
-                .getParkingApi()
                 .doGetParkingList(page, size)
                 .enqueue(new Callback<List<Parking>>() {
                     @Override
@@ -93,7 +71,7 @@ public class ParkingFragment extends Fragment {
                         .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
                         .show();
 
-//                View details = inflater.inflate(R.layout.parking_details, container,false);
+                View details = inflater.inflate(R.layout.parking_details, container,false);
 /*
                 ImageView image = (ImageView) details.findViewById(R.id.image);
 

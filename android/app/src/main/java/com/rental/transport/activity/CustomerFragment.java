@@ -42,28 +42,6 @@ public class CustomerFragment extends Fragment {
         NetworkService
                 .getInstance()
                 .getCustomerApi()
-                .doGetCount()
-                .enqueue(new Callback<Long>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
-
-                        Long count = response.body();
-                        Toast
-                                .makeText(getActivity(), "Всего: " + count.toString() + " объектов", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
-                        Toast
-                                .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-
-        NetworkService
-                .getInstance()
-                .getCustomerApi()
                 .doGetCustomerList(page, size)
                 .enqueue(new Callback<List<Customer>>() {
                     @Override
@@ -93,7 +71,7 @@ public class CustomerFragment extends Fragment {
                         .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
                         .show();
 
-//                View details = inflater.inflate(R.layout.customer_details, container,false);
+                View details = inflater.inflate(R.layout.customer_details, container,false);
 
 //                ImageView image = (ImageView) details.findViewById(R.id.image);
 

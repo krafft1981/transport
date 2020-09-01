@@ -46,7 +46,6 @@ public abstract class AbstractService<
     public List<D> getPage(@NonNull Principal principal, @NonNull Pageable pageable) {
 
         // filter
-
         return repository
                 .findAll(pageable)
                 .stream()
