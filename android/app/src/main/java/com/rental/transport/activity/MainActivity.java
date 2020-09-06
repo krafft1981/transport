@@ -36,9 +36,11 @@ public class MainActivity extends AppCompatActivity {
         AccountManager accountManager = AccountManager.get(context);
         List<Account> accounts = Arrays.asList(accountManager.getAccountsByType("com.google"));
         if (accounts.size() == 0) {
+
             Toast
                     .makeText(getApplicationContext(), "Не шмогла я аккаунт добыть (((", Toast.LENGTH_LONG)
                     .show();
+
             return "";
         }
 
@@ -98,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
         fragmentMap.put("ParkingDetails"  , new ParkingDetails()   );
         fragmentMap.put("Order"           , new OrderFragment()    );
         fragmentMap.put("OrderDetails"    , new OrderDetails()     );
+        fragmentMap.put("CustomerSetting" , new CustomerSetting()  );
+        fragmentMap.put("OrderCreate"     , new OrderCreate()      );
+        fragmentMap.put("FullViewImage"   , new FullViewImage()    );
 
         NetworkService
                 .getInstance(account)
@@ -111,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<Long> call, @NonNull Throwable t) {
+
                         Toast
                                 .makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG)
                                 .show();
@@ -140,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
 
                             case R.id.parking_menu:
                                 loadFragment("Parking");
+                                break;
+
+                            case R.id.account_menu:
+                                loadFragment("CustomerSetting");
                                 break;
                         }
 

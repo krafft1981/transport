@@ -1,8 +1,7 @@
 package com.rental.transport.mapper;
 
-import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.dto.Type;
-import com.rental.transport.mapper.AbstractMapper;
+import com.rental.transport.entity.TypeEntity;
 import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

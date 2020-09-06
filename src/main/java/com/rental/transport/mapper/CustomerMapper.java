@@ -2,11 +2,14 @@ package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Customer;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.ImageEntity;
+import com.rental.transport.entity.ImageRepository;
+import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,12 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
 
     @Autowired
     private TransportRepository transportRepository;
+
+    @Autowired
+    private ParkingRepository parkingRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -34,57 +43,62 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         return entity;
     }
 
-
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(CustomerEntity.class, Customer.class)
                 .addMappings(m -> m.skip(Customer::setId))
-                .addMappings(m -> m.skip(Customer::setTransport))
+                .addMappings(m -> m.skip(Customer::setTransports))
+                .addMappings(m -> m.skip(Customer::setParkings))
+                .addMappings(m -> m.skip(Customer::setImages))
                 .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Customer.class, CustomerEntity.class)
                 .addMappings(m -> m.skip(CustomerEntity::setId))
                 .addMappings(m -> m.skip(CustomerEntity::setTransport))
+                .addMappings(m -> m.skip(CustomerEntity::setParking))
+                .addMappings(m -> m.skip(CustomerEntity::setImage))
                 .setPostConverter(toEntityConverter());
     }
 
-    private Converter<CustomerEntity, Customer> toDtoConverter() {
-        return context -> {
-            CustomerEntity source = context.getSource();
-            Customer destination = context.getDestination();
-            mapSpecificFields(source, destination);
-            return context.getDestination();
-        };
-    }
-
-    private Converter<Customer, CustomerEntity> toEntityConverter() {
-        return context -> {
-            Customer source = context.getSource();
-            CustomerEntity destination = context.getDestination();
-            mapSpecificFields(source, destination);
-            return context.getDestination();
-        };
-    }
-
-    private void mapSpecificFields(CustomerEntity source, Customer destination) {
+    public void mapSpecificFields(CustomerEntity source, Customer destination) {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
-        source
-                .getTransport()
-                .stream()
+
+        source.getTransport().stream()
                 .forEach(transport -> { destination.addTransport(transport.getId()); });
+
+        source.getParking().stream()
+                .forEach(parking -> { destination.addParking(parking.getId()); });
+
+        source.getImage().stream()
+                .forEach(image -> { destination.addImage(image.getId()); });
     }
 
-    private void mapSpecificFields(Customer source, CustomerEntity destination) {
+    public void mapSpecificFields(Customer source, CustomerEntity destination) {
 
         destination.setId(source.getId());
-        source
-                .getTransport()
-                .stream()
+
+        source.getTransports().stream()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
                     if (transport != null) {
                         destination.addTransport(transport);
+                    }
+                });
+
+        source.getParkings().stream()
+                .forEach(id -> {
+                    ParkingEntity parking = parkingRepository.findById(id).orElse(null);
+                    if (parking != null) {
+                        destination.addParking(parking);
+                    }
+                });
+
+        source.getImages().stream()
+                .forEach(id -> {
+                    ImageEntity image = imageRepository.findById(id).orElse(null);
+                    if (image != null) {
+                        destination.addImage(image);
                     }
                 });
     }

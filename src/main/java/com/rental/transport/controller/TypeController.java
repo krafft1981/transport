@@ -1,19 +1,44 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.entity.TypeEntity;
-import com.rental.transport.entity.TypeRepository;
 import com.rental.transport.dto.Type;
-import com.rental.transport.mapper.TypeMapper;
 import com.rental.transport.service.TypeService;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value="/type")
 @RestController
-public class TypeController
-        extends AbstractController<TypeEntity, Type, TypeRepository, TypeMapper, TypeService> {
+public class TypeController {
 
-    public TypeController(TypeService service) {
-        super(service);
+    @Autowired
+    private TypeService service;
+
+    @PostMapping
+    public Long doPostTypeRequest(
+            @RequestParam(value = "name", required = true) String name) {
+
+        return service.create(name);
+    }
+
+    @GetMapping(value = "/count")
+    public Long doGetCountTypeRequest() {
+
+        Long count = service.count();
+        return count;
+    }
+
+    @GetMapping(value = "/list")
+    public List<Type> doGetListTypeRequest(@RequestParam(value = "page", required = true) Integer page,
+                                       @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getPage(pageable);
     }
 }

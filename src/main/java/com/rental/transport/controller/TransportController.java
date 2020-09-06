@@ -1,69 +1,67 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Parking;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.mapper.TransportMapper;
+import com.rental.transport.service.ParkingService;
 import com.rental.transport.service.TransportService;
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value="/transport")
 @RestController
-public class TransportController extends
-        AbstractController<TransportEntity, Transport, TransportRepository, TransportMapper, TransportService> {
+public class TransportController {
 
-    public TransportController(TransportService service) {
-        super(service);
+    @Autowired
+    private TransportService service;
+
+    @DeleteMapping
+    public void doDeleteTransportRequest(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long id) {
+
+        service.delete(principal.getName(), id);
     }
 
-    @Autowired
-    private TransportRepository transportRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private TransportMapper mapper;
-
-    @Override
-    public Long create(Principal principal) {
-
-        CustomerEntity customer = customerRepository.findByAccount(principal.getName());
-        TransportEntity transport = new TransportEntity(customer);
-        return transportRepository.save(transport).getId();
-    }
-
-    @GetMapping(value = "/list/type")
-    public List<Transport> getPages(@RequestParam(value = "page", required = true) Integer page,
-                                    @RequestParam(value = "size", required = true) Integer size,
-                                    @RequestParam(value = "type", required = true) String type) {
+    @GetMapping(value = "/list")
+    public List<Transport> goGetPagesTransportRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        List<Transport> transportList = transportRepository
-                .findAllByType(type, pageable)
-                .stream()
-                .map(entity -> { return mapper.toDto(entity); })
-                .collect(Collectors.toList());
-
-        return transportList;
+        return service.getPage(pageable);
     }
 
-    @GetMapping(value = "/count/type")
-    public Long getCountByType(@RequestParam(value = "type", required = true) String type) {
+    @PostMapping
+    public Long goPostTransportRequest(
+            @NonNull Principal principal) {
 
-        return transportRepository.findCountByType(type);
+        return service.create(principal.getName());
+    }
+
+    @PutMapping
+    public void goPutTransportRequest(
+            @NonNull Principal principal,
+            @RequestBody Transport transport) {
+
+        service.update(principal.getName(), transport);
     }
 }
 

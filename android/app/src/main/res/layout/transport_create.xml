@@ -6,11 +6,11 @@
 
     <RelativeLayout
         android:id="@+id/gridviewdata"
-        android:layout_width="280dp"
+        android:layout_width="200dp"
         android:layout_height="280dp">
 
         <TextView
-            android:id="@+id/transportType"
+            android:id="@+id/transport_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -19,7 +19,7 @@
             android:textStyle="normal|italic" />
 
         <TextView
-            android:id="@+id/transportName"
+            android:id="@+id/transport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -28,7 +28,7 @@
             android:textStyle="normal|italic" />
 
         <TextView
-            android:id="@+id/transportCapacity"
+            android:id="@+id/transport_capacity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -41,7 +41,8 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:src="@drawable/i15"/>
 
     </RelativeLayout>
 </RelativeLayout>

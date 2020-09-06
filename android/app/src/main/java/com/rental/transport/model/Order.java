@@ -24,4 +24,6 @@ public class Order {
     private String description;
     @SerializedName("comment")
     private String comment;
+    @SerializedName("price")
+    private String price;
 }

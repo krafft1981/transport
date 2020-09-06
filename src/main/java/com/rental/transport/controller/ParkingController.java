@@ -1,37 +1,59 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.CustomerRepository;
-import com.rental.transport.entity.ParkingEntity;
-import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.dto.Parking;
-import com.rental.transport.mapper.ParkingMapper;
 import com.rental.transport.service.ParkingService;
 import java.security.Principal;
+import java.util.List;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value="/parking")
 @RestController
-public class ParkingController extends
-        AbstractController<ParkingEntity, Parking, ParkingRepository, ParkingMapper, ParkingService> {
+public class ParkingController {
 
     @Autowired
-    private ParkingRepository parkingRepository;
+    private ParkingService service;
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    @DeleteMapping
+    public void doDeleteParkingRequest(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long id) {
 
-    public ParkingController(ParkingService service) {
-        super(service);
+        service.delete(principal.getName(), id);
     }
 
-    @Override
-    public Long create(Principal principal) {
+    @GetMapping(value = "/list")
+    public List<Parking> goGetPagesParkingRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
 
-        CustomerEntity customer = customerRepository.findByAccount(principal.getName());
-        ParkingEntity parking = new ParkingEntity(customer);
-        return parkingRepository.save(parking).getId();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getPage(pageable);
+    }
+
+    @PostMapping
+    public Long goPostParkingRequest(
+            @NonNull Principal principal) {
+
+        return service.create(principal.getName());
+    }
+
+    @PutMapping
+    public void goPutParkingRequest(
+            @NonNull Principal principal,
+            @RequestBody Parking parking) {
+
+        service.update(principal.getName(), parking);
     }
 }

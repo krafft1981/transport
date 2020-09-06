@@ -1,6 +1,7 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Currency;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +22,6 @@ public class Order extends AbstractDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date stopAt;
     private String description;
+    private Currency price;
     private String comment;
 }

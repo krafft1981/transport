@@ -1,42 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <SearchView
+        android:id="@+id/search_transport"
+        android:title="@string/search"
+        android:showAsAction="collapseActionView|ifRoom"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/textViewColorSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Только свой"
-            android:textSize="16dp" />
-
-        <CheckBox
-            android:id="@+id/only_myself"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:buttonTint="@color/colorPrimaryDark" />
-
-        <Spinner
-            android:id="@+id/type_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
+        android:layout_height="wrap_content" >
+    </SearchView>
 
     <GridView
         android:id="@+id/transport_gridview"
-        android:numColumns="2"
-        android:verticalSpacing="0dp"
-        android:horizontalSpacing="0dp"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:numColumns="auto_fit"
+        android:verticalSpacing="1dp"
+        android:horizontalSpacing="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

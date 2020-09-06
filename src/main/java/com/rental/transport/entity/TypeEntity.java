@@ -1,6 +1,5 @@
 package com.rental.transport.entity;
 
-import java.sql.Blob;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,17 +25,10 @@ import lombok.Setter;
 public class TypeEntity extends AbstractEntity {
 
     private String name;
-    private Blob image;
 
     @Basic
     @Column(name = "name", unique = true, nullable = true, insertable = true, updatable = true)
     public String getName() {
         return name;
-    }
-
-    @Basic
-    @Column(name = "image", nullable = true, insertable = true, updatable = true)
-    public Blob getImage() {
-        return image;
     }
 }

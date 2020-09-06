@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -36,8 +37,11 @@ public class CustomerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-       View root = inflater.inflate(R.layout.customer_fragment, container,false);
+        View root = inflater.inflate(R.layout.customer_fragment, container,false);
         GridView grid = (GridView) root.findViewById(R.id.customer_gridview);
+        ProgressBar pb = (ProgressBar) getActivity().findViewById(R.id.progress);
+
+        pb.setVisibility(View.VISIBLE);
 
         NetworkService
                 .getInstance()
@@ -47,6 +51,8 @@ public class CustomerFragment extends Fragment {
                     @Override
                     public void onResponse(@NonNull Call<List<Customer>> call, @NonNull Response<List<Customer>> response) {
 
+                        pb.setVisibility(View.GONE);
+
                         List<Customer> data = response.body();
                         if (data != null) {
                             grid.setAdapter(new CustomerGridAdapter(getActivity(), data));
@@ -55,6 +61,9 @@ public class CustomerFragment extends Fragment {
 
                     @Override
                     public void onFailure(@NonNull Call<List<Customer>> call, @NonNull Throwable t) {
+
+                        pb.setVisibility(View.GONE);
+
                         Toast
                                 .makeText(getActivity(), t.toString(), Toast.LENGTH_LONG)
                                 .show();
@@ -67,9 +76,6 @@ public class CustomerFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
                 Customer element = (Customer)parent.getAdapter().getItem(position);
-                Toast
-                        .makeText(getActivity(), element.toString(), Toast.LENGTH_LONG)
-                        .show();
 
                 View details = inflater.inflate(R.layout.customer_details, container,false);
 

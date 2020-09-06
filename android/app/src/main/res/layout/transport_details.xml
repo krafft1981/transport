@@ -1,45 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/gridviewdata"
-    android:layout_width="280dp"
-    android:layout_height="280dp"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" />
-
-        <TextView
-            android:id="@+id/transportType"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="60dp" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="Тип (не заполнено)"
-            android:textSize="16dp"
-            android:textStyle="normal|italic" />
-
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+            <TextView
+                android:id="@+id/transport_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Яхта"
+                android:textSize="16dp"
+                android:layout_marginLeft="10dp"
+                android:textStyle="normal|italic" />
+            <TextView
+                android:id="@+id/transport_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Орфей"
+                android:textSize="16dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="normal|italic" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="вместимость:"
+                android:textSize="16dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="normal|italic" />
+            <TextView
+                android:id="@+id/transport_capacity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"
+                android:textSize="16dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="normal|italic" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="человек"
+                android:textSize="16dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="normal|italic" />
+        </LinearLayout>
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="400dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i0" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i1" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i2" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i3" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i4" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i5" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i6" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i7" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i8" />
+                <ImageView
+                    android:layout_width="400dp"
+                    android:layout_height="400dp"
+                    android:layout_marginLeft="1dp"
+                    android:contentDescription="TODO"
+                    android:src="@drawable/i9" />
+            </LinearLayout>
+        </HorizontalScrollView>
         <TextView
-            android:id="@+id/transportName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="Названине (не заполнено)"
+            android:layout_gravity="center"
+            android:text="Асистенты"
             android:textSize="16dp"
             android:textStyle="normal|italic" />
-
+        <HorizontalScrollView
+            android:id="@+id/customer_transport_horizontal_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="64dp">
+            <LinearLayout
+                android:id="@+id/responsible_persons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginLeft="1dp"
+                    android:src="@drawable/nobody"
+                    android:contentDescription="TODO" />
+            </LinearLayout>
+        </HorizontalScrollView>
         <TextView
-            android:id="@+id/transportCapacity"
+            android:id="@+id/transport_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="Вместимость (не заполнено)"
+            android:text="Отличное гоночное судно для хорошей компании. На борту нет чайника (Диман забрал вместе с плиткой). Просторная каюта отсутствует. Спальные места и неунывающий капитан. Так же к вашим услугам всегда в наличии марихуана и дроблённый гашиш."
             android:textSize="16dp"
+            android:layout_marginBottom="20dp"
             android:textStyle="normal|italic" />
-
-</LinearLayout>
+        <LinearLayout
+            android:id="@+id/transport_usage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+            <Button
+                android:id="@+id/transport_rent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Заказать" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -6,6 +6,9 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
@@ -30,13 +33,10 @@ public class ParkingEntity extends AbstractEntity {
 	private String address;
 	private String description;
 	private Double latitude;
-	private Double Longitude;
+	private Double longitude;
+	private Set<ImageEntity> image = new HashSet<>();
 	private Set<CustomerEntity> customer = new HashSet<>();
 	private Set<TransportEntity> transport = new HashSet<>();
-
-	public ParkingEntity(CustomerEntity customer) {
-		addCustomer(customer);
-	}
 
 	@Basic
 	@Column(name = "name", nullable = true, insertable = true, updatable = true)
@@ -65,12 +65,16 @@ public class ParkingEntity extends AbstractEntity {
 	}
 
 	@Basic
-	@Column(name = "Longitude", nullable = true, insertable = true, updatable = true)
+	@Column(name = "longitude", nullable = true, insertable = true, updatable = true)
 	public Double getLongitude() {
-		return Longitude;
+		return longitude;
 	}
 
-	@OneToMany
+	@ManyToMany
+	@JoinTable(name="customer_parking",
+			joinColumns=@JoinColumn(name="parking_id", nullable = false),
+			inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
+	)
 	public Set<CustomerEntity> getCustomer() {
 		return customer;
 	}
@@ -80,11 +84,20 @@ public class ParkingEntity extends AbstractEntity {
 		return transport;
 	}
 
+	@OneToMany
+	public Set<ImageEntity> getImage() {
+		return image;
+	}
+
 	public void addTransport(TransportEntity entity) {
 		transport.add(entity);
 	}
 
 	public void addCustomer(CustomerEntity entity) {
 		customer.add(entity);
+	}
+
+	public void addImage(ImageEntity entity) {
+		image.add(entity);
 	}
 }

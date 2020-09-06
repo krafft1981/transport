@@ -8,3 +8,4 @@ public interface CustomerRepository extends AbstractRepository<CustomerEntity> {
 
     CustomerEntity findByAccount(@NonNull String account);
 }
+

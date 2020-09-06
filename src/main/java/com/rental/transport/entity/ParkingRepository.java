@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface ParkingRepository extends AbstractRepository<ParkingEntity> {
 
     ParkingEntity findByAddress(@NonNull String address);
-    ParkingEntity findByCustomer(@NonNull String customer);
+    ParkingEntity findByLatitudeAndLongitude(Double Latitude, Double Longitude);
 }

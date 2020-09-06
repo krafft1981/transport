@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import java.util.Currency;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(
@@ -39,7 +39,8 @@ public class OrderEntity extends AbstractEntity  {
     private Long driverId;
     private Date startAt;
     private Date stopAt;
-    private float price;
+    private Date createdAt;
+    private Currency price;
     private String comment;
 
     @Basic
@@ -77,8 +78,14 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "price", nullable = false, insertable = true, updatable = false)
-    public float getPrice() {
+    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP not null")
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    @Basic
+    @Column(name = "price", nullable = true, insertable = true, updatable = false)
+    public Currency getPrice() {
         return price;
     }
 

@@ -1,25 +1,24 @@
 package com.rental.transport.entity;
 
-import java.sql.Blob;
-import java.util.Date;
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(
@@ -27,7 +26,7 @@ import org.springframework.data.annotation.CreatedDate;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "transport_type", name = "transport_type_idx")
+                @Index(columnList = "transport_type_id", name = "transport_type_id_idx")
         }
 )
 
@@ -37,15 +36,13 @@ import org.springframework.data.annotation.CreatedDate;
 public class TransportEntity extends AbstractEntity  {
 
     private String name;
-    private String type;
-    private Blob image;
+    private TypeEntity type;
     private Integer capacity;
     private String description;
+    private Currency cost;
+    private ParkingEntity parking;
+    private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
-
-    public TransportEntity(CustomerEntity customer) {
-        addCustomer(customer);
-    }
 
     @Basic
     @Column(name = "name", nullable = true, insertable = true, updatable = true)
@@ -54,14 +51,14 @@ public class TransportEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "transport_type", nullable = true, insertable = true, updatable = true)
-    public String getType() {
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
+    public TypeEntity getType() {
         return type;
     }
 
-    @Basic
-    @Column(name = "image", nullable = true, insertable = true, updatable = true)
-    public Blob getImage() {
+    @OneToMany
+    public Set<ImageEntity> getImage() {
         return image;
     }
 
@@ -78,6 +75,17 @@ public class TransportEntity extends AbstractEntity  {
         return description;
     }
 
+    @Basic
+    @Column(name = "cost", nullable = true, insertable = true, updatable = false)
+    public Currency getCost() {
+        return cost;
+    }
+
+    @ManyToOne
+    public ParkingEntity getParking() {
+        return parking;
+    }
+
     @ManyToMany
     @JoinTable(name="customer_transport",
             joinColumns=@JoinColumn(name="transport_id", nullable = false),
@@ -89,5 +97,9 @@ public class TransportEntity extends AbstractEntity  {
 
     public void addCustomer(CustomerEntity entity) {
         customer.add(entity);
+    }
+
+    public void addImage(ImageEntity entity) {
+        image.add(entity);
     }
 }

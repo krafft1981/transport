@@ -1,8 +1,7 @@
 package com.rental.transport.mapper;
 
-import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.dto.Order;
-import com.rental.transport.mapper.AbstractMapper;
+import com.rental.transport.entity.OrderEntity;
 import java.util.Objects;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,22 +2,31 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="7dp"
-    android:layout_height="match_parent">
+    android:padding="7dp" >
 
         <TextView
             android:id="@+id/parking_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Название (не заполнено)"
+            android:gravity="center"
             android:textSize="12sp"
             android:textStyle="bold" />
 
+        <ImageView
+            android:id="@+id/gridview_image"
+            android:layout_gravity="center"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/unnamed" />
+
         <TextView
             android:id="@+id/parking_address"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Адрес (не заполнено)"
+            android:gravity="center"
             android:textSize="10sp" />
 </LinearLayout>

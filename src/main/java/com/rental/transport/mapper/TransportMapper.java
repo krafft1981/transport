@@ -3,10 +3,13 @@ package com.rental.transport.mapper;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.ImageEntity;
+import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TypeRepository;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +22,12 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private TypeRepository typeRepository;
 
     @Override
     public TransportEntity toEntity(Transport dto) {
@@ -40,53 +49,58 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
     public void postConstruct() {
         mapper.createTypeMap(TransportEntity.class, Transport.class)
                 .addMappings(m -> m.skip(Transport::setId))
-                .addMappings(m -> m.skip(Transport::setCustomer))
+                .addMappings(m -> m.skip(Transport::setCustomers))
+                .addMappings(m -> m.skip(Transport::setImages))
+                .addMappings(m -> m.skip(Transport::setType))
                 .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Transport.class, TransportEntity.class)
                 .addMappings(m -> m.skip(TransportEntity::setId))
                 .addMappings(m -> m.skip(TransportEntity::setCustomer))
+                .addMappings(m -> m.skip(TransportEntity::setImage))
+                .addMappings(m -> m.skip(TransportEntity::setType))
                 .setPostConverter(toEntityConverter());
     }
 
-    private Converter<TransportEntity, Transport> toDtoConverter() {
-        return context -> {
-            TransportEntity source = context.getSource();
-            Transport destination = context.getDestination();
-            mapSpecificFields(source, destination);
-            return context.getDestination();
-        };
-    }
-
-    private Converter<Transport, TransportEntity> toEntityConverter() {
-        return context -> {
-            Transport source = context.getSource();
-            TransportEntity destination = context.getDestination();
-            mapSpecificFields(source, destination);
-            return context.getDestination();
-        };
-    }
-
-    private void mapSpecificFields(TransportEntity source, Transport destination) {
+    public void mapSpecificFields(TransportEntity source, Transport destination) {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
-        source
-                .getCustomer()
-                .stream()
+
+        source.getCustomer().stream()
                 .forEach(customer -> { destination.addCustomer(customer.getId()); });
+
+        source.getImage().stream()
+                .forEach(image -> destination.addImage(image.getId()));
+
+        TypeEntity type = source.getType();
+        if ((type != null) && (type.getName() != null)) {
+            destination.setType(source.getType().getName());
+        }
     }
 
-    private void mapSpecificFields(Transport source, TransportEntity destination) {
+    public void mapSpecificFields(Transport source, TransportEntity destination) {
 
         destination.setId(source.getId());
-        source
-                .getCustomer()
-                .stream()
+
+        source.getCustomers().stream()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
                     if (customer != null) {
                         destination.addCustomer(customer);
                     }
                 });
+
+        source.getImages().stream()
+                .forEach(id -> {
+                    ImageEntity image = imageRepository.findById(id).orElse(null);
+                    if (image != null) {
+                        destination.addImage(image);
+                    }
+                });
+
+        if (source.getType() != null) {
+            TypeEntity type = typeRepository.findTypeByName(source.getType());
+            destination.setType(type);
+        }
     }
 }

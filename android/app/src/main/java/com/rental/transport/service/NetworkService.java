@@ -6,6 +6,7 @@ import com.burgstaller.okhttp.digest.CachingAuthenticator;
 import com.burgstaller.okhttp.digest.Credentials;
 import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.rental.transport.network.CustomerApi;
+import com.rental.transport.network.ImageApi;
 import com.rental.transport.network.OrderApi;
 import com.rental.transport.network.ParkingApi;
 import com.rental.transport.network.RegistrationApi;
@@ -87,5 +88,9 @@ public class NetworkService {
 
     public TypeApi getTypeApi() {
         return mRetrofitDidest.create(TypeApi.class);
+    }
+
+    public ImageApi getImageApi() {
+        return mRetrofitDidest.create(ImageApi.class);
     }
 }

@@ -5,9 +5,12 @@
     <item android:id="@+id/order_menu"
         android:title="@string/order" />
 
+    <item android:id="@+id/parking_menu"
+        android:title="@string/parking"/>
+
     <item android:id="@+id/customer_menu"
         android:title="@string/customer" />
 
-    <item android:id="@+id/parking_menu"
-        android:title="@string/parking"/>
+    <item android:id="@+id/account_menu"
+        android:title="@string/account"/>
 </menu>

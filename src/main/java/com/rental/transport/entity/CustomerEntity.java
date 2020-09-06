@@ -1,6 +1,5 @@
 package com.rental.transport.entity;
 
-import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -10,6 +9,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -36,8 +36,9 @@ public class CustomerEntity extends AbstractEntity {
     private String lastName;
     private String family;
     private String phone;
-    private Blob image;
+    private Set<ImageEntity> image = new HashSet<>();
     private Set<TransportEntity> transport = new HashSet<>();
+    private Set<ParkingEntity> parking = new HashSet<>();
 
     public CustomerEntity(String account) {
         this.account = account;
@@ -74,21 +75,37 @@ public class CustomerEntity extends AbstractEntity {
         return phone;
     }
 
-    @Basic
-    @Column(name = "image", nullable = true, insertable = true, updatable = true)
-    public Blob getImage() {
+    @OneToMany
+    public Set<ImageEntity> getImage() {
         return image;
     }
 
     @ManyToMany
     @JoinTable(name = "customer_transport",
-            joinColumns = @JoinColumn(name = "customer_id"),
-            inverseJoinColumns = @JoinColumn(name = "transport_id"))
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "transport_id", nullable = false))
     public Set<TransportEntity> getTransport() {
         return transport;
     }
 
+    @ManyToMany
+    @JoinTable(name="customer_parking",
+            joinColumns=@JoinColumn(name="customer_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
+    )
+    public Set<ParkingEntity> getParking() {
+        return parking;
+    }
+
     public void addTransport(TransportEntity entity) {
         transport.add(entity);
+    }
+
+    public void addParking(ParkingEntity entity) {
+        parking.add(entity);
+    }
+
+    public void addImage(ImageEntity entity) {
+        image.add(entity);
     }
 }

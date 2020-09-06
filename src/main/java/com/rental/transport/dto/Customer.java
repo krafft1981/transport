@@ -1,6 +1,5 @@
 package com.rental.transport.dto;
 
-import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -19,10 +18,19 @@ public class Customer extends AbstractDto {
     private String lastName;
     private String family;
     private String phone;
-    private Blob image;
-    private Set<Long> transport = new HashSet<>();
+    private Set<Long> images = new HashSet<>();
+    private Set<Long> transports = new HashSet<>();
+    private Set<Long> parkings = new HashSet<>();
+
+    public void addImage(Long id) {
+        images.add(id);
+    }
 
     public void addTransport(Long id) {
-        transport.add(id);
+        transports.add(id);
+    }
+
+    public void addParking(Long id) {
+        parkings.add(id);
     }
 }

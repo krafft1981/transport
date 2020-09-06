@@ -4,6 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <SearchView
+        android:id="@+id/searchParkingView"
+        android:title="@string/search"
+        android:showAsAction="collapseActionView|ifRoom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </SearchView>
+
     <GridView
         android:id="@+id/customer_gridview"
         android:numColumns="2"
