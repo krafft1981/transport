@@ -13,11 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Parking extends AbstractDto {
 
-    private String name;
-    private String address;
-    private String description;
-    private Double latitude;
-    private Double longitude;
+    private String name = "";
+    private String locality = "";
+    private String address = "";
+    private String description = "";
+    private Double latitude = 0.0;
+    private Double longitude = 0.0;
     private Set<Long> images = new HashSet<>();
     private Set<Long> customers = new HashSet<>();
     private Set<Long> transports = new HashSet<>();
@@ -33,4 +34,5 @@ public class Parking extends AbstractDto {
     public void addTransport(Long id) {
         transports.add(id);
     }
+
 }

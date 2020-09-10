@@ -44,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
             return "";
         }
 
+        Toast
+                .makeText(getApplicationContext(), "Используем аккаунт: " + accounts.get(0).name, Toast.LENGTH_LONG)
+                .show();
+
         return accounts.get(0).name;
     }
 

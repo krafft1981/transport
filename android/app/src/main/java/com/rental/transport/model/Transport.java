@@ -20,9 +20,9 @@ public class Transport {
     @SerializedName("description")
     private String description;
     @SerializedName("cost")
-    private String cost;
+    private Double cost;
     @SerializedName("parking")
-    private Long parking;
+    private List<Long> parking;
     @SerializedName("customers")
     private List<Long> customers;
     @SerializedName("images")

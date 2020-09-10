@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Список картинок</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<h1>Список картинок</h1>
+<a href="/image/add">Добавить</a>
+<br/><br/>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>data</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each ="id : ${images}">
+        <td th:utext="${id}"></td>
+        <td><img th:src="@{http://88.200.201.2:8080/image/{id}(id=${id})}" border=1 height=64 width=64></img></td>
+        <td><a th:href="@{/image/delete/(id=${id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

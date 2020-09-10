@@ -2,8 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginBottom="60dp" >
+    android:layout_height="match_parent" >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -56,69 +55,10 @@
             android:layout_width="match_parent"
             android:layout_height="400dp">
             <LinearLayout
+                android:id="@+id/transport_images"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i0" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i1" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i2" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i3" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i4" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i5" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i6" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i7" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i8" />
-                <ImageView
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginLeft="1dp"
-                    android:contentDescription="TODO"
-                    android:src="@drawable/i9" />
             </LinearLayout>
         </HorizontalScrollView>
         <TextView
@@ -129,41 +69,34 @@
             android:textSize="16dp"
             android:textStyle="normal|italic" />
         <HorizontalScrollView
-            android:id="@+id/customer_transport_horizontal_scroll"
             android:layout_width="match_parent"
             android:layout_height="64dp">
             <LinearLayout
-                android:id="@+id/responsible_persons"
+                android:id="@+id/transport_drivers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginLeft="1dp"
-                    android:src="@drawable/nobody"
-                    android:contentDescription="TODO" />
             </LinearLayout>
         </HorizontalScrollView>
         <TextView
             android:id="@+id/transport_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Отличное гоночное судно для хорошей компании. На борту нет чайника (Диман забрал вместе с плиткой). Просторная каюта отсутствует. Спальные места и неунывающий капитан. Так же к вашим услугам всегда в наличии марихуана и дроблённый гашиш."
             android:textSize="16dp"
-            android:layout_marginBottom="20dp"
             android:textStyle="normal|italic" />
         <LinearLayout
             android:id="@+id/transport_usage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginBottom="60dp"
             android:orientation="horizontal" >
             <Button
-                android:id="@+id/transport_rent"
+                android:id="@+id/transport_button_rent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Заказать" />
+                android:text="Заказать"
+                android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

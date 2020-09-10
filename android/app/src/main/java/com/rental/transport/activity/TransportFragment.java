@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -59,16 +57,8 @@ public class TransportFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
                 Transport element = (Transport)parent.getAdapter().getItem(position);
-                TextView type = (TextView) details.findViewById(R.id.transportType);
-//                type.setText(element.getType());
-/*
-                TextView name = (TextView) details.findViewById(R.id.transportName);
-                TextView capacity = (TextView) details.findViewById(R.id.transportCapacity);
-
-                type.setText(element.getType() == null ? "Не заполнено" : element.getType());
-                name.setText(element.getName() == null ? "Не заполнено" : element.getName());
-                capacity.setText(element.getCapacity() == null ? "Не заполнено" : element.getCapacity().toString());
-*/
+                TransportDetails fragment = (TransportDetails)((MainActivity) getActivity()).fragmentMap.get("TransportDetails");
+                fragment.setTransport(element);
                 ((MainActivity) getActivity()).loadFragment("TransportDetails");
             }
         });
@@ -103,21 +93,6 @@ public class TransportFragment extends Fragment {
                                 .show();
                     }
                 });
-
-        SearchView search = (SearchView)  root.findViewById(R.id.search_transport);
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //Do your search
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-//                if (newText.isEmpty()) clearSearch();
-                return false;
-            }
-        });
 
         return root;
     }

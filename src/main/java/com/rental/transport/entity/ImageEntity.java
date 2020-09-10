@@ -21,7 +21,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class ImageEntity extends AbstractEntity {
 
-    private String data;
+    private String data = "";
 
     @Basic
     @Column(name = "data", nullable = false, insertable = true, updatable = true)

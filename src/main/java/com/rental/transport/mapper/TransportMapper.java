@@ -5,6 +5,8 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
+import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.entity.TypeRepository;
@@ -29,6 +31,9 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
     @Autowired
     private TypeRepository typeRepository;
 
+    @Autowired
+    private ParkingRepository parkingRepository;
+
     @Override
     public TransportEntity toEntity(Transport dto) {
         return Objects.isNull(dto) ? null : mapper.map(dto, TransportEntity.class);
@@ -39,12 +44,6 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
         return Objects.isNull(entity) ? null : mapper.map(entity, Transport.class);
     }
 
-    @Override
-    public TransportEntity create() {
-        TransportEntity entity = new TransportEntity();
-        return entity;
-    }
-
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(TransportEntity.class, Transport.class)
@@ -52,6 +51,7 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                 .addMappings(m -> m.skip(Transport::setCustomers))
                 .addMappings(m -> m.skip(Transport::setImages))
                 .addMappings(m -> m.skip(Transport::setType))
+                .addMappings(m -> m.skip(Transport::setParking))
                 .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Transport.class, TransportEntity.class)
@@ -59,6 +59,7 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                 .addMappings(m -> m.skip(TransportEntity::setCustomer))
                 .addMappings(m -> m.skip(TransportEntity::setImage))
                 .addMappings(m -> m.skip(TransportEntity::setType))
+                .addMappings(m -> m.skip(TransportEntity::setParking))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -71,6 +72,13 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
         source.getImage().stream()
                 .forEach(image -> destination.addImage(image.getId()));
+
+        source.getParking().stream()
+                .forEach(parking -> {
+                    destination.addParking(parking.getId());
+                    destination.setLatitude(parking.getLatitude());
+                    destination.setLongitude(parking.getLongitude());
+                });
 
         TypeEntity type = source.getType();
         if ((type != null) && (type.getName() != null)) {
@@ -95,6 +103,14 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (image != null) {
                         destination.addImage(image);
+                    }
+                });
+
+        source.getParking().stream()
+                .forEach(id -> {
+                    ParkingEntity parking = parkingRepository.findById(id).orElse(null);
+                    if (parking != null) {
+                        destination.addParking(parking);
                     }
                 });
 

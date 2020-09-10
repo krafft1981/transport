@@ -1,6 +1,5 @@
 package com.rental.transport.entity;
 
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -11,7 +10,6 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -35,17 +33,24 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class TransportEntity extends AbstractEntity  {
 
-    private String name;
+    private String name = "";
     private TypeEntity type;
-    private Integer capacity;
-    private String description;
-    private Currency cost;
-    private ParkingEntity parking;
+    private Integer capacity = 1;
+    private String description = "";
+    private Double cost = 0.0;
+    private Double latitude = 0.0;
+    private Double longitude = 0.0;
+    private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
 
+    public TransportEntity(CustomerEntity entity) {
+
+        addCustomer(entity);
+    }
+
     @Basic
-    @Column(name = "name", nullable = true, insertable = true, updatable = true)
+    @Column(name = "name", nullable = false, insertable = true, updatable = true)
     public String getName() {
         return name;
     }
@@ -63,26 +68,42 @@ public class TransportEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "capacity", nullable = true, insertable = true, updatable = true)
+    @Column(name = "capacity", nullable = false, insertable = true, updatable = true)
     public Integer getCapacity() {
         return capacity;
     }
 
     @Basic
-    @Column(name = "description", nullable = true, insertable = true, updatable = true)
+    @Column(name = "description", nullable = false, insertable = true, updatable = true)
     @Type(type="text")
     public String getDescription() {
         return description;
     }
 
     @Basic
-    @Column(name = "cost", nullable = true, insertable = true, updatable = false)
-    public Currency getCost() {
+    @Column(name = "cost", nullable = false, insertable = true, updatable = false)
+    public Double getCost() {
         return cost;
     }
 
-    @ManyToOne
-    public ParkingEntity getParking() {
+    @Basic
+    @Column(name = "latitude", nullable = false, insertable = true, updatable = false)
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    @Basic
+    @Column(name = "longitude", nullable = false, insertable = true, updatable = false)
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    @ManyToMany
+    @JoinTable(name="parking_transport",
+            joinColumns=@JoinColumn(name="transport_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
+    )
+    public Set<ParkingEntity> getParking() {
         return parking;
     }
 
@@ -101,5 +122,9 @@ public class TransportEntity extends AbstractEntity  {
 
     public void addImage(ImageEntity entity) {
         image.add(entity);
+    }
+
+    public void addParking(ParkingEntity entity) {
+        parking.add(entity);
     }
 }

@@ -36,4 +36,7 @@ public interface CustomerApi {
     @Headers("Content-Type: application/json")
     @GET("/customer/my")
     public Call<Customer> doGetCustomer();
+
+    @GET("/customer/exist")
+    public Call<Boolean> doGetCustomerExist();
 }

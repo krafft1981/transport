@@ -67,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(digestAuthenticationFilter(digestEntryPoint()), BasicAuthenticationFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/registration**").permitAll()
+                .antMatchers("/registration/**").permitAll()
                 .anyRequest().authenticated();
     }
 

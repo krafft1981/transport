@@ -22,7 +22,7 @@ public interface TransportApi {
 
     @Headers("Content-Type: application/json")
     @POST("/transport")
-    public Call<Long> doPostTransport();
+    public Call<Long> doPostTransport(@Query("type") String type);
 
     @Headers("Content-Type: application/json")
     @DELETE("/transport")

@@ -1,0 +1,32 @@
+package com.rental.transport.model;
+
+import com.google.gson.annotations.SerializedName;
+import java.util.List;
+import lombok.Data;
+
+@Data
+public class Transport {
+
+    @SerializedName("id")
+    private Long id;
+    @SerializedName("name")
+    private String name;
+    @SerializedName("type")
+    private String type;
+    @SerializedName("capacity")
+    private Integer capacity;
+    @SerializedName("description")
+    private String description;
+    @SerializedName("cost")
+    private Double cost;
+    @SerializedName("latitude")
+    private Double latitude;
+    @SerializedName("longitude")
+    private Double longitude;
+    @SerializedName("parking")
+    private List<Long> parking;
+    @SerializedName("customers")
+    private List<Long> customers;
+    @SerializedName("images")
+    private List<Long> images;
+}

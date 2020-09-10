@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Список транспорта</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<h1>Список транспорта</h1>
+<a href="/transport/add">Добавить</a>
+<br/><br/>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Имя</th>
+        <th>Тип</th>
+        <th>Вместимость</th>
+        <th>Описание</th>
+        <th>Стоимость</th>
+        <th>Стоянки</th>
+        <th>Пользователи</th>
+        <th>Картинки</th>
+        <th>latitude</th>
+        <th>longitude</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each ="transport : ${transports}">
+        <td th:utext="${transport.id}"></td>
+        <td th:utext="${transport.name}"></td>
+        <td th:utext="${transport.type}"></td>
+        <td th:utext="${transport.capacity}"></td>
+        <td th:utext="${transport.description}"></td>
+        <td th:utext="${transport.cost}"></td>
+        <td th:utext="${transport.parking}"></td>
+        <td th:utext="${transport.customers}"></td>
+        <td th:utext="${transport.images}"></td>
+        <td th:utext="${transport.latitude}"></td>
+        <td th:utext="${transport.longitude}"></td>
+        <td><a th:href="@{/transport/edit/(id=${transport.id})}">Edit</a></td>
+        <td><a th:href="@{/transport/delete/(id=${transport.id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

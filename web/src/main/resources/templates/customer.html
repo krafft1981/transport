@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Список пользователей</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<h1>Пользователи</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Аккаунт</th>
+        <th>Имя</th>
+        <th>Отчество</th>
+        <th>Фамилия</th>
+        <th>Телефон</th>
+        <th>Картинки</th>
+        <th>Транспорт</th>
+        <th>Стоянки</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each ="customer : ${customers}">
+        <td th:utext="${customer.id}"></td>
+        <td th:utext="${customer.account}"></td>
+        <td th:utext="${customer.firstName}"></td>
+        <td th:utext="${customer.lastName}"></td>
+        <td th:utext="${customer.family}"></td>
+        <td th:utext="${customer.phone}"></td>
+        <td th:utext="${customer.images}"></td>
+        <td th:utext="${customer.transports}"></td>
+        <td th:utext="${customer.parkings}"></td>
+        <td><a th:href="@{/customer/edit/(id=${customer.id})}">Edit</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

@@ -42,15 +42,21 @@ public class ImageService {
         return mapper.toDto(entity);
     }
 
-    public List<Image> getPage(Pageable pageable) {
+    public List<Long> getPage(Pageable pageable) {
 
-        List<Image> result = imageRepository
+        List<Long> result = imageRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> { return entity.getId(); })
                 .collect(Collectors.toList());
 
         return result;
+    }
+
+    public Long count() {
+
+        Long count = imageRepository.count();
+        return count;
     }
 }

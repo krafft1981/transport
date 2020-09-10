@@ -29,43 +29,57 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class ParkingEntity extends AbstractEntity {
 
-	private String name;
-	private String address;
-	private String description;
-	private Double latitude;
-	private Double longitude;
+	private String name = "";
+	private String locality = "";
+	private String address = "";
+	private String description = "";
+
+	private Double latitude = 0.0;
+	private Double longitude = 0.0;
+
 	private Set<ImageEntity> image = new HashSet<>();
 	private Set<CustomerEntity> customer = new HashSet<>();
 	private Set<TransportEntity> transport = new HashSet<>();
 
+	public ParkingEntity(CustomerEntity entity) {
+		addCustomer(entity);
+	}
+
 	@Basic
-	@Column(name = "name", nullable = true, insertable = true, updatable = true)
+	@Column(name = "name", nullable = false, insertable = true, updatable = true)
 	public String getName() {
 		return name;
 	}
 
 	@Basic
-	@Column(name = "address", nullable = true, insertable = true, updatable = true)
+	@Column(name = "locality", nullable = false, insertable = true, updatable = true)
+	@Type(type="text")
+	public String getLocality() {
+		return locality;
+	}
+
+	@Basic
+	@Column(name = "address", nullable = false, insertable = true, updatable = true)
 	@Type(type="text")
 	public String getAddress() {
 		return address;
 	}
 
 	@Basic
-	@Column(name = "description", nullable = true, insertable = true, updatable = true)
+	@Column(name = "description", nullable = false, insertable = true, updatable = true)
 	@Type(type="text")
 	public String getDescription() {
 		return description;
 	}
 
 	@Basic
-	@Column(name = "latitude", nullable = true, insertable = true, updatable = true)
+	@Column(name = "latitude", nullable = false, insertable = true, updatable = true)
 	public Double getLatitude() {
 		return latitude;
 	}
 
 	@Basic
-	@Column(name = "longitude", nullable = true, insertable = true, updatable = true)
+	@Column(name = "longitude", nullable = false, insertable = true, updatable = true)
 	public Double getLongitude() {
 		return longitude;
 	}
@@ -79,7 +93,11 @@ public class ParkingEntity extends AbstractEntity {
 		return customer;
 	}
 
-	@OneToMany
+	@ManyToMany
+	@JoinTable(name="parking_transport",
+			joinColumns=@JoinColumn(name="parking_id", nullable = false),
+			inverseJoinColumns=@JoinColumn(name="transport_id", nullable = false)
+	)
 	public Set<TransportEntity> getTransport() {
 		return transport;
 	}

@@ -8,7 +8,6 @@ public interface AbstractMapper<E extends AbstractEntity, D extends AbstractDto>
 
     E toEntity(D dto);
     D toDto(E entity);
-    E create();
 
     default Converter<E, D> toDtoConverter() {
         return context -> {

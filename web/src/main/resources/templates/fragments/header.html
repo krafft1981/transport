@@ -1,0 +1,20 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:fragment="header-css">
+    </div>
+</head>
+<body>
+<div th:fragment="header">
+    <!-- this is header -->
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <span sec:authorize="isAuthenticated()">Используем аккаунт: [[${#httpServletRequest.remoteUser}]]</span>
+                <a class="navbar-brand" th:href="@{/}">home</a>
+                <a th:href="@{/logout}">Выйти</a>
+            </div>
+        </div>
+    </nav>
+</div>
+</body>
+</html>

@@ -74,6 +74,15 @@ public class CustomerService implements UserDetailsService {
         return count;
     }
 
+    public Boolean exist(String account) {
+
+        CustomerEntity entity = repository.findByAccount(account);
+        if (entity == null) {
+            return false;
+        }
+        return true;
+    }
+
     public void update(String account, Customer dto)
             throws ObjectNotFoundException, AccessDeniedException {
 

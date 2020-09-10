@@ -21,8 +21,7 @@ public class TypeService {
 
     public Long create(String name) throws IllegalArgumentException {
 
-        TypeEntity entity = mapper.create();
-        entity.setName(name);
+        TypeEntity entity = new TypeEntity(name);
         return repository.save(entity).getId();
     }
 

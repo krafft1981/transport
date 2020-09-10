@@ -37,12 +37,6 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
         return Objects.isNull(entity) ? null : mapper.map(entity, Parking.class);
     }
 
-    @Override
-    public ParkingEntity create() {
-        ParkingEntity entity = new ParkingEntity();
-        return entity;
-    }
-
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(ParkingEntity.class, Parking.class)

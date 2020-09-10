@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+>
+<head>
+   <meta charset="UTF-8">
+</head>
+<body>
+   <div th:replace="fragments/header :: header"/>
+   <div class="container">
+      <div class="navbar-collapse collapse">
+         <ul class="nav navbar-nav">
+            <li th:classappend="${module == 'customer' ? 'active' : ''}">
+               <a href="#" th:href="@{/customer}">Аккаунты</a>
+            </li>
+            <li th:classappend="${module == 'transport' ? 'active' : ''}">
+               <a href="#" th:href="@{/transport}">Транспорт</a>
+            </li>
+
+            <li th:classappend="${module == 'parking' ? 'active' : ''}">
+               <a href="#" th:href="@{/parking}">Стоянки</a>
+            </li>
+
+            <li th:classappend="${module == 'image' ? 'active' : ''}">
+               <a href="#" th:href="@{/image}">Изображения</a>
+            </li>
+
+            <li th:classappend="${module == 'order' ? 'active' : ''}">
+               <a href="#" th:href="@{/order}">Заказы</a>
+            </li>
+
+            <li th:classappend="${module == 'type' ? 'active' : ''}">
+               <a href="#" th:href="@{/type}">Типы</a>
+            </li>
+         </ul>
+      </div>
+   </div>
+   <div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

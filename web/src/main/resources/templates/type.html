@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Список типов транспорта</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<h1>Типы транспорта</h1>
+<a href="/type/add">Добавить</a>
+<br/><br/>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Имя</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each ="type : ${types}">
+        <td th:utext="${type.id}"></td>
+        <td th:utext="${type.name}"></td>
+        <td><a th:href="@{/type/edit/(id=${type.id})}">Edit</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

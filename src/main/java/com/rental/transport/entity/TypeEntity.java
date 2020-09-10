@@ -27,7 +27,7 @@ public class TypeEntity extends AbstractEntity {
     private String name;
 
     @Basic
-    @Column(name = "name", unique = true, nullable = true, insertable = true, updatable = true)
+    @Column(name = "name", unique = true, nullable = false, insertable = true, updatable = true)
     public String getName() {
         return name;
     }

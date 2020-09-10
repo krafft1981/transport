@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <SearchView
-        android:id="@+id/search_transport"
-        android:title="@string/search"
-        android:showAsAction="collapseActionView|ifRoom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </SearchView>
-
     <GridView
         android:id="@+id/transport_gridview"
         android:numColumns="auto_fit"

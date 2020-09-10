@@ -22,10 +22,4 @@ public class TypeMapper implements AbstractMapper<TypeEntity, Type> {
     public Type toDto(TypeEntity entity) {
         return Objects.isNull(entity) ? null : mapper.map(entity, Type.class);
     }
-
-    @Override
-    public TypeEntity create() {
-        TypeEntity entity = new TypeEntity();
-        return entity;
-    }
 }

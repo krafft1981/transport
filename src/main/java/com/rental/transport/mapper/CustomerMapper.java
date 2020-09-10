@@ -37,12 +37,6 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         return Objects.isNull(entity) ? null : mapper.map(entity, Customer.class);
     }
 
-    @Override
-    public CustomerEntity create() {
-        CustomerEntity entity = new CustomerEntity();
-        return entity;
-    }
-
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(CustomerEntity.class, Customer.class)

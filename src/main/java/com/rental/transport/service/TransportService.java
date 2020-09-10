@@ -3,10 +3,10 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
-import com.rental.transport.entity.ParkingEntity;
-import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
+import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TypeRepository;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -27,14 +27,18 @@ public class TransportService {
     private CustomerRepository customerRepository;
 
     @Autowired
+    private TypeRepository typeRepository;
+
+    @Autowired
     private TransportMapper mapper;
 
-    public void delete(@NonNull String account, @NonNull Long id) {
+    public void delete(@NonNull String account, @NonNull Long id)
+            throws AccessDeniedException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         TransportEntity transport = transportRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Стоянка", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
 
         if (transport.getCustomer().contains(customer) == false) {
             throw new AccessDeniedException("Удаление");
@@ -43,15 +47,22 @@ public class TransportService {
         transportRepository.delete(transport);
     }
 
-    public Long create(@NonNull String account) {
+    public Long create(@NonNull String account, @NonNull String type)
+            throws IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        TransportEntity transport = mapper.create();
-        transport.addCustomer(customer);
+        TypeEntity typeEntity = typeRepository.findTypeByName(type);
+        if (typeEntity == null) {
+            throw new IllegalArgumentException("Неизвестный тип транспорта");
+        }
+
+        TransportEntity transport = new TransportEntity(customer);
+        transport.setType(typeEntity);
         return transportRepository.save(transport).getId();
     }
 
-    public void update(@NonNull String account, @NonNull Transport dto) {
+    public void update(@NonNull String account, @NonNull Transport dto)
+            throws AccessDeniedException {
 
         TransportEntity transport = transportRepository
                 .findById(dto.getId())
@@ -76,5 +87,11 @@ public class TransportService {
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
         return result;
+    }
+
+    public Long count() {
+
+        Long count = transportRepository.count();
+        return count;
     }
 }

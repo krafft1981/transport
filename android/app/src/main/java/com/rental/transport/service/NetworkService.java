@@ -23,8 +23,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetworkService {
 
-    private static final String BASE_URL = "http://88.200.201.2:8080";
-//    private static final String BASE_URL = "http://192.168.15.103:8080";
+//    private static final String BASE_URL = "http://88.200.201.2:8080";
+    private static final String BASE_URL = "http://192.168.15.103:8080";
     private static final String PASSWORD = "password";
 
     private static NetworkService mInstance;
@@ -46,6 +46,15 @@ public class NetworkService {
     }
 
     private NetworkService(String account) {
+
+RuntimeTypeAdapterFactory<Animal> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+    .of(Animal.class, "type")
+    .registerSubtype(Dog.class, "dog")
+    .registerSubtype(Cat.class, "cat");
+
+Gson gson = new GsonBuilder()
+    .registerTypeAdapterFactory(runtimeTypeAdapterFactory)
+    .create();
 
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

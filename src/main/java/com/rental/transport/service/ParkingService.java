@@ -34,7 +34,7 @@ public class ParkingService {
     private ParkingMapper mapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
-            throws AccessDeniedException {
+            throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         ParkingEntity parking = parkingRepository
@@ -51,12 +51,12 @@ public class ParkingService {
     public Long create(@NonNull String account) {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        ParkingEntity parking = mapper.create();
-        parking.addCustomer(customer);
+        ParkingEntity parking = new ParkingEntity(customer);
         return parkingRepository.save(parking).getId();
     }
 
-    public void update(@NonNull String account, @NonNull Parking dto) {
+    public void update(@NonNull String account, @NonNull Parking dto)
+            throws AccessDeniedException, ObjectNotFoundException {
 
         ParkingEntity parking = parkingRepository
                 .findById(dto.getId())
@@ -80,5 +80,11 @@ public class ParkingService {
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
+    }
+
+    public Long count() {
+
+        Long count = parkingRepository.count();
+        return count;
     }
 }

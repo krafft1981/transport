@@ -22,10 +22,4 @@ public class ImageMapper implements AbstractMapper<ImageEntity, Image> {
     public Image toDto(ImageEntity entity) {
         return Objects.isNull(entity) ? null : mapper.map(entity, Image.class);
     }
-
-    @Override
-    public ImageEntity create() {
-        ImageEntity entity = new ImageEntity();
-        return entity;
-    }
 }

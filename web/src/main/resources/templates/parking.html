@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Список стоянок</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<h1>Список стоянок</h1>
+<a href="/parking/add">Добавить</a>
+<br/><br/>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Имя</th>
+        <th>Адрес</th>
+        <th>latitude</th>
+        <th>longitude</th>
+        <th>Описание</th>
+        <th>Картинки</th>
+        <th>Пользователи</th>
+        <th>Транспорт</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each ="parking : ${parkings}">
+        <td th:utext="${parking.id}"></td>
+        <td th:utext="${parking.name}"></td>
+        <td th:utext="${parking.address}"></td>
+        <td th:utext="${parking.latitude}"></td>
+        <td th:utext="${parking.longitude}"></td>
+        <td th:utext="${parking.description}"></td>
+        <td th:utext="${parking.images}"></td>
+        <td th:utext="${parking.customers}"></td>
+        <td th:utext="${parking.transports}"></td>
+        <td><a th:href="@{/parking/edit/(id=${parking.id})}">Edit</a></td>
+        <td><a th:href="@{/parking/delete/(id=${parking.id})}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+<div th:replace="fragments/footer :: footer"/>
+</body>
+</html>

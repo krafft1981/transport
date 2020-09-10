@@ -4,7 +4,6 @@ import com.rental.transport.dto.Parking;
 import com.rental.transport.service.ParkingService;
 import java.security.Principal;
 import java.util.List;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,16 +43,22 @@ public class ParkingController {
 
     @PostMapping
     public Long goPostParkingRequest(
-            @NonNull Principal principal) {
+            Principal principal) {
 
         return service.create(principal.getName());
     }
 
     @PutMapping
     public void goPutParkingRequest(
-            @NonNull Principal principal,
+            Principal principal,
             @RequestBody Parking parking) {
 
         service.update(principal.getName(), parking);
+    }
+
+    @GetMapping(value = "/count")
+    public Long doGetCountRequest() {
+
+        return service.count();
     }
 }

@@ -32,10 +32,13 @@ import lombok.Setter;
 public class CustomerEntity extends AbstractEntity {
 
     private String account;
-    private String firstName;
-    private String lastName;
-    private String family;
-    private String phone;
+    private String firstName = "";
+    private String lastName = "";
+    private String family = "";
+    private String phone = "";
+    private Integer startWorkAt;
+    private Integer stopWorkAt;
+    private Boolean workAtWeekEnd = false;
     private Set<ImageEntity> image = new HashSet<>();
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
@@ -52,27 +55,45 @@ public class CustomerEntity extends AbstractEntity {
     }
     
     @Basic
-    @Column(name = "firstName", nullable = true, insertable = true, updatable = true)
+    @Column(name = "firstName", nullable = false, insertable = true, updatable = true)
     public String getFirstName() {
         return firstName;
     }
 
     @Basic
-    @Column(name = "lastName", nullable = true, insertable = true, updatable = true)
+    @Column(name = "lastName", nullable = false, insertable = true, updatable = true)
     public String getLastName() {
         return lastName;
     }
 
     @Basic
-    @Column(name = "family", nullable = true, insertable = true, updatable = true)
+    @Column(name = "family", nullable = false, insertable = true, updatable = true)
     public String getFamily() {
         return family;
     }
 
     @Basic
-    @Column(name = "phone", nullable = true, insertable = true, updatable = true)
+    @Column(name = "phone", nullable = false, insertable = true, updatable = true)
     public String getPhone() {
         return phone;
+    }
+
+    @Basic
+    @Column(name = "start_work_at", nullable = true, insertable = true, updatable = true)
+    public Integer getStartWorkAt() {
+        return startWorkAt;
+    }
+
+    @Basic
+    @Column(name = "stop_work_at", nullable = true, insertable = true, updatable = true)
+    public Integer getStopWorkAt() {
+        return stopWorkAt;
+    }
+
+    @Basic
+    @Column(name = "work_at_week_end", nullable = false, insertable = true, updatable = true)
+    public Boolean getWorkAtWeekEnd() {
+        return workAtWeekEnd;
     }
 
     @OneToMany

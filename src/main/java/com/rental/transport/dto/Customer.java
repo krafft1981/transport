@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Customer extends AbstractDto {
 
-    private String account;
-    private String firstName;
-    private String lastName;
-    private String family;
-    private String phone;
+    private String account = "";
+    private String firstName = "";
+    private String lastName = "";
+    private String family = "";
+    private String phone = "";
     private Set<Long> images = new HashSet<>();
     private Set<Long> transports = new HashSet<>();
     private Set<Long> parkings = new HashSet<>();

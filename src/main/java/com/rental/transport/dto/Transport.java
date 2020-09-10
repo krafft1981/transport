@@ -1,7 +1,6 @@
 package com.rental.transport.dto;
 
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,12 +13,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Transport  extends AbstractDto {
 
-    private String name;
-    private String type;
-    private Integer capacity;
-    private String description;
-    private Currency cost;
-    private Long parking;
+    private String name = "";
+    private String type = "";
+    private Integer capacity = 1;
+    private String description = "";
+    private Double latitude = 0.0;
+    private Double longitude = 0.0;
+    private Double cost = 0.0;
+    private List<Long> parking = new ArrayList<>();
     private List<Long> images = new ArrayList<>();
     private List<Long> customers = new ArrayList<>();
     public void addCustomer(Long id) {
@@ -28,4 +29,8 @@ public class Transport  extends AbstractDto {
     public void addImage(Long id) {
         images.add(id);
     }
+    public void addParking(Long id) {
+        parking.add(id);
+    }
+
 }

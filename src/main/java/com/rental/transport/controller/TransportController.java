@@ -1,17 +1,9 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dto.Parking;
 import com.rental.transport.dto.Transport;
-import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.CustomerRepository;
-import com.rental.transport.entity.TransportEntity;
-import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.mapper.TransportMapper;
-import com.rental.transport.service.ParkingService;
 import com.rental.transport.service.TransportService;
 import java.security.Principal;
 import java.util.List;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,17 +43,24 @@ public class TransportController {
 
     @PostMapping
     public Long goPostTransportRequest(
-            @NonNull Principal principal) {
+            Principal principal,
+            @RequestParam(value = "type", required = true) String type) {
 
-        return service.create(principal.getName());
+        return service.create(principal.getName(), type);
     }
 
     @PutMapping
     public void goPutTransportRequest(
-            @NonNull Principal principal,
+            Principal principal,
             @RequestBody Transport transport) {
 
         service.update(principal.getName(), transport);
+    }
+
+    @GetMapping(value = "/count")
+    public Long doGetCountRequest() {
+
+        return service.count();
     }
 }
 
