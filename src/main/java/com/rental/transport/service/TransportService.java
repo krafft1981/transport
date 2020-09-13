@@ -3,6 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TypeEntity;
@@ -19,6 +20,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransportService {
+
+    @Autowired
+    private ParkingRepository parkingRepository;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -40,10 +44,10 @@ public class TransportService {
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
 
-        if (transport.getCustomer().contains(customer) == false) {
+        if (transport.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Удаление");
-        }
 
+        transport.setType(null);
         transportRepository.delete(transport);
     }
 
@@ -51,13 +55,11 @@ public class TransportService {
             throws IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        TypeEntity typeEntity = typeRepository.findTypeByName(type);
-        if (typeEntity == null) {
+        TypeEntity typeEntity = typeRepository.findByName(type);
+        if (typeEntity == null)
             throw new IllegalArgumentException("Неизвестный тип транспорта");
-        }
 
-        TransportEntity transport = new TransportEntity(customer);
-        transport.setType(typeEntity);
+        TransportEntity transport = new TransportEntity(customer, typeEntity);
         return transportRepository.save(transport).getId();
     }
 
@@ -66,27 +68,25 @@ public class TransportService {
 
         TransportEntity transport = transportRepository
                 .findById(dto.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("Стоянка", dto.getId()));
+                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", dto.getId()));
 
         transport = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
-        if (transport.getCustomer().contains(customer) == false) {
+        if (transport.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Изменение");
-        }
 
         transportRepository.save(transport);
     }
 
     public List<Transport> getPage(Pageable pageable) {
 
-        List<Transport> result = transportRepository
+        return transportRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
-        return result;
     }
 
     public Long count() {

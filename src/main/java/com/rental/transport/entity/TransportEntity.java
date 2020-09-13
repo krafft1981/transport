@@ -10,6 +10,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
-@Entity
+@Entity(name="transport")
 @Table(
         name="transport",
         schema = "public",
@@ -44,11 +45,15 @@ public class TransportEntity extends AbstractEntity  {
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
 
-    public TransportEntity(CustomerEntity entity) {
+    public TransportEntity(CustomerEntity customer, TypeEntity type) {
 
-        addCustomer(entity);
+        addCustomer(customer);
+        setType(type);
+        customer.getParking()
+                .stream()
+                .forEach(parking -> { addParking(parking); });
     }
-
+    
     @Basic
     @Column(name = "name", nullable = false, insertable = true, updatable = true)
     public String getName() {
@@ -56,7 +61,7 @@ public class TransportEntity extends AbstractEntity  {
     }
 
     @Basic
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
     public TypeEntity getType() {
         return type;
@@ -89,13 +94,23 @@ public class TransportEntity extends AbstractEntity  {
     @Basic
     @Column(name = "latitude", nullable = false, insertable = true, updatable = false)
     public Double getLatitude() {
-        return latitude;
+        if (getParking().isEmpty()) {
+            return latitude;
+        }
+        else {
+            return getParking().iterator().next().getLatitude();
+        }
     }
 
     @Basic
     @Column(name = "longitude", nullable = false, insertable = true, updatable = false)
     public Double getLongitude() {
-        return longitude;
+        if (getParking().isEmpty()) {
+            return longitude;
+        }
+        else {
+            return getParking().iterator().next().getLongitude();
+        }
     }
 
     @ManyToMany
@@ -104,6 +119,7 @@ public class TransportEntity extends AbstractEntity  {
             inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
     )
     public Set<ParkingEntity> getParking() {
+
         return parking;
     }
 
@@ -113,18 +129,24 @@ public class TransportEntity extends AbstractEntity  {
             inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
     )
     public Set<CustomerEntity> getCustomer() {
+
         return customer;
     }
 
     public void addCustomer(CustomerEntity entity) {
+
         customer.add(entity);
     }
 
     public void addImage(ImageEntity entity) {
+
         image.add(entity);
     }
 
     public void addParking(ParkingEntity entity) {
-        parking.add(entity);
+
+        if (getParking().isEmpty()) {
+            parking.add(entity);
+        }
     }
 }

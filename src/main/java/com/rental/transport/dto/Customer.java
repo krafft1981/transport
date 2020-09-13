@@ -18,19 +18,22 @@ public class Customer extends AbstractDto {
     private String lastName = "";
     private String family = "";
     private String phone = "";
-    private Set<Long> images = new HashSet<>();
-    private Set<Long> transports = new HashSet<>();
-    private Set<Long> parkings = new HashSet<>();
+    private Integer startWorkAt;
+    private Integer stopWorkAt;
+    private Boolean workAtWeekEnd;
+    private Set<Long> image = new HashSet<>();
+    private Set<Long> transport = new HashSet<>();
+    private Set<Long> parking = new HashSet<>();
 
     public void addImage(Long id) {
-        images.add(id);
+        image.add(id);
     }
 
     public void addTransport(Long id) {
-        transports.add(id);
+        transport.add(id);
     }
 
     public void addParking(Long id) {
-        parkings.add(id);
+        parking.add(id);
     }
 }

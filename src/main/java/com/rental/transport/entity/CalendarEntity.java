@@ -5,6 +5,8 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,8 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "customer_id", name = "customer_id_idx" )
+                @Index(columnList = "customer_id", name = "customer_id_idx" ),
+                @Index(columnList = "order_id", name = "order_id_idx" )
         }
 )
 
@@ -25,14 +28,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CalendarEntity extends AbstractEntity {
 
-    private Long customerId;
+    private CustomerEntity customerId;
+    private Long orderId;
     private Date startAt;
     private Date stopAt;
 
     @Basic
-    @Column(name = "customer_id", unique = false, nullable = false, insertable = true, updatable = false)
-    public Long getCustomerId() {
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    public CustomerEntity getCustomerId() {
         return customerId;
+    }
+
+    @Basic
+    @Column(name = "order_id", nullable = true)
+    public Long getOrderId() {
+        return orderId;
     }
 
     @Basic

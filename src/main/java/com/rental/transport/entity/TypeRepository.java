@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TypeRepository extends AbstractRepository<TypeEntity> {
 
-    TypeEntity findTypeByName(String name);
+    TypeEntity findByName(String name);
 }

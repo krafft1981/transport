@@ -19,6 +19,12 @@ public class Customer {
     private String family;
     @SerializedName("phone")
     private String phone;
+    @SerializedName("startWorkAt")
+    private Integer startWorkAt;
+    @SerializedName("stopWorkAt")
+    private Integer stopWorkAt;
+    @SerializedName("workAtWeekEnd")
+    private Boolean workAtWeekEnd;
     @SerializedName("images")
     private List<Image> images;
     @SerializedName("transports")

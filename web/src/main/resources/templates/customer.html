@@ -19,6 +19,9 @@
         <th>Картинки</th>
         <th>Транспорт</th>
         <th>Стоянки</th>
+        <th>Начало дня</th>
+        <th>Окончание дня</th>
+        <th>Работает на выходных</th>
     </tr>
     </thead>
     <tbody>
@@ -32,6 +35,9 @@
         <td th:utext="${customer.images}"></td>
         <td th:utext="${customer.transports}"></td>
         <td th:utext="${customer.parkings}"></td>
+        <td th:utext="${customer.startWorkAt}"></td>
+        <td th:utext="${customer.stopWorkAt}"></td>
+        <td th:utext="${customer.workAtWeekEnd}"></td>
         <td><a th:href="@{/customer/edit/(id=${customer.id})}">Edit</a></td>
     </tr>
     </tbody>

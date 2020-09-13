@@ -1,7 +1,5 @@
 package com.rental.transport.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,32 +11,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Order extends AbstractDto {
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date startAt;
+    private String customerName;
+    private String customerPhone;
+    private Long customer;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date stopAt;
+    private Long transport;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createdAt;
+    private String driverName;
+    private String driverPhone;
+    private Long driver;
 
     private Double latitude;
     private Double longitude;
 
-    private String description;
+    private Integer startAt;
+    private Integer stopAt;
+    private Integer createdAt;
+
     private Double cost;
     private Double price;
+
     private String comment;
-
-    private String customerFio;
-    private String customerPhone;
-
-    private Long customerId;
-    private Long transportId;
-
-    private String driverFio;
-    private String driverPhone;
-    private Long driverId;
-
-    private String status;
+    private String state;
 }

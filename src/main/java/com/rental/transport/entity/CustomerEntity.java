@@ -44,7 +44,7 @@ public class CustomerEntity extends AbstractEntity {
     private Set<ParkingEntity> parking = new HashSet<>();
 
     public CustomerEntity(String account) {
-        this.account = account;
+        setAccount(account);
     }
 
     @Basic
@@ -123,7 +123,10 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     public void addParking(ParkingEntity entity) {
-        parking.add(entity);
+
+        if (getParking().isEmpty()) {
+            parking.add(entity);
+        }
     }
 
     public void addImage(ImageEntity entity) {

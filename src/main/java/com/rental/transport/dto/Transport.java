@@ -21,16 +21,15 @@ public class Transport  extends AbstractDto {
     private Double longitude = 0.0;
     private Double cost = 0.0;
     private List<Long> parking = new ArrayList<>();
-    private List<Long> images = new ArrayList<>();
-    private List<Long> customers = new ArrayList<>();
+    private List<Long> image = new ArrayList<>();
+    private List<Long> customer = new ArrayList<>();
     public void addCustomer(Long id) {
-        customers.add(id);
+        customer.add(id);
     }
     public void addImage(Long id) {
-        images.add(id);
+        image.add(id);
     }
     public void addParking(Long id) {
         parking.add(id);
     }
-
 }

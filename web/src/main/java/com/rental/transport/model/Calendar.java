@@ -1,7 +1,6 @@
 package com.rental.transport.model;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.Date;
 import lombok.Data;
 
 @Data
@@ -9,10 +8,12 @@ public class Calendar {
 
     @SerializedName("id")
     private Long id;
-    @SerializedName("accountId")
-    private Long accountId;
+    @SerializedName("customerId")
+    private Long customerId;
     @SerializedName("startAt")
-    private Date startAt;
+    private Integer startAt;
     @SerializedName("stopAt")
-    private Date stopAt;
+    private Integer stopAt;
+    @SerializedName("orderId")
+    private Long orderId;
 }

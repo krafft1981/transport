@@ -1,12 +1,12 @@
 package com.rental.transport.entity;
 
 import java.util.Date;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -15,20 +15,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
-@Entity
+@Entity(name = "orders")
 @Table(
         name="orders",
         schema = "public",
         catalog = "relationship",
         indexes = {
-/*
-                @Index(columnList = "driver_id", name = "order_driver_idx"),
                 @Index(columnList = "customer_id", name = "order_customer_idx"),
+                @Index(columnList = "driver_id", name = "order_driver_idx"),
                 @Index(columnList = "transport_id", name = "order_transport_idx"),
-                @Index(columnList = "start_at", name = "order_start_idx"),
-                @Index(columnList = "stop_at", name = "order_stop_idx"),
-                @Index(columnList = "created_at", name = "order_created_idx")
-*/
+                @Index(columnList = "state", name = "order_state_idx"),
+                @Index(columnList = "start_at", name = "order_start_at_idx"),
+                @Index(columnList = "stop_at", name = "order_stop_at_idx")
         }
 )
 
@@ -37,15 +35,15 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class OrderEntity extends AbstractEntity  {
 
-    private String customerFio = "";
+    private String customerName = "";
     private String customerPhone = "";
-    private Long customerId;
+    private CustomerEntity customer;
 
-    private String driverFio = "";
+    private Long transport;
+
+    private String driverName = "";
     private String driverPhone = "";
-    private Long driverId;
-
-    private Long transportId;
+    private Long driver;
 
     private Double latitude = 0.0;
     private Double longitude = 0.0;
@@ -59,48 +57,12 @@ public class OrderEntity extends AbstractEntity  {
     private Double price = 0.0;
 
     private String comment = "";
-    private String status = "";
-
-    public OrderEntity(CustomerEntity customer, TransportEntity transport) {
-        customerFio = customer.getFamily() + " " + customer.getFirstName() + " " + customer.getLastName();
-        customerPhone = customer.getPhone();
-        setCustomerId(customer.getId());
-
-        customerFio = customer.getFamily() + " " + customer.getFirstName() + " " + customer.getLastName();
-        customerPhone = customer.getPhone();
-        setTransportId(customer.getId());
-
-        setTransportId(transport.getId());
-
-        if (transport.getParking().isEmpty()) {
-            setLatitude(transport.getLatitude());
-            setLongitude(transport.getLongitude());
-        }
-        else {
-            ParkingEntity parking = transport.getParking().iterator().next();
-            setLatitude(parking.getLatitude());
-            setLongitude(parking.getLongitude());
-        }
-
-        cost = transport.getCost();
-
-        if (transport.getCustomer().size() > 1) {
-            System.out.println("Ox ox error");
-        } else {
-            CustomerEntity driver = transport.getCustomer().iterator().next();
-            driverFio = driver.getFamily() + " " + driver.getFirstName() + " " + driver.getLastName();
-            driverPhone = driver.getPhone();
-            driverId = driver.getId();
-        }
-
-
-        this.status = "new";
-    }
+    private String state = "New";
 
     @Basic
-    @Column(name = "customer_fio", nullable = false, insertable = true, updatable = true)
-    public String getCustomerFio() {
-        return customerFio;
+    @Column(name = "customer_name", nullable = false, insertable = true, updatable = true)
+    public String getCustomerName() {
+        return customerName;
     }
 
     @Basic
@@ -110,43 +72,44 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "customer_id", nullable = false, insertable = true, updatable = true)
-    public Long getCustomerId() {
-        return customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    public CustomerEntity getCustomer() {
+        return customer;
     }
 
     @Basic
-    @Column(name = "transport_id", nullable = false, insertable = true, updatable = true)
-    public Long getTransportId() {
-        return transportId;
+    @Column(name = "driver_name", nullable = true, insertable = true, updatable = true)
+    public String getDriverName() {
+        return driverName;
     }
 
     @Basic
-    @Column(name = "driver_fio", nullable = false, insertable = true, updatable = true)
-    public String getDriverFio() {
-        return driverFio;
-    }
-
-    @Basic
-    @Column(name = "driver_phone", nullable = false, insertable = true, updatable = true)
+    @Column(name = "driver_phone", nullable = true, insertable = true, updatable = true)
     public String getDriverPhone() {
         return driverPhone;
     }
 
     @Basic
     @Column(name = "driver_id", nullable = true, insertable = true, updatable = true)
-    public Long getDriverId() {
-        return driverId;
+    public Long getDriver() {
+        return driver;
     }
 
     @Basic
-    @Column(name = "latitude", nullable = false, insertable = true, updatable = true)
+    @Column(name = "transport_id", nullable = false, insertable = true, updatable = true)
+    public Long getTransport() {
+        return transport;
+    }
+
+    @Basic
+    @Column(name = "latitude", nullable = true, insertable = true, updatable = true)
     public Double getLatitude() {
         return latitude;
     }
 
     @Basic
-    @Column(name = "longitude", nullable = false, insertable = true, updatable = true)
+    @Column(name = "longitude", nullable = true, insertable = true, updatable = true)
     public Double getLongitude() {
         return longitude;
     }
@@ -177,22 +140,30 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "price", nullable = false, insertable = true, updatable = false)
+    @Column(name = "price", nullable = true, insertable = true, updatable = false)
     public Double getPrice() {
         return price;
     }
 
     @Basic
-    @Column(name = "comment", nullable = false, insertable = true, updatable = false)
+    @Column(name = "comment", nullable = true, insertable = true, updatable = false)
     @Type(type="text")
     public String getComment() {
         return comment;
     }
 
     @Basic
-    @Column(name = "status", nullable = false, insertable = true, updatable = false)
-    @Type(type="text")
-    public String getStatus() {
-        return status;
+    @Column(name = "state", nullable = false, insertable = true, updatable = false)
+    public String getState() {
+        return state;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("OrderEntity{");
+        sb.append("startAt=").append(startAt);
+        sb.append(", stopAt=").append(stopAt);
+        sb.append('}');
+        return sb.toString();
     }
 }

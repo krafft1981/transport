@@ -13,7 +13,6 @@ import com.rental.transport.network.ParkingApi;
 import com.rental.transport.network.RegistrationApi;
 import com.rental.transport.network.TransportApi;
 import com.rental.transport.network.TypeApi;
-import com.rental.transport.network.WorkTimeApi;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -91,10 +90,6 @@ public class NetworkService {
 
     public ImageApi getImageApi() {
         return mRetrofitDidest.create(ImageApi.class);
-    }
-
-    public WorkTimeApi getWorkTimeApi() {
-        return mRetrofitDidest.create(WorkTimeApi.class);
     }
 
     public CalendarApi getCalendarApi() {

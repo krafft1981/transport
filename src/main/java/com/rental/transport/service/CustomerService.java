@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class CustomerService implements UserDetailsService {
 
     @Autowired
-    private CustomerRepository repository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private CustomerMapper mapper;
@@ -38,7 +38,7 @@ public class CustomerService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
-        CustomerEntity entity = repository.findByAccount(username);
+        CustomerEntity entity = customerRepository.findByAccount(username);
         if (entity == null) {
             throw new ObjectNotFoundException("Account", username);
         }
@@ -59,10 +59,10 @@ public class CustomerService implements UserDetailsService {
             throw new IllegalArgumentException("Account не должен быть пустым");
         }
 
-        CustomerEntity entity = repository.findByAccount(account);
+        CustomerEntity entity = customerRepository.findByAccount(account);
         if (entity == null) {
             entity = new CustomerEntity(account);
-            entity = repository.save(entity);
+            entity = customerRepository.save(entity);
         }
 
         return entity.getId();
@@ -70,13 +70,13 @@ public class CustomerService implements UserDetailsService {
 
     public Long count() {
 
-        Long count = repository.count();
+        Long count = customerRepository.count();
         return count;
     }
 
     public Boolean exist(String account) {
 
-        CustomerEntity entity = repository.findByAccount(account);
+        CustomerEntity entity = customerRepository.findByAccount(account);
         if (entity == null) {
             return false;
         }
@@ -90,18 +90,18 @@ public class CustomerService implements UserDetailsService {
             throw new AccessDeniedException("Изменение");
         }
 
-        CustomerEntity entity = repository.findByAccount(dto.getAccount());
+        CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
         if (entity == null) {
             throw new ObjectNotFoundException("Account", account);
         }
 
         entity = mapper.toEntity(dto);
-        repository.save(entity);
+        customerRepository.save(entity);
     }
 
     public List<Customer> getPage(Pageable pageable) {
 
-        return repository
+        return customerRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
@@ -112,7 +112,7 @@ public class CustomerService implements UserDetailsService {
     public List<Customer> findAllByIdList(Iterable<Long> ids) throws ObjectNotFoundException {
 
         List<Customer> result = StreamSupport
-                .stream(repository.findAllById(ids).spliterator(), false)
+                .stream(customerRepository.findAllById(ids).spliterator(), false)
                 .map(customer -> { return mapper.toDto(customer); })
                 .collect(Collectors.toList());
 
@@ -121,7 +121,7 @@ public class CustomerService implements UserDetailsService {
 
     public Customer getMy(@NonNull String account) {
 
-        CustomerEntity entity = repository.findByAccount(account);
+        CustomerEntity entity = customerRepository.findByAccount(account);
         return mapper.toDto(entity);
     }
 }

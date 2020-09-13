@@ -1,6 +1,5 @@
 package com.rental.transport.dto;
 
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +12,11 @@ import lombok.NoArgsConstructor;
 public class Calendar extends AbstractDto {
 
     private Long customerId;
-    private String startAt;
-    private String stopAt;
+    private Integer startAt;
+    private Integer stopAt;
+    private Long orderId;
+
+    public Calendar(Long customerId) {
+        setCustomerId(customerId);
+    }
 }

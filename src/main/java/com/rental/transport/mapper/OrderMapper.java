@@ -1,7 +1,11 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Order;
+import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.entity.TransportRepository;
+import java.util.Date;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -18,6 +22,9 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     private CustomerMapper customerMapper;
 
     @Autowired
+    private TransportRepository transportRepository;
+
+    @Autowired
     private TransportMapper transportMapper;
 
     public OrderEntity toEntity(Order dto) {
@@ -32,10 +39,18 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     public void postConstruct() {
         mapper.createTypeMap(OrderEntity.class, Order.class)
                 .addMappings(m -> m.skip(Order::setId))
+                .addMappings(m -> m.skip(Order::setStartAt))
+                .addMappings(m -> m.skip(Order::setStopAt))
+                .addMappings(m -> m.skip(Order::setCreatedAt))
+                .addMappings(m -> m.skip(Order::setTransport))
                   .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Order.class, OrderEntity.class)
                 .addMappings(m -> m.skip(OrderEntity::setId))
+                .addMappings(m -> m.skip(OrderEntity::setStartAt))
+                .addMappings(m -> m.skip(OrderEntity::setStopAt))
+                .addMappings(m -> m.skip(OrderEntity::setCreatedAt))
+                .addMappings(m -> m.skip(OrderEntity::setTransport))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -43,13 +58,35 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        System.out.println(source + " " + destination);
+        if (Objects.nonNull(source.getStartAt())) {
+            Long value = source.getStartAt().getTime() / 1000;
+            destination.setStartAt(value.intValue());
+        }
+
+        if (Objects.nonNull(source.getStopAt())) {
+            Long value = source.getStopAt().getTime() / 1000;
+            destination.setStopAt(value.intValue());
+        }
+
+        if (Objects.nonNull(source.getCreatedAt())) {
+            Long value = source.getCreatedAt().getTime() / 1000;
+            destination.setCreatedAt(value.intValue());
+        }
+
+//        destination.setTransport(source.getTransport().getId());
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
 
         destination.setId(source.getId());
 
-        System.out.println(source + " " + destination);
+        destination.setStartAt(new Date((long) source.getStartAt() * 1000));
+        destination.setStopAt(new Date((long) source.getStopAt() * 1000));
+        destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
+
+//        TransportEntity transport = transportRepository.findById(source.getId()).orElse(null);
+//        if (transport != null) {
+//            destination.setTransport(transport);
+//        }
     }
 }

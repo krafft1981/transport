@@ -41,9 +41,9 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
     public void postConstruct() {
         mapper.createTypeMap(ParkingEntity.class, Parking.class)
                 .addMappings(m -> m.skip(Parking::setId))
-                .addMappings(m -> m.skip(Parking::setCustomers))
-                .addMappings(m -> m.skip(Parking::setTransports))
-                .addMappings(m -> m.skip(Parking::setImages))
+                .addMappings(m -> m.skip(Parking::setCustomer))
+                .addMappings(m -> m.skip(Parking::setTransport))
+                .addMappings(m -> m.skip(Parking::setImage))
                 .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Parking.class, ParkingEntity.class)
@@ -72,7 +72,7 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
         destination.setId(source.getId());
 
-        source.getCustomers().stream()
+        source.getCustomer().stream()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
                     if (customer != null) {
@@ -80,7 +80,7 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                     }
                 });
 
-        source.getTransports().stream()
+        source.getTransport().stream()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
                     if (transport != null) {
@@ -88,7 +88,7 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                     }
                 });
 
-        source.getImages().stream()
+        source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (image != null) {

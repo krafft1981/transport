@@ -1,13 +1,12 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dto.Calendar;
 import com.rental.transport.service.CalendarService;
 import java.security.Principal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,22 +24,39 @@ public class CalendarController {
         return service.count();
     }
 
-    @GetMapping
-    public List<Calendar> doGetRequest(
+    @PutMapping
+    public void doPutOutRequest(
             Principal principal,
-            @RequestParam(value = "start", required = true) String start,
-            @RequestParam(value = "stop", required = true) String stop) {
+            @RequestParam(value = "start", required = true) Integer start,
+            @RequestParam(value = "stop", required = true) Integer stop) {
 
-        try {
-            return service.getEvents(
-                    principal.getName(),
-                    new SimpleDateFormat("yyyy-MM-dd HH").parse(start),
-                    new SimpleDateFormat("yyyy-MM-dd HH").parse(stop));
-        }
-        catch (Exception e) {
+        service.putOutEvent(
+                principal.getName(),
+                new Date((long) start * 1000),
+                new Date((long) stop * 1000));
+    }
 
-        }
+    @DeleteMapping
+    public void doDeleteOutRequest(
+            Principal principal,
+            @RequestParam(value = "start", required = true) Integer start,
+            @RequestParam(value = "stop", required = true) Integer stop) {
 
-        return null;
+        service.deleteOutEvent(
+                principal.getName(),
+                new Date((long) start * 1000),
+                new Date((long) stop * 1000));
+    }
+
+    @GetMapping
+    public void doGetOutRequest(
+            Principal principal,
+            @RequestParam(value = "start", required = true) Integer start,
+            @RequestParam(value = "stop", required = true) Integer stop) {
+
+        service.getEventList(
+                principal.getName(),
+                new Date((long) start * 1000),
+                new Date((long) stop * 1000));
     }
 }

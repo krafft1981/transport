@@ -4,6 +4,7 @@ import com.rental.transport.dto.Transport;
 import com.rental.transport.service.TransportService;
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,7 +60,6 @@ public class TransportController {
 
     @GetMapping(value = "/count")
     public Long doGetCountRequest() {
-
         return service.count();
     }
 }

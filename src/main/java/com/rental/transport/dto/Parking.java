@@ -19,20 +19,20 @@ public class Parking extends AbstractDto {
     private String description = "";
     private Double latitude = 0.0;
     private Double longitude = 0.0;
-    private Set<Long> images = new HashSet<>();
-    private Set<Long> customers = new HashSet<>();
-    private Set<Long> transports = new HashSet<>();
+    private Set<Long> image = new HashSet<>();
+    private Set<Long> customer = new HashSet<>();
+    private Set<Long> transport = new HashSet<>();
 
     public void addImage(Long id) {
-        images.add(id);
+        image.add(id);
     }
 
     public void addCustomer(Long id) {
-        customers.add(id);
+        customer.add(id);
     }
 
     public void addTransport(Long id) {
-        transports.add(id);
+        transport.add(id);
     }
 
 }

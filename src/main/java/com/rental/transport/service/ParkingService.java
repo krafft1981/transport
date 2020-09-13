@@ -34,16 +34,18 @@ public class ParkingService {
     private ParkingMapper mapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
-            throws AccessDeniedException, ObjectNotFoundException {
+            throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         ParkingEntity parking = parkingRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Стоянка", id));
 
-        if (parking.getCustomer().contains(customer) == false) {
+        if (parking.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Удаление");
-        }
+
+        if (!parking.getTransport().isEmpty())
+            throw new IllegalArgumentException("Удаление не пустой стояки запрещено");
 
         parkingRepository.delete(parking);
     }
@@ -65,9 +67,8 @@ public class ParkingService {
         parking = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
-        if (parking.getCustomer().contains(customer) == false) {
+        if (parking.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Изменение");
-        }
 
         parkingRepository.save(parking);
     }

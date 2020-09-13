@@ -13,34 +13,47 @@
     <thead>
     <tr>
         <th>id</th>
-        <th>Асистент</th>
-        <th>Транспорт</th>
-        <th>Клиент</th>
         <th>Время начала</th>
         <th>Время окончания</th>
         <th>Время создания</th>
-        <th>Описание</th>
         <th>latitude</th>
         <th>longitude</th>
+        <th>Описание</th>
         <th>Коментарий</th>
         <th>Цена</th>
+        <th>Стоимость</th>
+        <th>ФИО заказчика</th>
+        <th>Телефон заказчика</th>
+        <th>id заказчика</th>
+        <th>id транспорта</th>
+        <th>ФИО асистента</th>
+        <th>Телефон асистента</th>
+        <th>id асистента</th>
+        <th>state</th>
+
     </tr>
     </thead>
     <tbody>
     <tr th:each ="order : ${orders}">
         <td th:utext="${order.id}"></td>
-        <td th:utext="${order.driverid}"></td>
-        <td th:utext="${order.transportid}"></td>
-        <td th:utext="${order.customerid}"></td>
-        <td th:utext="${order.parkingid}"></td>
-        <td th:utext="${order.StartAt}"></td>
-        <td th:utext="${order.StopAt}"></td>
-        <td th:utext="${order.CreatedAt}"></td>
-        <td th:utext="${order.description}"></td>
+        <td th:utext="${order.startAt}"></td>
+        <td th:utext="${order.stopAt}"></td>
+        <td th:utext="${order.createdAt}"></td>
         <td th:utext="${order.latitude}"></td>
         <td th:utext="${order.longitude}"></td>
+        <td th:utext="${order.description}"></td>
         <td th:utext="${order.comment}"></td>
+        <td th:utext="${order.cost}"></td>
         <td th:utext="${order.price}"></td>
+        <td th:utext="${order.customerFio}"></td>
+        <td th:utext="${order.customerPhone}"></td>
+        <td th:utext="${order.customerId}"></td>
+        <td th:utext="${order.transportId}"></td>
+        <td th:utext="${order.driverFio}"></td>
+        <td th:utext="${order.driverPhone}"></td>
+        <td th:utext="${order.driverId}"></td>
+        <td th:utext="${order.state}"></td>
+
         <td><a th:href="@{/order/edit/(id=${order.id})}">Edit</a></td>
         <td><a th:href="@{/order/delete/(id=${order.id})}">Delete</a></td>
     </tr>

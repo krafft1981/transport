@@ -48,8 +48,8 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
     public void postConstruct() {
         mapper.createTypeMap(TransportEntity.class, Transport.class)
                 .addMappings(m -> m.skip(Transport::setId))
-                .addMappings(m -> m.skip(Transport::setCustomers))
-                .addMappings(m -> m.skip(Transport::setImages))
+                .addMappings(m -> m.skip(Transport::setCustomer))
+                .addMappings(m -> m.skip(Transport::setImage))
                 .addMappings(m -> m.skip(Transport::setType))
                 .addMappings(m -> m.skip(Transport::setParking))
                 .setPostConverter(toDtoConverter());
@@ -67,55 +67,36 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getCustomer().stream()
-                .forEach(customer -> { destination.addCustomer(customer.getId()); });
-
-        source.getImage().stream()
-                .forEach(image -> destination.addImage(image.getId()));
-
-        source.getParking().stream()
-                .forEach(parking -> {
-                    destination.addParking(parking.getId());
-                    destination.setLatitude(parking.getLatitude());
-                    destination.setLongitude(parking.getLongitude());
-                });
-
-        TypeEntity type = source.getType();
-        if ((type != null) && (type.getName() != null)) {
-            destination.setType(source.getType().getName());
-        }
+        source.getCustomer().stream().forEach(customer -> destination.addCustomer(customer.getId()));
+        source.getImage().stream().forEach(image -> destination.addImage(image.getId()));
+        source.getParking().stream().forEach(parking -> destination.addParking(parking.getId()));
+        destination.setType(source.getType().getName());
     }
 
     public void mapSpecificFields(Transport source, TransportEntity destination) {
 
         destination.setId(source.getId());
 
-        source.getCustomers().stream()
+        source.getCustomer().stream()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
-                    if (customer != null) {
-                        destination.addCustomer(customer);
-                    }
+                    if (customer != null) { destination.addCustomer(customer); }
                 });
 
-        source.getImages().stream()
+        source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (image != null) {
-                        destination.addImage(image);
-                    }
+                    if (image != null) { destination.addImage(image); }
                 });
 
         source.getParking().stream()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
-                    if (parking != null) {
-                        destination.addParking(parking);
-                    }
+                    if (parking != null) { destination.addParking(parking); }
                 });
 
         if (source.getType() != null) {
-            TypeEntity type = typeRepository.findTypeByName(source.getType());
+            TypeEntity type = typeRepository.findByName(source.getType());
             destination.setType(type);
         }
     }
