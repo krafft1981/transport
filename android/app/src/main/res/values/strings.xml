@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">Транспорт</string>
-    <string name="customer">Клиенты</string>
-    <string name="parking">Стоянки</string>
-    <string name="order">Заказы</string>
-    <string name="account">Профиль</string>
-    <string name="transports">Транспорт</string>
-    <string name="search">Поиск</string>
-</resources>
