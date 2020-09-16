@@ -1,6 +1,8 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Order;
+import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.TransportEntity;
@@ -19,7 +21,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     private ModelMapper mapper;
 
     @Autowired
-    private CustomerMapper customerMapper;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -42,6 +44,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
                 .addMappings(m -> m.skip(Order::setStartAt))
                 .addMappings(m -> m.skip(Order::setStopAt))
                 .addMappings(m -> m.skip(Order::setCreatedAt))
+                .addMappings(m -> m.skip(Order::setCustomer))
                 .addMappings(m -> m.skip(Order::setTransport))
                   .setPostConverter(toDtoConverter());
 
@@ -50,6 +53,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
                 .addMappings(m -> m.skip(OrderEntity::setStartAt))
                 .addMappings(m -> m.skip(OrderEntity::setStopAt))
                 .addMappings(m -> m.skip(OrderEntity::setCreatedAt))
+                .addMappings(m -> m.skip(OrderEntity::setCustomer))
                 .addMappings(m -> m.skip(OrderEntity::setTransport))
                 .setPostConverter(toEntityConverter());
     }
@@ -73,7 +77,12 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
             destination.setCreatedAt(value.intValue());
         }
 
-//        destination.setTransport(source.getTransport().getId());
+        destination.setCustomer(source.getCustomer().getId());
+
+        TransportEntity transportEntity = transportRepository.findById(source.getTransport()).orElse(null);
+        if (Objects.nonNull(transportEntity)) {
+            destination.setTransport(transportMapper.toDto(transportEntity));
+        }
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
@@ -84,9 +93,11 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
         destination.setStopAt(new Date((long) source.getStopAt() * 1000));
         destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
 
-//        TransportEntity transport = transportRepository.findById(source.getId()).orElse(null);
-//        if (transport != null) {
-//            destination.setTransport(transport);
-//        }
+        CustomerEntity customer = customerRepository.findById(source.getCustomer()).orElse(null);
+        if (Objects.nonNull(customer)) {
+            destination.setCustomer(customer);
+        }
+
+        destination.setTransport(source.getTransport().getId());
     }
 }

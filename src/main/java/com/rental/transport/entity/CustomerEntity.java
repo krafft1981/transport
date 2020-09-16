@@ -36,8 +36,8 @@ public class CustomerEntity extends AbstractEntity {
     private String lastName = "";
     private String family = "";
     private String phone = "";
-    private Integer startWorkAt;
-    private Integer stopWorkAt;
+    private Integer startWorkAt = 0;
+    private Integer stopWorkAt = 0;
     private Boolean workAtWeekEnd = false;
     private Set<ImageEntity> image = new HashSet<>();
     private Set<TransportEntity> transport = new HashSet<>();
@@ -79,13 +79,13 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "start_work_at", nullable = true, insertable = true, updatable = true)
+    @Column(name = "start_work_at", nullable = false, insertable = true, updatable = true)
     public Integer getStartWorkAt() {
         return startWorkAt;
     }
 
     @Basic
-    @Column(name = "stop_work_at", nullable = true, insertable = true, updatable = true)
+    @Column(name = "stop_work_at", nullable = false, insertable = true, updatable = true)
     public Integer getStopWorkAt() {
         return stopWorkAt;
     }

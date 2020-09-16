@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name="transportType",
+        name="transport_type",
         schema = "public",
         catalog = "relationship",
         indexes = {

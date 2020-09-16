@@ -54,10 +54,10 @@ public class CustomerGridAdapter extends BaseAdapter {
 
         Customer element = data.get(id);
 
-        if (element.getFamily()    != null) family.setText(element.getFamily());
-        if (element.getFirstName() != null) first_name.setText(element.getFirstName());
-        if (element.getLastName()  != null) last_name.setText(element.getLastName());
-        if (element.getPhone()     != null) phone.setText(element.getPhone());
+        family.setText(element.getFamily());
+        first_name.setText(element.getFirstName());
+        last_name.setText(element.getLastName());
+        phone.setText(element.getPhone());
 
         return item;
     }

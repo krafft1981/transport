@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Customer extends AbstractDto {
 
-    private String account = "";
-    private String firstName = "";
-    private String lastName = "";
-    private String family = "";
-    private String phone = "";
+    private String account;
+    private String firstName;
+    private String lastName;
+    private String family;
+    private String phone;
     private Integer startWorkAt;
     private Integer stopWorkAt;
     private Boolean workAtWeekEnd;

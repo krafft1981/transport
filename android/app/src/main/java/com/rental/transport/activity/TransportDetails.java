@@ -1,9 +1,6 @@
 package com.rental.transport.activity;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,24 +8,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.rental.transport.R;
-import com.rental.transport.model.Image;
 import com.rental.transport.model.Transport;
-import com.rental.transport.service.NetworkService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
-import lombok.NonNull;
 import lombok.Setter;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class TransportDetails extends Fragment {
 
@@ -68,7 +54,7 @@ public class TransportDetails extends Fragment {
             });
 */
 
-        if (transport.getImages().isEmpty()) {
+        if (transport.getImages() != null && transport.getImages().isEmpty()) {
             LinearLayout linearLayout = (LinearLayout) root.findViewById(R.id.transport_images);
             ImageView iv = new ImageView (getContext());
             iv.setBackgroundResource(R.drawable.samokat);

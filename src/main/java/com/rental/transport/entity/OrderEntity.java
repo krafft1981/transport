@@ -1,11 +1,15 @@
 package com.rental.transport.entity;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -22,11 +26,10 @@ import org.hibernate.annotations.Type;
         catalog = "relationship",
         indexes = {
                 @Index(columnList = "customer_id", name = "order_customer_idx"),
-                @Index(columnList = "driver_id", name = "order_driver_idx"),
                 @Index(columnList = "transport_id", name = "order_transport_idx"),
-                @Index(columnList = "state", name = "order_state_idx"),
                 @Index(columnList = "start_at", name = "order_start_at_idx"),
-                @Index(columnList = "stop_at", name = "order_stop_at_idx")
+                @Index(columnList = "stop_at", name = "order_stop_at_idx"),
+                @Index(columnList = "state", name = "order_state_idx")
         }
 )
 
@@ -41,9 +44,7 @@ public class OrderEntity extends AbstractEntity  {
 
     private Long transport;
 
-    private String driverName = "";
-    private String driverPhone = "";
-    private Long driver;
+    private Set<CustomerEntity> driver = new HashSet<>();
 
     private Double latitude = 0.0;
     private Double longitude = 0.0;
@@ -51,13 +52,15 @@ public class OrderEntity extends AbstractEntity  {
     private Date startAt;
     private Date stopAt;
 
+    private Integer confirmed = 0;
+
     private Date createdAt = new Date();
 
     private Double cost = 0.0;
     private Double price = 0.0;
 
     private String comment = "";
-    private String state = "New";
+    private String state = "";
 
     @Basic
     @Column(name = "customer_name", nullable = false, insertable = true, updatable = true)
@@ -78,22 +81,17 @@ public class OrderEntity extends AbstractEntity  {
         return customer;
     }
 
-    @Basic
-    @Column(name = "driver_name", nullable = true, insertable = true, updatable = true)
-    public String getDriverName() {
-        return driverName;
-    }
-
-    @Basic
-    @Column(name = "driver_phone", nullable = true, insertable = true, updatable = true)
-    public String getDriverPhone() {
-        return driverPhone;
-    }
-
-    @Basic
-    @Column(name = "driver_id", nullable = true, insertable = true, updatable = true)
-    public Long getDriver() {
+    @ManyToMany
+    @JoinTable(name="order_driver",
+            joinColumns=@JoinColumn(name="order_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
+    )
+    public Set<CustomerEntity> getDriver() {
         return driver;
+    }
+
+    public void addDriver(CustomerEntity entity) {
+        driver.add(entity);
     }
 
     @Basic
@@ -115,13 +113,19 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "start_at", nullable = true, columnDefinition = "timestamp with time zone")
+    @Column(name = "confirmed", nullable = false, insertable = true, updatable = true)
+    public Integer getConfirmed() {
+        return confirmed;
+    }
+
+    @Basic
+    @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone")
     public Date getStartAt() {
         return startAt;
     }
 
     @Basic
-    @Column(name = "stop_at", nullable = true, columnDefinition = "timestamp with time zone")
+    @Column(name = "stop_at", nullable = false, columnDefinition = "timestamp with time zone")
     public Date getStopAt() {
         return stopAt;
     }
@@ -140,30 +144,21 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "price", nullable = true, insertable = true, updatable = false)
+    @Column(name = "price", nullable = false, insertable = true, updatable = false)
     public Double getPrice() {
         return price;
     }
 
     @Basic
-    @Column(name = "comment", nullable = true, insertable = true, updatable = false)
+    @Column(name = "comment", nullable = false, insertable = true, updatable = true)
     @Type(type="text")
     public String getComment() {
         return comment;
     }
 
     @Basic
-    @Column(name = "state", nullable = false, insertable = true, updatable = false)
+    @Column(name = "state", nullable = false, insertable = true, updatable = true)
     public String getState() {
         return state;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("OrderEntity{");
-        sb.append("startAt=").append(startAt);
-        sb.append(", stopAt=").append(stopAt);
-        sb.append('}');
-        return sb.toString();
     }
 }

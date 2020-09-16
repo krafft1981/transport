@@ -1,5 +1,6 @@
 package com.rental.transport.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,11 +16,9 @@ public class Order extends AbstractDto {
     private String customerPhone;
     private Long customer;
 
-    private Long transport;
+    private Transport transport;
 
-    private String driverName;
-    private String driverPhone;
-    private Long driver;
+    private List<Customer> driver;
 
     private Double latitude;
     private Double longitude;

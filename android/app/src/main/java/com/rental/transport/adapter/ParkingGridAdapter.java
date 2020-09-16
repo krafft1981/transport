@@ -50,8 +50,8 @@ public class ParkingGridAdapter extends BaseAdapter {
 
         Parking element = data.get(id);
 
-        if (element.getName()    != null) name.setText(element.getName());
-        if (element.getAddress() != null) address.setText(element.getAddress());
+        name.setText(element.getName());
+        address.setText(element.getAddress());
 
         return item;
     }

@@ -80,19 +80,19 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
         source.getCustomer().stream()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
-                    if (customer != null) { destination.addCustomer(customer); }
+                    if (Objects.nonNull(customer)) { destination.addCustomer(customer); }
                 });
 
         source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (image != null) { destination.addImage(image); }
+                    if (Objects.nonNull(image)) { destination.addImage(image); }
                 });
 
         source.getParking().stream()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
-                    if (parking != null) { destination.addParking(parking); }
+                    if (Objects.nonNull(parking)) { destination.addParking(parking); }
                 });
 
         if (source.getType() != null) {

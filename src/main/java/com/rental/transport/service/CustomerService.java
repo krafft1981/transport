@@ -1,6 +1,7 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Customer;
+import com.rental.transport.dto.Settings;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.mapper.CustomerMapper;
@@ -39,9 +40,8 @@ public class CustomerService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
         CustomerEntity entity = customerRepository.findByAccount(username);
-        if (entity == null) {
+        if (entity == null)
             throw new ObjectNotFoundException("Account", username);
-        }
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         User user = new User(
@@ -55,9 +55,8 @@ public class CustomerService implements UserDetailsService {
 
     public Long create(String account) throws IllegalArgumentException {
 
-        if (account.isEmpty()) {
+        if (account.isEmpty())
             throw new IllegalArgumentException("Account не должен быть пустым");
-        }
 
         CustomerEntity entity = customerRepository.findByAccount(account);
         if (entity == null) {
@@ -77,23 +76,18 @@ public class CustomerService implements UserDetailsService {
     public Boolean exist(String account) {
 
         CustomerEntity entity = customerRepository.findByAccount(account);
-        if (entity == null) {
-            return false;
-        }
-        return true;
+        return entity == null ? false : true;
     }
 
     public void update(String account, Customer dto)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        if (account.equals(dto.getAccount()) == false) {
+        if (account.equals(dto.getAccount()) == false)
             throw new AccessDeniedException("Изменение");
-        }
 
         CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
-        if (entity == null) {
+        if (entity == null)
             throw new ObjectNotFoundException("Account", account);
-        }
 
         entity = mapper.toEntity(dto);
         customerRepository.save(entity);
@@ -121,7 +115,20 @@ public class CustomerService implements UserDetailsService {
 
     public Customer getMy(@NonNull String account) {
 
-        CustomerEntity entity = customerRepository.findByAccount(account);
-        return mapper.toDto(entity);
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        return mapper.toDto(customer);
+    }
+
+    public List<Settings> getSettings(@NonNull String account) {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+//        return mapper.toDto(entity);
+        return null;
+    }
+
+    public void setSetting(@NonNull String account, String name, String value) {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+
     }
 }

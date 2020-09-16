@@ -5,10 +5,13 @@ import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRequestEntity;
+import com.rental.transport.entity.OrderRequestRepository;
 import com.rental.transport.mapper.CalendarMapper;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,38 +23,98 @@ public class CalendarService {
     private CalendarMapper mapper;
 
     @Autowired
-    private CalendarRepository repository;
+    private CalendarRepository calendarRepository;
+
+    @Autowired
+    private OrderRequestRepository orderRequestRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
 
     public Long count() {
 
-        Long count = repository.count();
+        Long count = calendarRepository.count();
         return count;
     }
 
-    public CustomerEntity validateByCustomersEvents(CustomerEntity customer, Date start, Date stop)
-            throws IllegalArgumentException {
-
-        if (Objects.nonNull(customer.getStartWorkAt()) && Objects.nonNull(customer.getStopWorkAt())) {
-
-        }
-//        throw new IllegalArgumentException("Временной диапазон занят в календаре");
-        System.out.println("Customer: " + customer.getId() + " " + start.toString() + " -> " + stop.toString() + " " + customer.getStartWorkAt() + " -> " + customer.getStopWorkAt() + " " + customer.getWorkAtWeekEnd());
-        return customer;
-    }
-/*
-    public List<Calendar> getEvents(String account, Date start, Date stop) {
+    public void putOutEvent(String account, Date start, Date stop) throws IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
+        CalendarEntity entity = new CalendarEntity();
+        entity.setStartAt(start);
+        entity.setStopAt(stop);
+        entity.setCustomerId(customer);
+        calendarRepository.save(entity);
+    }
 
-        List<Calendar> busyList = repository
-                .getEntityByCustomerIdUseStartAndStop(customer.getId(), start, stop)
+    public void deleteOutEvent(String account, Date start, Date stop) throws IllegalArgumentException {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        calendarRepository.deleteByCustomerIdAndStartAndStop(customer.getId(), start, stop);
+    }
+
+    public List<Calendar> getEventList(String account, Date start, Date stop) {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        return getCalendarEvents(customer, start, stop);
+    }
+
+    public void сustomerOrderRequest(CustomerEntity customer, OrderEntity order, Date start, Date stop) {
+
+        if (checkCustomerBusy(customer, start, stop) == false) {
+            OrderRequestEntity orderRequest = new OrderRequestEntity(customer, order);
+            orderRequestRepository.save(orderRequest);
+        }
+    }
+
+    private Boolean checkTimeDiapazone(Integer diapazoneStart, Integer diapazoneStop, Integer start, Integer stop) {
+
+        if ((start <= diapazoneStart) && (stop >= diapazoneStop))   return true;
+        if ((start > diapazoneStart) && (stop < diapazoneStart))    return true;
+        if ((start >= diapazoneStart) && (start < diapazoneStop))   return true;
+        if ((stop >= diapazoneStart) && (stop < diapazoneStop))     return true;
+
+        return false;
+    }
+
+    private Boolean checkCustomerBusy(CustomerEntity customer, Date start, Date stop) {
+
+        for (Calendar event : getCalendarEvents(customer, start, stop)) {
+            if (checkTimeDiapazone(
+                    event.getStartAt(),
+                    event.getStopAt(),
+                    (int) start.getTime() / 1000,
+                    (int) stop.getTime() / 1000))
+
+                return true;
+        }
+
+        return false;
+    }
+
+    private List<Calendar> getCalendarEvents(CustomerEntity customer, Date start, Date stop) {
+
+        List<Calendar> events = calendarRepository
+                .findByCustomerIdUseStartAndStop(customer.getId(), start, stop)
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
 
+/*
+        if ((customer.getStartWorkAt() == customer.getStopWorkAt()) && customer.getWorkAtWeekEnd())
+
+        while (true) {
+            GregorianCalendar gc = new GregorianCalendar()
+            gc.setTime(start);
+            Integer day = gc.get(GregorianCalendar.DAY_OF_YEAR);
+
+            break;
+        }
+*/
+        return events;
+    }
+
+/*
         LocalDate current = start
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -107,6 +170,7 @@ public class CalendarService {
                             value = timestamp.getTime() / 1000;
                             calendar.setStopAt(value.intValue());
                         }
+
                         else {
 
                             System.out.println("3 Work Periodic: " + current.atTime(0, 0).toString() + " -> " + current.atTime(0, 0).plusDays(1).toString());
@@ -144,33 +208,5 @@ public class CalendarService {
                 break;
             }
         }
-        return busyList;
-    }
 */
-    public void putOutEvent(String account, Date start, Date stop) throws IllegalArgumentException {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        CalendarEntity entity = new CalendarEntity();
-        entity.setStartAt(start);
-        entity.setStopAt(stop);
-        entity.setCustomerId(customer);
-        repository.save(entity);
-    }
-
-    public void deleteOutEvent(String account, Date start, Date stop) throws IllegalArgumentException {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-
-        // ...
-    }
-
-    public List<Calendar> getEventList(String account, Date start, Date stop) {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        return repository
-                .findByCustomerIdUseStartAndStop(customer.getId(), start, stop)
-                .stream()
-                .map(entity -> { return mapper.toDto(entity); })
-                .collect(Collectors.toList());
-    }
 }

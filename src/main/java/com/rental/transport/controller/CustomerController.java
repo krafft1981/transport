@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Customer;
+import com.rental.transport.dto.Settings;
 import com.rental.transport.service.CustomerService;
 import java.security.Principal;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/list")
-    public List<Customer> goGetPagesCustomerRequest(
+    public List<Customer> doGetPagesCustomerRequest(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
@@ -46,7 +47,7 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> goGetfindAllByIdListCustomerRequest(Principal principal,
+    public List<Customer> doGetFindAllByIdListCustomerRequest(Principal principal,
                                    @RequestParam(value =  "id", required = true) Long[] ids) {
 
         return service.findAllByIdList(Arrays.asList(ids));
@@ -56,5 +57,24 @@ public class CustomerController {
     public Customer doGetMyCustomerRequest(Principal principal) {
 
         return service.getMy(principal.getName());
+    }
+
+    @GetMapping(value = "/settings")
+    public List<Settings> doGetMySettingsRequest(Principal principal) {
+
+        return service.getSettings(principal.getName());
+    }
+
+    @PutMapping(value = "/settings")
+    public void doPutMySettingsRequest(
+            Principal principal,
+            @RequestParam(value = "name", required = true) String name,
+            @RequestParam(value = "value", required = true) String value) {
+
+        service.setSetting(
+                principal.getName(),
+                name,
+                value
+        );
     }
 }

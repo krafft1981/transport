@@ -75,7 +75,7 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         source.getTransport().stream()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
-                    if (transport != null) {
+                    if (Objects.nonNull(transport)) {
                         destination.addTransport(transport);
                     }
                 });
@@ -83,7 +83,7 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         source.getParking().stream()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
-                    if (parking != null) {
+                    if (Objects.nonNull(parking)) {
                         destination.addParking(parking);
                     }
                 });
@@ -91,7 +91,7 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (image != null) {
+                    if (Objects.nonNull(image)) {
                         destination.addImage(image);
                     }
                 });

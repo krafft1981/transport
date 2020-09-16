@@ -11,12 +11,12 @@ import com.rental.transport.model.Order;
 
 import java.util.List;
 
-public class OrderGridAdapter extends BaseAdapter {
+public class OrderListAdapter extends BaseAdapter {
 
     private Context context;
     private List<Order> data;
 
-    public OrderGridAdapter(Context context, List<Order> data) {
+    public OrderListAdapter(Context context, List<Order> data) {
 
         this.context = context;
         this.data = data;

@@ -11,15 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transport  extends AbstractDto {
+public class Transport extends AbstractDto {
 
-    private String name = "";
-    private String type = "";
-    private Integer capacity = 1;
-    private String description = "";
-    private Double latitude = 0.0;
-    private Double longitude = 0.0;
-    private Double cost = 0.0;
+    private String name;
+    private String type;
+    private Integer capacity;
+    private String description;
+    private Double latitude;
+    private Double longitude;
+    private Double cost;
+    private Integer minHour;
+    private Integer quorum;
     private List<Long> parking = new ArrayList<>();
     private List<Long> image = new ArrayList<>();
     private List<Long> customer = new ArrayList<>();

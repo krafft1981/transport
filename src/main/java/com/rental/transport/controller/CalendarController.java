@@ -1,8 +1,10 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Calendar;
 import com.rental.transport.service.CalendarService;
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,18 @@ public class CalendarController {
     public Long doGetCountRequest() {
 
         return service.count();
+    }
+
+    @GetMapping(value = "/byTime")
+    public List<Calendar> doGetByTimeRequest(
+        Principal principal,
+        @RequestParam(value = "start", required = true) Integer start,
+        @RequestParam(value = "stop", required = true) Integer stop) {
+
+        return service.getEventList(
+                principal.getName(),
+                new Date((long) start * 1000),
+                new Date((long) stop * 1000));
     }
 
     @PutMapping

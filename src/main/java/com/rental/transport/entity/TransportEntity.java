@@ -3,7 +3,6 @@ package com.rental.transport.entity;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -12,7 +11,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -41,6 +39,8 @@ public class TransportEntity extends AbstractEntity  {
     private Double cost = 0.0;
     private Double latitude = 0.0;
     private Double longitude = 0.0;
+    private Integer minHour = 1;
+    private Integer quorum = 1;
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
@@ -60,7 +60,6 @@ public class TransportEntity extends AbstractEntity  {
         return name;
     }
 
-    @Basic
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
     public TypeEntity getType() {
@@ -111,6 +110,18 @@ public class TransportEntity extends AbstractEntity  {
         else {
             return getParking().iterator().next().getLongitude();
         }
+    }
+
+    @Basic
+    @Column(name = "min_hour", nullable = false, insertable = true, updatable = true)
+    public Integer getMinHour() {
+        return minHour;
+    }
+
+    @Basic
+    @Column(name = "quorum", nullable = false, insertable = true, updatable = true)
+    public Integer getQuorum() {
+        return quorum;
     }
 
     @ManyToMany
