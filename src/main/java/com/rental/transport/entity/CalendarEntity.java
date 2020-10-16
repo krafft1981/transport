@@ -28,7 +28,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CalendarEntity extends AbstractEntity {
 
-    private CustomerEntity customerId;
+    private List<CustomerEntity> customers;
     private Long orderId;
     private Date startAt;
     private Date stopAt;
