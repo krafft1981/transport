@@ -1,7 +1,6 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Customer;
-import com.rental.transport.dto.Settings;
 import com.rental.transport.service.CustomerService;
 import java.security.Principal;
 import java.util.Arrays;
@@ -51,30 +50,5 @@ public class CustomerController {
                                    @RequestParam(value =  "id", required = true) Long[] ids) {
 
         return service.findAllByIdList(Arrays.asList(ids));
-    }
-
-    @GetMapping(value = "/my")
-    public Customer doGetMyCustomerRequest(Principal principal) {
-
-        return service.getMy(principal.getName());
-    }
-
-    @GetMapping(value = "/settings")
-    public List<Settings> doGetMySettingsRequest(Principal principal) {
-
-        return service.getSettings(principal.getName());
-    }
-
-    @PutMapping(value = "/settings")
-    public void doPutMySettingsRequest(
-            Principal principal,
-            @RequestParam(value = "name", required = true) String name,
-            @RequestParam(value = "value", required = true) String value) {
-
-        service.setSetting(
-                principal.getName(),
-                name,
-                value
-        );
     }
 }

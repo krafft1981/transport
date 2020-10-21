@@ -3,7 +3,6 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Image;
 import com.rental.transport.service.ImageService;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

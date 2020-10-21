@@ -4,7 +4,6 @@ import com.rental.transport.dto.Transport;
 import com.rental.transport.service.TransportService;
 import java.security.Principal;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +32,14 @@ public class TransportController {
         service.delete(principal.getName(), id);
     }
 
+    @GetMapping
+    public Transport doGetTransportRequest(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long id) {
+
+        return service.get(principal.getName(), id);
+    }
+
     @GetMapping(value = "/list")
     public List<Transport> goGetPagesTransportRequest(
             @RequestParam(value = "page", required = true) Integer page,
@@ -40,6 +47,16 @@ public class TransportController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getPage(pageable);
+    }
+
+    @GetMapping(value = "/list/type")
+    public List<Transport> goGetPagesTransportByTypeRequest(
+            @RequestParam(value = "type", required = true) Long type,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getPageTyped(pageable, type);
     }
 
     @PostMapping
@@ -61,6 +78,12 @@ public class TransportController {
     @GetMapping(value = "/count")
     public Long doGetCountRequest() {
         return service.count();
+    }
+
+    @GetMapping(value = "/my")
+    public List<Transport> doGetMyTransportRequest(Principal principal) {
+
+        return service.getMyTransport(principal.getName());
     }
 }
 

@@ -123,10 +123,7 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     public void addParking(ParkingEntity entity) {
-
-        if (getParking().isEmpty()) {
-            parking.add(entity);
-        }
+        parking.add(entity);
     }
 
     public void addImage(ImageEntity entity) {

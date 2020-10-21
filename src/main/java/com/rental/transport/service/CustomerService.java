@@ -1,7 +1,6 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Customer;
-import com.rental.transport.dto.Settings;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.mapper.CustomerMapper;
@@ -9,9 +8,9 @@ import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -40,7 +39,7 @@ public class CustomerService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
         CustomerEntity entity = customerRepository.findByAccount(username);
-        if (entity == null)
+        if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", username);
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
@@ -53,18 +52,18 @@ public class CustomerService implements UserDetailsService {
         return user;
     }
 
-    public Long create(String account) throws IllegalArgumentException {
+    public Customer create(String account) throws IllegalArgumentException {
 
         if (account.isEmpty())
             throw new IllegalArgumentException("Account не должен быть пустым");
 
         CustomerEntity entity = customerRepository.findByAccount(account);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             entity = new CustomerEntity(account);
             entity = customerRepository.save(entity);
         }
 
-        return entity.getId();
+        return mapper.toDto(entity);
     }
 
     public Long count() {
@@ -76,7 +75,7 @@ public class CustomerService implements UserDetailsService {
     public Boolean exist(String account) {
 
         CustomerEntity entity = customerRepository.findByAccount(account);
-        return entity == null ? false : true;
+        return Objects.isNull(entity) ? false : true;
     }
 
     public void update(String account, Customer dto)
@@ -86,7 +85,7 @@ public class CustomerService implements UserDetailsService {
             throw new AccessDeniedException("Изменение");
 
         CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
-        if (entity == null)
+        if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
         entity = mapper.toEntity(dto);
@@ -111,24 +110,5 @@ public class CustomerService implements UserDetailsService {
                 .collect(Collectors.toList());
 
         return result;
-    }
-
-    public Customer getMy(@NonNull String account) {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        return mapper.toDto(customer);
-    }
-
-    public List<Settings> getSettings(@NonNull String account) {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-//        return mapper.toDto(entity);
-        return null;
-    }
-
-    public void setSetting(@NonNull String account, String name, String value) {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-
     }
 }

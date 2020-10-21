@@ -26,14 +26,13 @@ public class OrderController {
     public Long doPostOrderRequest(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
-            @RequestParam(value = "start", required = true) Integer start,
-            @RequestParam(value = "stop", required = true) Integer stop) {
+            @RequestParam(value = "calendar_id", required = true) Long calendar_id) {
 
         return service.create(
                 principal.getName(),
                 transport_id,
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
+                calendar_id
+        );
     }
 
     @GetMapping(value = "/page")
@@ -47,15 +46,11 @@ public class OrderController {
     }
 
     @GetMapping(value = "/time")
-    public List<Order> doGetTimesOrderRequest(
+    public List<Order> doGetByCalendarRequest(
             Principal principal,
-            @RequestParam(value = "transport", required = true) Long transportId,
-            @RequestParam(value = "start", required = true) Integer start,
-            @RequestParam(value = "stop", required = true) Integer stop) {
+            @RequestParam(value = "calendar_id", required = true) Long[] ids) {
 
-        return service.getByTime(transportId,
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
+        return service.getByCalendarEvent(ids);
     }
 
     @GetMapping(value = "/request")
@@ -65,10 +60,10 @@ public class OrderController {
         return service.getOrderRequestList(principal.getName());
     }
 
-    @PostMapping(value = "/confirm")
+   @PostMapping(value = "/confirm")
     public void doPostConfirmOrderRequest(
             Principal principal,
-            @RequestParam(value = "orderId", required = true) Long orderId) {
+            @RequestParam(value = "order_id", required = true) Long orderId) {
 
         service.confirmOrder(principal.getName(), orderId);
     }
@@ -76,7 +71,7 @@ public class OrderController {
     @PostMapping(value = "/reject")
     public void doPostRejectOrderRequest(
             Principal principal,
-            @RequestParam(value = "orderId", required = true) Long orderId) {
+            @RequestParam(value = "order_id", required = true) Long orderId) {
 
         service.rejectOrder(principal.getName(), orderId);
     }

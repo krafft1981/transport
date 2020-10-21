@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,8 +19,7 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "customer_id", name = "customer_id_idx" ),
-                @Index(columnList = "order_id", name = "order_id_idx" )
+                @Index(columnList = "day_num", name = "day_num_id_idx" )
         }
 )
 
@@ -28,33 +28,32 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CalendarEntity extends AbstractEntity {
 
-    private List<CustomerEntity> customers;
-    private Long orderId;
     private Date startAt;
     private Date stopAt;
+    private Long dayNum;
+    private EventEntity event;
 
     @Basic
-    @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    public CustomerEntity getCustomerId() {
-        return customerId;
-    }
-
-    @Basic
-    @Column(name = "order_id", nullable = true)
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    @Basic
-    @Column(name = "start_at", nullable = true, columnDefinition = "timestamp with time zone not null")
+    @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone not null")
     public Date getStartAt() {
         return startAt;
     }
 
     @Basic
-    @Column(name = "stop_at", nullable = true, columnDefinition = "timestamp with time zone not null")
+    @Column(name = "stop_at", nullable = false, columnDefinition = "timestamp with time zone not null")
     public Date getStopAt() {
         return stopAt;
+    }
+
+    @Basic
+    @Column(name = "day_num", nullable = false, insertable = true, updatable = true)
+    public Long getDayNum() {
+        return dayNum;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "event_id", referencedColumnName = "id")
+    public EventEntity getEvent() {
+        return event;
     }
 }

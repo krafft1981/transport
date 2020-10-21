@@ -12,6 +12,7 @@ import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,30 @@ public class TransportService {
     @Autowired
     private TransportMapper mapper;
 
+    public Boolean validateDuration(Transport transport, Long duration) {
+
+        return (duration > transport.getMinHour()) ? true : false;
+    }
+
+    public Transport get(@NonNull String account, @NonNull Long id)
+            throws ObjectNotFoundException {
+
+        TransportEntity transport = transportRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
+
+        return mapper.toDto(transport);
+    }
+
+    public TransportEntity get(Long id)
+            throws ObjectNotFoundException {
+
+        TransportEntity transport = transportRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
+
+        return transport;
+    }
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException {
 
@@ -56,7 +81,7 @@ public class TransportService {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         TypeEntity typeEntity = typeRepository.findByName(type);
-        if (typeEntity == null)
+        if (Objects.isNull(typeEntity))
             throw new IllegalArgumentException("Неизвестный тип транспорта");
 
         TransportEntity transport = new TransportEntity(customer, typeEntity);
@@ -89,9 +114,27 @@ public class TransportService {
                 .collect(Collectors.toList());
     }
 
+    public List<Transport> getPageTyped(Pageable pageable, Long type) {
+
+        return transportRepository
+                .findAllByTypeId(pageable, type)
+                .stream()
+                .map(entity -> { return mapper.toDto(entity); })
+                .collect(Collectors.toList());
+    }
+
     public Long count() {
 
         Long count = transportRepository.count();
         return count;
+    }
+
+    public List<Transport> getMyTransport(String account) {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        return transportRepository.findAllByCustomerId(customer.getId())
+                .stream()
+                .map(entity -> { return mapper.toDto(entity); })
+                .collect(Collectors.toList());
     }
 }

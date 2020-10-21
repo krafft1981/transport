@@ -36,9 +36,10 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     public Order toDto(OrderEntity entity) {
         return Objects.isNull(entity) ? null : mapper.map(entity, Order.class);
     }
-
+/*
     @PostConstruct
     public void postConstruct() {
+
         mapper.createTypeMap(OrderEntity.class, Order.class)
                 .addMappings(m -> m.skip(Order::setId))
                 .addMappings(m -> m.skip(Order::setStartAt))
@@ -78,11 +79,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
         }
 
         destination.setCustomer(source.getCustomer().getId());
-
-        TransportEntity transportEntity = transportRepository.findById(source.getTransport()).orElse(null);
-        if (Objects.nonNull(transportEntity)) {
-            destination.setTransport(transportMapper.toDto(transportEntity));
-        }
+        destination.setTransport(transportMapper.toDto(source.getTransport()));
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
@@ -98,6 +95,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
             destination.setCustomer(customer);
         }
 
-        destination.setTransport(source.getTransport().getId());
+        destination.setTransport(transportMapper.toEntity(source.getTransport()));
     }
+*/
 }

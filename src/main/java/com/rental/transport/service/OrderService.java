@@ -1,24 +1,27 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Order;
+import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.OrderRequestRepository;
+import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -27,7 +30,7 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private OrderRequestRepository orderRequestRepository;
+    private OrderBundleService orderBundleService;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -53,27 +56,36 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public List<Order> getByTime(Long transportId, Date start, Date stop) {
+    public List<Order> getByCalendarEvent(Long[] ids)
+            throws ObjectNotFoundException, IllegalArgumentException {
 
-        return orderRepository
-                .findByTransportUseStartAndStop(transportId, start, stop)
-                .stream()
-                .map(entity -> { return mapper.toDto(entity); })
-                .collect(Collectors.toList());
+        List<Order> orders = new ArrayList<>();
+
+        for(Long id : ids) {
+            CalendarEntity event = calendarService.getEntityById(id);
+/*
+            if (Objects.isNull(event.getOrderId()))
+                throw new IllegalArgumentException("Событие без заказа");
+
+            OrderEntity order = orderRepository
+                    .findById(event.getOrderId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Заказ", event.getOrderId()));
+
+            orders.add(mapper.toDto(order));
+*/
+        }
+
+        return orders;
     }
 
     public List<Long> getOrderRequestList(String account) {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        return orderRequestRepository
-                .findByCustomerId(customer.getId())
-                .stream()
-                .map(entity -> { return entity.getOrder().getId(); })
-                .collect(Collectors.toList());
+        return orderBundleService.getCustomerBranches(customer);
     }
 
     @Transactional
-    public Long create(@NonNull String account, Long transportId, Date start, Date stop)
+    public Long create(@NonNull String account, Long transportId, Long eventId)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
@@ -87,19 +99,16 @@ public class OrderService {
                 .findById(transportId)
                 .orElseThrow(() -> new ObjectNotFoundException("Транспорт", transportId));
 
-        // validate time by orders
-        if (orderRepository.countByTransportWhereStartStopBusy(transportId, start, stop) > 0)
-            throw new IllegalArgumentException("Время занято другим заказом");
+        CalendarEntity event = calendarService.getEntityById(eventId);
 
         // validate duration
-        Long duration = stop.getTime() - start.getTime();
+        Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
         if (duration < 1000 * 3600 * transport.getMinHour())
             throw new IllegalArgumentException("Временной диапазон меньше минимального");
 
         OrderEntity order = new OrderEntity();
 
-        order.setStartAt(start);
-        order.setStopAt(stop);
+//        order.addCalendar(event);
 
         order.setCost(transport.getCost());
 
@@ -118,24 +127,19 @@ public class OrderService {
         builder.append(customer.getLastName());
 
         order.setCustomerName(builder.toString());
-        order.setTransport(transport.getId());
+        order.setTransport(transport);
 
-        order.setLatitude(transport.getLatitude());
-        order.setLongitude(transport.getLongitude());
+        if (transport.getParking().isEmpty())
+            throw new IllegalArgumentException("Транспорт не имеет стоянки");
 
-        order.setState("New");
+        ParkingEntity parking = transport.getParking().iterator().next();
+
+        order.setLatitude(parking.getLatitude());
+        order.setLongitude(parking.getLongitude());
 
         Long order_id = orderRepository.save(order).getId();
 
-        // validate drivers by calendar
-        transport
-                .getCustomer()
-                .stream()
-                .forEach(customerEntity -> { calendarService.сustomerOrderRequest(customerEntity, order, start, stop); });
-
-        if (orderRequestRepository.countByOrderId(order.getId()) < transport.getQuorum())
-            throw new IllegalArgumentException("Не набрано нужное количество свободных асистентов");
-
+        orderBundleService.checkOrderRequestQuorum(order, transport);
         return order_id;
     }
 
@@ -150,24 +154,20 @@ public class OrderService {
                 .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
 
         if (order.getState().equals("New") == false)
-            throw new IllegalArgumentException("Заказ уже подтверждён");
+            throw new IllegalArgumentException("Заказ не новый");
 
-        TransportEntity transport = transportRepository
-                .findById(order.getTransport())
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", order.getTransport()));
-
-        if (transport.getCustomer().contains(driver) == false)
+        if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Подтверждение");
 
-        orderRequestRepository.deleteByOrderIdAndCustomerId(order.getId(), driver.getId());
+        orderBundleService.deleteOrderBranch(order, driver);
 
         Integer confirmed = order.getConfirmed() + 1;
         order.setConfirmed(confirmed);
 
         order.addDriver(driver);
 
-        if (confirmed >= transport.getQuorum()) {
-            orderRequestRepository.deleteByOrderId(order.getId());
+        if (confirmed >= order.getTransport().getQuorum()) {
+            orderBundleService.deleteOrderBundle(order);
             order.setState("Confirmed");
         }
     }
@@ -182,16 +182,13 @@ public class OrderService {
                 .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
 
         if (order.getState().equals("New") == false)
-            throw new IllegalArgumentException("Заказ уже подтверждён");
+            throw new IllegalArgumentException("Заказ не новый");
 
-        TransportEntity transport = transportRepository
-                .findById(order.getTransport())
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", order.getTransport()));
-
-        if (transport.getCustomer().contains(driver) == false)
+        if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Отвержение");
 
-        orderRequestRepository.deleteByOrderId(order.getId());
+        //delete from calendar events by orderId
+        orderBundleService.deleteOrderBundle(order);
         orderRepository.deleteById(orderId);
     }
 }

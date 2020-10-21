@@ -37,8 +37,6 @@ public class TransportEntity extends AbstractEntity  {
     private Integer capacity = 1;
     private String description = "";
     private Double cost = 0.0;
-    private Double latitude = 0.0;
-    private Double longitude = 0.0;
     private Integer minHour = 1;
     private Integer quorum = 1;
     private Set<ParkingEntity> parking = new HashSet<>();
@@ -91,28 +89,6 @@ public class TransportEntity extends AbstractEntity  {
     }
 
     @Basic
-    @Column(name = "latitude", nullable = false, insertable = true, updatable = false)
-    public Double getLatitude() {
-        if (getParking().isEmpty()) {
-            return latitude;
-        }
-        else {
-            return getParking().iterator().next().getLatitude();
-        }
-    }
-
-    @Basic
-    @Column(name = "longitude", nullable = false, insertable = true, updatable = false)
-    public Double getLongitude() {
-        if (getParking().isEmpty()) {
-            return longitude;
-        }
-        else {
-            return getParking().iterator().next().getLongitude();
-        }
-    }
-
-    @Basic
     @Column(name = "min_hour", nullable = false, insertable = true, updatable = true)
     public Integer getMinHour() {
         return minHour;
@@ -156,8 +132,10 @@ public class TransportEntity extends AbstractEntity  {
 
     public void addParking(ParkingEntity entity) {
 
-        if (getParking().isEmpty()) {
-            parking.add(entity);
+        if (!getParking().isEmpty()) {
+            parking.clear();
         }
+
+        parking.add(entity);
     }
 }

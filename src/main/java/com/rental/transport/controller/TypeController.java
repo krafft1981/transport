@@ -35,8 +35,9 @@ public class TypeController {
     }
 
     @GetMapping(value = "/list")
-    public List<Type> doGetListTypeRequest(@RequestParam(value = "page", required = true) Integer page,
-                                       @RequestParam(value = "size", required = true) Integer size) {
+    public List<Type> doGetListTypeRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getPage(pageable);

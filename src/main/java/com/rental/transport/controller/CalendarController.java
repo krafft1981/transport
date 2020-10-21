@@ -26,51 +26,49 @@ public class CalendarController {
         return service.count();
     }
 
-    @GetMapping(value = "/byTime")
-    public List<Calendar> doGetByTimeRequest(
-        Principal principal,
-        @RequestParam(value = "start", required = true) Integer start,
-        @RequestParam(value = "stop", required = true) Integer stop) {
+    @GetMapping(value = "/transport")
+    public List<Calendar> doGetTransportCalendarRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "transport_id", required = true) Long id) {
 
-        return service.getEventList(
-                principal.getName(),
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
+        return service.getTransportEventList(id, day);
+    }
+
+    @GetMapping(value = "/customer")
+    public List<Calendar> doGetCustomerCalendarRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day) {
+
+        return service.getDayEventList(principal.getName(), day);
     }
 
     @PutMapping
     public void doPutOutRequest(
             Principal principal,
-            @RequestParam(value = "start", required = true) Integer start,
-            @RequestParam(value = "stop", required = true) Integer stop) {
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "start", required = true) Long start,
+            @RequestParam(value = "stop", required = true) Long stop) {
 
         service.putOutEvent(
                 principal.getName(),
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
+                day,
+                new Date(start),
+                new Date(stop)
+        );
     }
 
     @DeleteMapping
     public void doDeleteOutRequest(
             Principal principal,
-            @RequestParam(value = "start", required = true) Integer start,
-            @RequestParam(value = "stop", required = true) Integer stop) {
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "start", required = true) Long start,
+            @RequestParam(value = "stop", required = true) Long stop) {
 
         service.deleteOutEvent(
                 principal.getName(),
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
-    }
-
-    @GetMapping
-    public void doGetOutRequest(
-            Principal principal,
-            @RequestParam(value = "start", required = true) Integer start,
-            @RequestParam(value = "stop", required = true) Integer stop) {
-
-        service.getEventList(
-                principal.getName(),
-                new Date((long) start * 1000),
-                new Date((long) stop * 1000));
+                day,
+                new Date(start),
+                new Date(stop));
     }
 }

@@ -27,8 +27,6 @@ import org.hibernate.annotations.Type;
         indexes = {
                 @Index(columnList = "customer_id", name = "order_customer_idx"),
                 @Index(columnList = "transport_id", name = "order_transport_idx"),
-                @Index(columnList = "start_at", name = "order_start_at_idx"),
-                @Index(columnList = "stop_at", name = "order_stop_at_idx"),
                 @Index(columnList = "state", name = "order_state_idx")
         }
 )
@@ -42,15 +40,14 @@ public class OrderEntity extends AbstractEntity  {
     private String customerPhone = "";
     private CustomerEntity customer;
 
-    private Long transport;
+    private TransportEntity transport;
 
     private Set<CustomerEntity> driver = new HashSet<>();
 
     private Double latitude = 0.0;
     private Double longitude = 0.0;
 
-    private Date startAt;
-    private Date stopAt;
+//    private Set<CalendarEntity> calendar = new HashSet<>();
 
     private Integer confirmed = 0;
 
@@ -60,7 +57,11 @@ public class OrderEntity extends AbstractEntity  {
     private Double price = 0.0;
 
     private String comment = "";
-    private String state = "";
+    private String state = "New";
+
+//    public void addCalendar(CalendarEntity entity) {
+//        this.calendar.add(entity);
+//    }
 
     @Basic
     @Column(name = "customer_name", nullable = false, insertable = true, updatable = true)
@@ -82,7 +83,7 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @ManyToMany
-    @JoinTable(name="order_driver",
+    @JoinTable(name="orders_driver",
             joinColumns=@JoinColumn(name="order_id", nullable = false),
             inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
     )
@@ -94,9 +95,9 @@ public class OrderEntity extends AbstractEntity  {
         driver.add(entity);
     }
 
-    @Basic
-    @Column(name = "transport_id", nullable = false, insertable = true, updatable = true)
-    public Long getTransport() {
+    @ManyToOne
+    @JoinColumn(name = "transport_id", referencedColumnName = "id")
+    public TransportEntity getTransport() {
         return transport;
     }
 
@@ -118,17 +119,10 @@ public class OrderEntity extends AbstractEntity  {
         return confirmed;
     }
 
-    @Basic
-    @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone")
-    public Date getStartAt() {
-        return startAt;
-    }
-
-    @Basic
-    @Column(name = "stop_at", nullable = false, columnDefinition = "timestamp with time zone")
-    public Date getStopAt() {
-        return stopAt;
-    }
+//    @OneToMany
+//    public Set<CalendarEntity> getCalendar() {
+//        return calendar;
+//    }
 
     @Basic
     @Temporal(TemporalType.TIMESTAMP)

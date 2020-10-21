@@ -11,12 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Calendar extends AbstractDto {
 
-    private Long customerId;
-    private Integer startAt;
-    private Integer stopAt;
-    private Long orderId;
-
-    public Calendar(Long customerId) {
-        setCustomerId(customerId);
-    }
+    private Long startAt;
+    private Long stopAt;
+    private Long dayNum;
 }

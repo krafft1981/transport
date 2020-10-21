@@ -23,8 +23,8 @@ public class Order extends AbstractDto {
     private Double latitude;
     private Double longitude;
 
-    private Integer startAt;
-    private Integer stopAt;
+    private List<Calendar> calendar;
+
     private Integer createdAt;
 
     private Double cost;

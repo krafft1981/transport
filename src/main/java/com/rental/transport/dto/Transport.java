@@ -17,8 +17,6 @@ public class Transport extends AbstractDto {
     private String type;
     private Integer capacity;
     private String description;
-    private Double latitude;
-    private Double longitude;
     private Double cost;
     private Integer minHour;
     private Integer quorum;

@@ -1,5 +1,6 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Customer;
 import com.rental.transport.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,12 @@ public class RegistrationController {
     private CustomerService service;
 
     @PostMapping
-    public Long doPostRegistrationRequest(
+    public Customer doPostRegistrationRequest(
             @RequestParam(value = "account", required = true) String account) {
 
-        return service.create(account);
+        Customer customer = service.create(account);
+        System.out.println(customer.toString());
+        return customer;
     }
 
     @GetMapping(value = "/exist")
