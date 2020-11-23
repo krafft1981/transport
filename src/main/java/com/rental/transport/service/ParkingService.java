@@ -16,7 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ParkingService {
+public class ParkingService extends PropertyService {
 
     @Autowired
     private ParkingRepository parkingRepository;
@@ -33,19 +33,27 @@ public class ParkingService {
     @Autowired
     private ParkingMapper mapper;
 
+    public ParkingService() {
+        setProp("name", "");
+        setProp("description", "");
+        setProp("longitude", "0");
+        setProp("latitude", "0");
+        setProp("address", "");
+    }
+
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         ParkingEntity parking = parkingRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Стоянка", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
 
         if (parking.getCustomer().contains(customer) == false)
-            throw new AccessDeniedException("Удаление");
+            throw new AccessDeniedException("Delete");
 
         if (!parking.getTransport().isEmpty())
-            throw new IllegalArgumentException("Удаление не пустой стояки запрещено");
+            throw new IllegalArgumentException("Removal of non-empty parking is prohibited");
 
         parkingRepository.delete(parking);
     }
@@ -53,8 +61,9 @@ public class ParkingService {
     public Long create(@NonNull String account) {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        ParkingEntity parking = new ParkingEntity(customer);
-        return parkingRepository.save(parking).getId();
+        ParkingEntity entity = new ParkingEntity(customer);
+        setProps(entity.getProperty());
+        return parkingRepository.save(entity).getId();
     }
 
     public void update(@NonNull String account, @NonNull Parking dto)
@@ -62,13 +71,13 @@ public class ParkingService {
 
         ParkingEntity parking = parkingRepository
                 .findById(dto.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("Стоянка", dto.getId()));
+                .orElseThrow(() -> new ObjectNotFoundException("Parking", dto.getId()));
 
         parking = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
         if (parking.getCustomer().contains(customer) == false)
-            throw new AccessDeniedException("Изменение");
+            throw new AccessDeniedException("Change");
 
         parkingRepository.save(parking);
     }

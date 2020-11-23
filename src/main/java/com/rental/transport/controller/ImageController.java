@@ -2,6 +2,7 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Image;
 import com.rental.transport.service.ImageService;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,8 @@ public class ImageController {
     }
 
     @GetMapping
-    public Image doGetImageRequest(@RequestParam(value =  "id", required = true) Long id) {
+    public Image doGetImageRequest(@RequestParam(value =  "id", required = true) Long id)
+            throws ObjectNotFoundException {
 
         return service.getImage(id);
     }
@@ -44,7 +46,7 @@ public class ImageController {
             produces = MediaType.IMAGE_JPEG_VALUE
     )
     public byte[] doGetImageByPathRequest (
-            @PathVariable(value =  "id") Long id) throws UnsupportedEncodingException {
+            @PathVariable(value =  "id") Long id) throws ObjectNotFoundException {
 
         Image image = service.getImage(id);
         byte[] base64Bytes = image.getData().getBytes();

@@ -14,26 +14,24 @@ import lombok.NoArgsConstructor;
 public class Customer extends AbstractDto {
 
     private String account;
-    private String firstName;
-    private String lastName;
-    private String family;
-    private String phone;
-    private Integer startWorkAt;
-    private Integer stopWorkAt;
-    private Boolean workAtWeekEnd;
+    private Set<Property> property = new HashSet<>();
     private Set<Long> image = new HashSet<>();
     private Set<Long> transport = new HashSet<>();
     private Set<Long> parking = new HashSet<>();
 
-    public void addImage(Long id) {
-        image.add(id);
+    public void addProperty(Property value) {
+        property.add(value);
     }
 
-    public void addTransport(Long id) {
-        transport.add(id);
+    public void addImage(Long value) {
+        image.add(value);
     }
 
-    public void addParking(Long id) {
-        parking.add(id);
+    public void addTransport(Long value) {
+        transport.add(value);
+    }
+
+    public void addParking(Long value) {
+        parking.add(value);
     }
 }

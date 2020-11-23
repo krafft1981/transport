@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TransportService {
+public class TransportService extends PropertyService {
 
     @Autowired
     private ParkingRepository parkingRepository;
@@ -37,9 +37,14 @@ public class TransportService {
     @Autowired
     private TransportMapper mapper;
 
-    public Boolean validateDuration(Transport transport, Long duration) {
+    public TransportService() {
 
-        return (duration > transport.getMinHour()) ? true : false;
+        setProp("name", "");
+        setProp("description", "");
+        setProp("quorum", "1");
+        setProp("capacity", "1");
+        setProp("cost", "1500.0");
+        setProp("minTime", "7200");
     }
 
     public Transport get(@NonNull String account, @NonNull Long id)
@@ -47,7 +52,7 @@ public class TransportService {
 
         TransportEntity transport = transportRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
 
         return mapper.toDto(transport);
     }
@@ -57,7 +62,7 @@ public class TransportService {
 
         TransportEntity transport = transportRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
 
         return transport;
     }
@@ -67,10 +72,10 @@ public class TransportService {
         CustomerEntity customer = customerRepository.findByAccount(account);
         TransportEntity transport = transportRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
 
         if (transport.getCustomer().contains(customer) == false)
-            throw new AccessDeniedException("Удаление");
+            throw new AccessDeniedException("Delete");
 
         transport.setType(null);
         transportRepository.delete(transport);
@@ -82,10 +87,11 @@ public class TransportService {
         CustomerEntity customer = customerRepository.findByAccount(account);
         TypeEntity typeEntity = typeRepository.findByName(type);
         if (Objects.isNull(typeEntity))
-            throw new IllegalArgumentException("Неизвестный тип транспорта");
+            throw new IllegalArgumentException("Uncknown transport type");
 
-        TransportEntity transport = new TransportEntity(customer, typeEntity);
-        return transportRepository.save(transport).getId();
+        TransportEntity entity = new TransportEntity(customer, typeEntity);
+        setProps(entity.getProperty());
+        return transportRepository.save(entity).getId();
     }
 
     public void update(@NonNull String account, @NonNull Transport dto)
@@ -99,7 +105,7 @@ public class TransportService {
         CustomerEntity customer = customerRepository.findByAccount(account);
 
         if (transport.getCustomer().contains(customer) == false)
-            throw new AccessDeniedException("Изменение");
+            throw new AccessDeniedException("Change");
 
         transportRepository.save(transport);
     }

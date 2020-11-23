@@ -2,8 +2,6 @@ package com.rental.transport.entity;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -15,7 +13,6 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 @Entity(name="transport")
 @Table(
@@ -30,15 +27,10 @@ import org.hibernate.annotations.Type;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransportEntity extends AbstractEntity  {
+public class TransportEntity extends AbstractEntity {
 
-    private String name = "";
     private TypeEntity type;
-    private Integer capacity = 1;
-    private String description = "";
-    private Double cost = 0.0;
-    private Integer minHour = 1;
-    private Integer quorum = 1;
+    private Set<PropertyEntity> property = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
@@ -51,11 +43,10 @@ public class TransportEntity extends AbstractEntity  {
                 .stream()
                 .forEach(parking -> { addParking(parking); });
     }
-    
-    @Basic
-    @Column(name = "name", nullable = false, insertable = true, updatable = true)
-    public String getName() {
-        return name;
+
+    @OneToMany
+    public Set<PropertyEntity> getProperty() {
+        return property;
     }
 
     @ManyToOne
@@ -67,37 +58,6 @@ public class TransportEntity extends AbstractEntity  {
     @OneToMany
     public Set<ImageEntity> getImage() {
         return image;
-    }
-
-    @Basic
-    @Column(name = "capacity", nullable = false, insertable = true, updatable = true)
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    @Basic
-    @Column(name = "description", nullable = false, insertable = true, updatable = true)
-    @Type(type="text")
-    public String getDescription() {
-        return description;
-    }
-
-    @Basic
-    @Column(name = "cost", nullable = false, insertable = true, updatable = false)
-    public Double getCost() {
-        return cost;
-    }
-
-    @Basic
-    @Column(name = "min_hour", nullable = false, insertable = true, updatable = true)
-    public Integer getMinHour() {
-        return minHour;
-    }
-
-    @Basic
-    @Column(name = "quorum", nullable = false, insertable = true, updatable = true)
-    public Integer getQuorum() {
-        return quorum;
     }
 
     @ManyToMany

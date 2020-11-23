@@ -45,7 +45,7 @@ public class CalendarService {
         private Date stop;
         private Long dayNum;
 
-        private static final String message = "Неправильный временной диапазон";
+        private static final String message = "Wrong time diapazone";
 
         public Diapazon(Long day, Date start, Date stop) throws IllegalArgumentException {
 
@@ -73,7 +73,7 @@ public class CalendarService {
 
         return calendarRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Диапазон", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Diapazone", id));
     }
 
     public void putOutEvent(String account, Long day, Date start, Date stop)
@@ -88,7 +88,8 @@ public class CalendarService {
                 start,
                 stop,
                 day,
-                null);
+                null,
+                customer);
 
         calendarRepository.save(entity);
     }
@@ -99,13 +100,13 @@ public class CalendarService {
         Diapazon diapazon = new Diapazon(day, start, stop);
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-//        calendarRepository.deleteByCustomerIdAndDayAndStartAndStop(customer.getId(), day, start, stop);
+        calendarRepository.deleteByCustomerIdAndDayAndStartAndStop(customer.getId(), day, start, stop);
     }
 
     private void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
             throws IllegalArgumentException {
 
-        final String message = "Время уже занято";
+        final String message = "Time is busy";
 
         if ((tryStart <= calendarStart) && (tryStop >= calendarStop))
             throw new IllegalArgumentException(message);
@@ -164,11 +165,63 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
+    private List<Calendar> getCustomerHolidayTime(CustomerEntity customer, Diapazon diapazon) {
+
+        Boolean workAtWeekEnd = null;//Boolean.getBoolean(propertyService.getValue(customer.getProperty(), "work_at_week_end"));
+        if (workAtWeekEnd) {
+            return getCustomerWorkTime(customer, diapazon);
+        }
+
+        List<Calendar> events = new ArrayList<>();
+
+        events.add(new Calendar(
+                diapazon.getStart().getTime(),
+                diapazon.getStop().getTime(),
+                diapazon.getDayNum()
+        ));
+
+        return events;
+    }
+
+    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)
+            throws ObjectNotFoundException {
+
+        List<Calendar> events = new ArrayList<>();
+
+        Integer startWorkAt = null;//Integer.getInteger(propertyService.getValue(customer.getProperty(), "startWorkAt"));
+        Integer stopWorkAt  = null;//Integer.getInteger(propertyService.getValue(customer.getProperty(), "stopWorkAt"));
+
+        if (!startWorkAt.equals(stopWorkAt)) {
+            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            gregorianCalendar.setTime(diapazon.getStart());
+            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, startWorkAt);
+            gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
+            gregorianCalendar.set(java.util.Calendar.SECOND, 0);
+            gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
+
+            events.add(new Calendar(
+                    diapazon.getStart().getTime(),
+                    gregorianCalendar.getTimeInMillis(),
+                    diapazon.getDayNum()
+            ));
+
+            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, stopWorkAt);
+
+            events.add(new Calendar(
+                    gregorianCalendar.getTimeInMillis(),
+                    diapazon.getStop().getTime(),
+                    diapazon.getDayNum()
+            ));
+        }
+
+        return events;
+    }
+
     private List<Calendar> getCustomerEventList(CustomerEntity customer, Long day)
             throws IllegalArgumentException {
 
         Diapazon diapazon = new Diapazon(day);
-/*
+
         List<Calendar> events = calendarRepository
                 .findByCustomerIdAndDayAndStartAndStop(
                         customer.getId(),
@@ -197,55 +250,6 @@ public class CalendarService {
                 events.addAll(getCustomerHolidayTime(customer, diapazon));
                 break;
             }
-        }
-*/
-//        return events;
-        return null;
-    }
-
-    private List<Calendar> getCustomerHolidayTime(CustomerEntity customer, Diapazon diapazon) {
-
-        if (customer.getWorkAtWeekEnd()) {
-            return getCustomerWorkTime(customer, diapazon);
-        }
-
-        List<Calendar> events = new ArrayList<>();
-
-        events.add(new Calendar(
-                diapazon.getStart().getTime(),
-                diapazon.getStop().getTime(),
-                diapazon.getDayNum()
-        ));
-
-        return events;
-    }
-
-    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon) {
-
-        List<Calendar> events = new ArrayList<>();
-
-        if (customer.getStartWorkAt() != customer.getStopWorkAt()) {
-            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            gregorianCalendar.setTime(diapazon.getStart());
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, customer.getStartWorkAt());
-            gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-            gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-            gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
-
-            events.add(new Calendar(
-                    diapazon.getStart().getTime(),
-                    gregorianCalendar.getTimeInMillis(),
-                    diapazon.getDayNum()
-            ));
-
-
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, customer.getStopWorkAt());
-
-            events.add(new Calendar(
-                    gregorianCalendar.getTimeInMillis(),
-                    diapazon.getStop().getTime(),
-                    diapazon.getDayNum()
-            ));
         }
 
         return events;

@@ -13,9 +13,7 @@ import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class OrderService {
+public class OrderService extends PropertyService {
 
     @Autowired
     private OrderRepository orderRepository;
@@ -43,6 +41,10 @@ public class OrderService {
 
     @Autowired
     private OrderMapper mapper;
+
+    public OrderService() {
+        setProp("state", "New");
+    }
 
     public List<Order> getByPage(@NonNull String account, Pageable pageable) {
 
@@ -89,12 +91,13 @@ public class OrderService {
             throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
+/*
         if (customer.getFirstName().isEmpty()
                 || customer.getLastName().isEmpty()
                 || customer.getFamily().isEmpty()
                 || customer.getPhone().isEmpty())
             throw new IllegalArgumentException();
-
+*/
         TransportEntity transport = transportRepository
                 .findById(transportId)
                 .orElseThrow(() -> new ObjectNotFoundException("Транспорт", transportId));
@@ -103,23 +106,24 @@ public class OrderService {
 
         // validate duration
         Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
-        if (duration < 1000 * 3600 * transport.getMinHour())
-            throw new IllegalArgumentException("Временной диапазон меньше минимального");
+//        if (duration < 1000 * 3600 * transport.getMinHour())
+//            throw new IllegalArgumentException("Временной диапазон меньше минимального");
 
         OrderEntity order = new OrderEntity();
 
 //        order.addCalendar(event);
 
-        order.setCost(transport.getCost());
+//        order.setCost(transport.getCost());
 
         // generate price value
         Long remainder = duration % (1000 * 3600) > 0 ? 1L : 0L;
-        order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
+//        order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
 
         order.setCustomer(customer);
-        order.setCustomerPhone(customer.getPhone());
+//        order.setCustomerPhone(customer.getPhone());
 
         StringBuilder builder = new StringBuilder();
+/*
         builder.append(customer.getFamily());
         builder.append(" ");
         builder.append(customer.getFirstName());
@@ -127,6 +131,7 @@ public class OrderService {
         builder.append(customer.getLastName());
 
         order.setCustomerName(builder.toString());
+ */
         order.setTransport(transport);
 
         if (transport.getParking().isEmpty())
@@ -134,8 +139,8 @@ public class OrderService {
 
         ParkingEntity parking = transport.getParking().iterator().next();
 
-        order.setLatitude(parking.getLatitude());
-        order.setLongitude(parking.getLongitude());
+//        order.setLatitude(parking.getLatitude());
+//        order.setLongitude(parking.getLongitude());
 
         Long order_id = orderRepository.save(order).getId();
 
@@ -153,23 +158,23 @@ public class OrderService {
                 .findById(orderId)
                 .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
 
-        if (order.getState().equals("New") == false)
-            throw new IllegalArgumentException("Заказ не новый");
+//        if (order.getState().equals("New") == false)
+//            throw new IllegalArgumentException("Заказ не новый");
 
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Подтверждение");
 
         orderBundleService.deleteOrderBranch(order, driver);
 
-        Integer confirmed = order.getConfirmed() + 1;
-        order.setConfirmed(confirmed);
+//        Integer confirmed = order.getConfirmed() + 1;
+//        order.setConfirmed(confirmed);
 
-        order.addDriver(driver);
+//        order.addDriver(driver);
 
-        if (confirmed >= order.getTransport().getQuorum()) {
-            orderBundleService.deleteOrderBundle(order);
-            order.setState("Confirmed");
-        }
+//        if (confirmed >= order.getTransport().getQuorum()) {
+//            orderBundleService.deleteOrderBundle(order);
+//            order.setState("Confirmed");
+//        }
     }
 
     @Transactional
@@ -181,11 +186,11 @@ public class OrderService {
                 .findById(orderId)
                 .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
 
-        if (order.getState().equals("New") == false)
-            throw new IllegalArgumentException("Заказ не новый");
+//        if (order.getState().equals("New") == false)
+//            throw new IllegalArgumentException("Заказ не новый");
 
         if (order.getTransport().getCustomer().contains(driver) == false)
-            throw new AccessDeniedException("Отвержение");
+            throw new AccessDeniedException("Rejected");
 
         //delete from calendar events by orderId
         orderBundleService.deleteOrderBundle(order);

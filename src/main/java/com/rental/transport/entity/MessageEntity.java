@@ -3,6 +3,9 @@ package com.rental.transport.entity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -13,7 +16,10 @@ import org.hibernate.annotations.Type;
 @Table(
         name="message",
         schema = "public",
-        catalog = "relationship"
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "customer_id", name = "customer_id_idx")
+        }
 )
 
 @Setter
@@ -22,12 +28,19 @@ import org.hibernate.annotations.Type;
 public class MessageEntity extends AbstractEntity {
 
     private String text = "";
+    private CustomerEntity customer;
 
     @Basic
-    @Column(name = "data", nullable = false, insertable = true, updatable = true)
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    public CustomerEntity getCustomer() {
+        return customer;
+    }
+
+    @Basic
+    @Column(name = "text", nullable = false, insertable = true, updatable = true)
     @Type(type="text")
     public String getText() {
         return text;
     }
-
 }

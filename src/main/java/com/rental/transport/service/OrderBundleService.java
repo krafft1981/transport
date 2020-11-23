@@ -1,10 +1,11 @@
 package com.rental.transport.service;
 
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderBundleEntity;
 import com.rental.transport.entity.OrderBundleRepository;
+import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,15 @@ public class OrderBundleService {
     @Autowired
     private OrderBundleRepository orderBundleRepository;
 
-    public void createOrderBundle(List<CustomerEntity> customers, OrderEntity order) {
+    @Autowired
+    private PropertyService propertyService;
 
-        customers.stream().forEach(id -> { createOrderBranch(id, order); });
+    public void createOrderBundle(TransportEntity transport, OrderEntity order) {
+
+        transport
+                .getCustomer()
+                .stream()
+                .forEach(id -> { createOrderBranch(id, order); });
     }
 
     public void createOrderBranch(CustomerEntity customer, OrderEntity order)
@@ -46,9 +53,10 @@ public class OrderBundleService {
     }
 
     public void checkOrderRequestQuorum(OrderEntity order, TransportEntity transport)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ObjectNotFoundException {
 
-        if (orderBundleRepository.countByOrderId(order.getId()) < transport.getQuorum())
-            throw new IllegalArgumentException("Не набрано нужное количество свободных асистентов");
+        String quorum = propertyService.getValue(transport.getProperty(), "quorum");
+        if (orderBundleRepository.countByOrderId(order.getId()) < Long.getLong(quorum))
+            throw new IllegalArgumentException("Customer quorum not reached");
     }
 }

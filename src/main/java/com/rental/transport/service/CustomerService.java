@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Primary
 @Service
-public class CustomerService implements UserDetailsService {
+public class CustomerService extends PropertyService implements UserDetailsService {
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -34,6 +34,17 @@ public class CustomerService implements UserDetailsService {
 
     @Value("${spring.sequrity.password}")
     private String password;
+
+    public CustomerService() {
+
+        setProp("name", "");
+        setProp("family", "");
+        setProp("last_name", "");
+        setProp("phone", "");
+        setProp("start_work_time", "8");
+        setProp("stop_work_time", "17");
+        setProp("work_at_week_end", "yes");
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
@@ -55,11 +66,12 @@ public class CustomerService implements UserDetailsService {
     public Customer create(String account) throws IllegalArgumentException {
 
         if (account.isEmpty())
-            throw new IllegalArgumentException("Account не должен быть пустым");
+            throw new IllegalArgumentException("Account can't be empty");
 
         CustomerEntity entity = customerRepository.findByAccount(account);
         if (Objects.isNull(entity)) {
             entity = new CustomerEntity(account);
+            setProps(entity.getProperty());
             entity = customerRepository.save(entity);
         }
 
@@ -82,13 +94,15 @@ public class CustomerService implements UserDetailsService {
             throws ObjectNotFoundException, AccessDeniedException {
 
         if (account.equals(dto.getAccount()) == false)
-            throw new AccessDeniedException("Изменение");
+            throw new AccessDeniedException("Change");
 
         CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
         entity = mapper.toEntity(dto);
+
+        System.out.println(entity.toString());
         customerRepository.save(entity);
     }
 

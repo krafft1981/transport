@@ -13,15 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Parking extends AbstractDto {
 
-    private String name;
-    private String locality;
-    private String address;
-    private String description;
-    private Double latitude;
-    private Double longitude;
     private Set<Long> image = new HashSet<>();
     private Set<Long> customer = new HashSet<>();
     private Set<Long> transport = new HashSet<>();
+    private Set<Property> property = new HashSet<>();
 
     public void addImage(Long id) {
         image.add(id);

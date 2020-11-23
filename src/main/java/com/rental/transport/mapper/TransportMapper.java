@@ -50,7 +50,6 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                 .addMappings(m -> m.skip(Transport::setId))
                 .addMappings(m -> m.skip(Transport::setCustomer))
                 .addMappings(m -> m.skip(Transport::setImage))
-                .addMappings(m -> m.skip(Transport::setType))
                 .addMappings(m -> m.skip(Transport::setParking))
                 .setPostConverter(toDtoConverter());
 
@@ -70,7 +69,6 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
         source.getCustomer().stream().forEach(customer -> destination.addCustomer(customer.getId()));
         source.getImage().stream().forEach(image -> destination.addImage(image.getId()));
         source.getParking().stream().forEach(parking -> destination.addParking(parking.getId()));
-        destination.setType(source.getType().getName());
     }
 
     public void mapSpecificFields(Transport source, TransportEntity destination) {
@@ -94,10 +92,5 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
                     if (Objects.nonNull(parking)) { destination.addParking(parking); }
                 });
-
-        if (source.getType() != null) {
-            TypeEntity type = typeRepository.findByName(source.getType());
-            destination.setType(type);
-        }
     }
 }

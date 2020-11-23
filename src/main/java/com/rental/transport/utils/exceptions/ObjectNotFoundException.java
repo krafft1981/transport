@@ -4,16 +4,16 @@ public class ObjectNotFoundException extends RuntimeException {
 
     public ObjectNotFoundException(String type, Long id) {
 
-        super(String.format("%s с Id(%d) не найден", type, id));
+        super(String.format("%s with Id(%d) not found", type, id));
     }
 
     public ObjectNotFoundException(String type, String name) {
 
-        super(String.format("%s с именем(%s) не найден", type, name));
+        super(String.format("%s with name(%s) not found", type, name));
     }
 
     public ObjectNotFoundException(Long id) {
 
-        super(String.format("Объект с id(%d) не найден", id));
+        super(String.format("Object with id(%d) not found", id));
     }
 }

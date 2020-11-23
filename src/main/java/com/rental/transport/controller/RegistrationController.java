@@ -21,7 +21,6 @@ public class RegistrationController {
             @RequestParam(value = "account", required = true) String account) {
 
         Customer customer = service.create(account);
-        System.out.println(customer.toString());
         return customer;
     }
 

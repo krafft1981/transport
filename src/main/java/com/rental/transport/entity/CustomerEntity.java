@@ -32,16 +32,10 @@ import lombok.Setter;
 public class CustomerEntity extends AbstractEntity {
 
     private String account;
-    private String firstName = "";
-    private String lastName = "";
-    private String family = "";
-    private String phone = "";
-    private Integer startWorkAt = 0;
-    private Integer stopWorkAt = 0;
-    private Boolean workAtWeekEnd = false;
     private Set<ImageEntity> image = new HashSet<>();
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
+    private Set<PropertyEntity> property = new HashSet<>();
 
     public CustomerEntity(String account) {
         setAccount(account);
@@ -52,48 +46,6 @@ public class CustomerEntity extends AbstractEntity {
     @NotEmpty
     public String getAccount() {
         return account;
-    }
-    
-    @Basic
-    @Column(name = "firstName", nullable = false, insertable = true, updatable = true)
-    public String getFirstName() {
-        return firstName;
-    }
-
-    @Basic
-    @Column(name = "lastName", nullable = false, insertable = true, updatable = true)
-    public String getLastName() {
-        return lastName;
-    }
-
-    @Basic
-    @Column(name = "family", nullable = false, insertable = true, updatable = true)
-    public String getFamily() {
-        return family;
-    }
-
-    @Basic
-    @Column(name = "phone", nullable = false, insertable = true, updatable = true)
-    public String getPhone() {
-        return phone;
-    }
-
-    @Basic
-    @Column(name = "start_work_at", nullable = false, insertable = true, updatable = true)
-    public Integer getStartWorkAt() {
-        return startWorkAt;
-    }
-
-    @Basic
-    @Column(name = "stop_work_at", nullable = false, insertable = true, updatable = true)
-    public Integer getStopWorkAt() {
-        return stopWorkAt;
-    }
-
-    @Basic
-    @Column(name = "work_at_week_end", nullable = false, insertable = true, updatable = true)
-    public Boolean getWorkAtWeekEnd() {
-        return workAtWeekEnd;
     }
 
     @OneToMany
@@ -118,6 +70,11 @@ public class CustomerEntity extends AbstractEntity {
         return parking;
     }
 
+    @OneToMany
+    public Set<PropertyEntity> getProperty() {
+        return property;
+    }
+
     public void addTransport(TransportEntity entity) {
         transport.add(entity);
     }
@@ -128,5 +85,21 @@ public class CustomerEntity extends AbstractEntity {
 
     public void addImage(ImageEntity entity) {
         image.add(entity);
+    }
+
+    public void addProperty(PropertyEntity entity) {
+        property.add(entity);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("CustomerEntity{");
+        sb.append("account='").append(account).append('\'');
+        sb.append(", image=").append(image);
+        sb.append(", transport=").append(transport);
+        sb.append(", parking=").append(parking);
+        sb.append(", property=").append(property);
+        sb.append('}');
+        return sb.toString();
     }
 }

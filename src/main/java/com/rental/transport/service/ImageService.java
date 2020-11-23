@@ -30,14 +30,16 @@ public class ImageService {
 
     public void delete(List<Long> ids) {
 
-        ids.stream().forEach(id -> { imageRepository.deleteById(id); });
+        ids.stream().forEach(id -> {
+            imageRepository.deleteById(id);
+        });
     }
 
     public Image getImage(Long id) throws ObjectNotFoundException {
 
         ImageEntity entity = imageRepository
                 .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Картинка", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
 
         return mapper.toDto(entity);
     }
