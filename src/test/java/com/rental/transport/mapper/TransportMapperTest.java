@@ -2,7 +2,6 @@ package com.rental.transport.mapper;
 
 import com.rental.transport.BaseTest;
 import com.rental.transport.dto.Transport;
-import com.rental.transport.dto.Type;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ParkingEntity;
@@ -12,13 +11,14 @@ import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.utils.RandomPrimitives;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.Assert.*;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
 public class TransportMapperTest extends BaseTest {
 
     @Autowired
@@ -34,6 +34,11 @@ public class TransportMapperTest extends BaseTest {
     @Before
     public void setUp() throws Exception {
         id = RandomPrimitives.getRandomLong();
+    }
+
+    @Test
+    public void TransportMapperNotNullTest() {
+        Assert.assertNotNull(mapper);
     }
 
     @Test

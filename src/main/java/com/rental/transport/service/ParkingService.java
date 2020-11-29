@@ -33,14 +33,6 @@ public class ParkingService extends PropertyService {
     @Autowired
     private ParkingMapper mapper;
 
-    public ParkingService() {
-        setProp("name", "");
-        setProp("description", "");
-        setProp("longitude", "0");
-        setProp("latitude", "0");
-        setProp("address", "");
-    }
-
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
@@ -62,7 +54,6 @@ public class ParkingService extends PropertyService {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         ParkingEntity entity = new ParkingEntity(customer);
-        setProps(entity.getProperty());
         return parkingRepository.save(entity).getId();
     }
 

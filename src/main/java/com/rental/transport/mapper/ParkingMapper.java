@@ -6,6 +6,8 @@ import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.ParkingRepository;
+import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Objects;
@@ -25,6 +27,9 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ParkingRepository parkingRepository;
 
     @Autowired
     private ImageRepository imageRepository;
@@ -51,6 +56,7 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                 .addMappings(m -> m.skip(ParkingEntity::setCustomer))
                 .addMappings(m -> m.skip(ParkingEntity::setTransport))
                 .addMappings(m -> m.skip(ParkingEntity::setImage))
+                .addMappings(m -> m.skip(ParkingEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -95,5 +101,31 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                         destination.addImage(image);
                     }
                 });
+
+        ParkingEntity parking = parkingRepository
+                .findById(source.getId())
+                .orElse(null);
+
+        if (Objects.nonNull(parking)) {
+            source.getProperty().stream()
+                    .forEach(property -> {
+                        PropertyEntity entity = parking
+                                .getProperty()
+                                .stream()
+                                .filter(record -> record.getName().equals(property.getName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (Objects.nonNull(entity)) {
+                            entity.setValue(property.getValue());
+                        }
+
+                        else {
+                            entity = new PropertyEntity(property.getName(), property.getValue());
+                        }
+
+                        destination.addProperty(entity);
+                    });
+        }
     }
 }

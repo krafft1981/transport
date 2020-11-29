@@ -70,4 +70,8 @@ public class ParkingEntity extends AbstractEntity {
 	public void addImage(ImageEntity entity) {
 		image.add(entity);
 	}
+
+	public void addProperty(PropertyEntity entity) {
+		property.add(entity);
+	}
 }

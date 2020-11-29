@@ -98,4 +98,8 @@ public class TransportEntity extends AbstractEntity {
 
         parking.add(entity);
     }
+
+    public void addProperty(PropertyEntity entity) {
+        property.add(entity);
+    }
 }

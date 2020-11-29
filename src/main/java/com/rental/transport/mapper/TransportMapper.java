@@ -7,7 +7,9 @@ import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
+import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.entity.TypeRepository;
 import java.util.Objects;
@@ -34,6 +36,9 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
     @Autowired
     private ParkingRepository parkingRepository;
 
+    @Autowired
+    private TransportRepository transportRepository;
+
     @Override
     public TransportEntity toEntity(Transport dto) {
         return Objects.isNull(dto) ? null : mapper.map(dto, TransportEntity.class);
@@ -59,6 +64,7 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                 .addMappings(m -> m.skip(TransportEntity::setImage))
                 .addMappings(m -> m.skip(TransportEntity::setType))
                 .addMappings(m -> m.skip(TransportEntity::setParking))
+                .addMappings(m -> m.skip(TransportEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -92,5 +98,31 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
                     if (Objects.nonNull(parking)) { destination.addParking(parking); }
                 });
+
+        TransportEntity transport = transportRepository
+                .findById(source.getId())
+                .orElse(null);
+
+        if (Objects.nonNull(transport)) {
+            source.getProperty().stream()
+                    .forEach(property -> {
+                        PropertyEntity entity = transport
+                                .getProperty()
+                                .stream()
+                                .filter(record -> record.getName().equals(property.getName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (Objects.nonNull(entity)) {
+                            entity.setValue(property.getValue());
+                        }
+
+                        else {
+                            entity = new PropertyEntity(property.getName(), property.getValue());
+                        }
+
+                        destination.addProperty(entity);
+                    });
+        }
     }
 }

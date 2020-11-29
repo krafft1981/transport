@@ -5,6 +5,9 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Date;
@@ -27,7 +30,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     private TransportRepository transportRepository;
 
     @Autowired
-    private TransportMapper transportMapper;
+    private OrderRepository orderRepository;
 
     public OrderEntity toEntity(Order dto) {
         return Objects.isNull(dto) ? null : mapper.map(dto, OrderEntity.class);
@@ -36,26 +39,21 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     public Order toDto(OrderEntity entity) {
         return Objects.isNull(entity) ? null : mapper.map(entity, Order.class);
     }
-/*
+
     @PostConstruct
     public void postConstruct() {
 
         mapper.createTypeMap(OrderEntity.class, Order.class)
                 .addMappings(m -> m.skip(Order::setId))
-                .addMappings(m -> m.skip(Order::setStartAt))
-                .addMappings(m -> m.skip(Order::setStopAt))
                 .addMappings(m -> m.skip(Order::setCreatedAt))
                 .addMappings(m -> m.skip(Order::setCustomer))
-                .addMappings(m -> m.skip(Order::setTransport))
                   .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Order.class, OrderEntity.class)
                 .addMappings(m -> m.skip(OrderEntity::setId))
-                .addMappings(m -> m.skip(OrderEntity::setStartAt))
-                .addMappings(m -> m.skip(OrderEntity::setStopAt))
                 .addMappings(m -> m.skip(OrderEntity::setCreatedAt))
                 .addMappings(m -> m.skip(OrderEntity::setCustomer))
-                .addMappings(m -> m.skip(OrderEntity::setTransport))
+                .addMappings(m -> m.skip(OrderEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -63,31 +61,18 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        if (Objects.nonNull(source.getStartAt())) {
-            Long value = source.getStartAt().getTime() / 1000;
-            destination.setStartAt(value.intValue());
-        }
-
-        if (Objects.nonNull(source.getStopAt())) {
-            Long value = source.getStopAt().getTime() / 1000;
-            destination.setStopAt(value.intValue());
-        }
-
         if (Objects.nonNull(source.getCreatedAt())) {
             Long value = source.getCreatedAt().getTime() / 1000;
             destination.setCreatedAt(value.intValue());
         }
 
         destination.setCustomer(source.getCustomer().getId());
-        destination.setTransport(transportMapper.toDto(source.getTransport()));
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
 
         destination.setId(source.getId());
 
-        destination.setStartAt(new Date((long) source.getStartAt() * 1000));
-        destination.setStopAt(new Date((long) source.getStopAt() * 1000));
         destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
 
         CustomerEntity customer = customerRepository.findById(source.getCustomer()).orElse(null);
@@ -95,7 +80,30 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
             destination.setCustomer(customer);
         }
 
-        destination.setTransport(transportMapper.toEntity(source.getTransport()));
+        OrderEntity order = orderRepository
+                .findById(source.getId())
+                .orElse(null);
+
+        if (Objects.nonNull(order)) {
+            source.getProperty().stream()
+                    .forEach(property -> {
+                        PropertyEntity entity = order
+                                .getProperty()
+                                .stream()
+                                .filter(record -> record.getName().equals(property.getName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (Objects.nonNull(entity)) {
+                            entity.setValue(property.getValue());
+                        }
+
+                        else {
+                            entity = new PropertyEntity(property.getName(), property.getValue());
+                        }
+
+                        destination.addProperty(entity);
+                    });
+        }
     }
-*/
 }

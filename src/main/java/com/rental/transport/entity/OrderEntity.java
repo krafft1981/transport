@@ -88,4 +88,8 @@ public class OrderEntity extends AbstractEntity  {
     public Date getCreatedAt() {
         return createdAt;
     }
+
+    public void addProperty(PropertyEntity entity) {
+        property.add(entity);
+    }
 }

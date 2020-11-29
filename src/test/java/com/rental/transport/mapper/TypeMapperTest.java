@@ -27,6 +27,11 @@ public class TypeMapperTest extends BaseTest {
     }
 
     @Test
+    public void TypeMapperNotNullTest() {
+        Assert.assertNotNull(mapper);
+    }
+
+    @Test
     public void toEntity() {
         Type dto = new Type(name);
         dto.setId(id);

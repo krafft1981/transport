@@ -37,16 +37,6 @@ public class TransportService extends PropertyService {
     @Autowired
     private TransportMapper mapper;
 
-    public TransportService() {
-
-        setProp("name", "");
-        setProp("description", "");
-        setProp("quorum", "1");
-        setProp("capacity", "1");
-        setProp("cost", "1500.0");
-        setProp("minTime", "7200");
-    }
-
     public Transport get(@NonNull String account, @NonNull Long id)
             throws ObjectNotFoundException {
 
@@ -90,7 +80,6 @@ public class TransportService extends PropertyService {
             throw new IllegalArgumentException("Uncknown transport type");
 
         TransportEntity entity = new TransportEntity(customer, typeEntity);
-        setProps(entity.getProperty());
         return transportRepository.save(entity).getId();
     }
 

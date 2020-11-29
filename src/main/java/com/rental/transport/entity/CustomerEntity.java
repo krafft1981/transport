@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.service.PropertyService;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -39,7 +40,7 @@ public class CustomerEntity extends AbstractEntity {
 
     public CustomerEntity(String account) {
         setAccount(account);
-    }
+     }
 
     @Basic
     @Column(name = "account", unique = true, nullable = false, insertable = true, updatable = false)

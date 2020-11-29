@@ -22,8 +22,7 @@ import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
  * Базовый класс JUnit тестов.
  */
 @ContextConfiguration(
-        classes = TestApplication.class,
-        loader = AnnotationConfigWebContextLoader.class
+        classes = TestApplication.class
 )
 @SpringBootTest
 public abstract class BaseTest {

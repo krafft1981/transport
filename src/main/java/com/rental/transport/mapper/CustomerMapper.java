@@ -2,10 +2,13 @@ package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Customer;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
+import com.rental.transport.entity.PropertyEntity;
+import com.rental.transport.entity.PropertyRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Objects;
@@ -24,7 +27,13 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
     private ParkingRepository parkingRepository;
 
     @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
+    private PropertyRepository propertyRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -51,6 +60,7 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
                 .addMappings(m -> m.skip(CustomerEntity::setTransport))
                 .addMappings(m -> m.skip(CustomerEntity::setParking))
                 .addMappings(m -> m.skip(CustomerEntity::setImage))
+                .addMappings(m -> m.skip(CustomerEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -84,5 +94,30 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (Objects.nonNull(image)) { destination.addImage(image); }
                 });
+
+        CustomerEntity customer = customerRepository
+                .findById(source.getId())
+                .orElse(null);
+
+        if (Objects.nonNull(customer)) {
+            source.getProperty().stream()
+                    .forEach(property -> {
+                        PropertyEntity entity = customer
+                                .getProperty()
+                                .stream()
+                                .filter(record -> record.getName().equals(property.getName()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (Objects.nonNull(entity)) {
+                            entity.setValue(property.getValue());
+                        }
+                        else {
+                            entity = new PropertyEntity(property.getName(), property.getValue());
+                            propertyRepository.save(entity);
+                        }
+                        destination.addProperty(entity);
+                    });
+        }
     }
 }

@@ -2,15 +2,14 @@ package com.rental.transport.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Property extends AbstractDto {
+public class Property {
 
+    private String logName;
     private String name;
     private String value;
 
@@ -18,17 +17,24 @@ public class Property extends AbstractDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
 
         Property property = (Property) o;
 
-        return getName().equals(property.getName());
+        return getLogName().equals(property.getLogName());
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + getName().hashCode();
-        return result;
+        return getLogName().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Property{");
+        sb.append("logName='").append(logName).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", value='").append(value).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

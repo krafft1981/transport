@@ -7,10 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PropertyService {
 
+    @Getter
     private Set<Property> properties = new HashSet<>();
 
     @Autowired

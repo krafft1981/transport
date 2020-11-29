@@ -33,12 +33,11 @@ dependencies {
 	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 	implementation 'org.modelmapper:modelmapper:2.3.8'
 
+	testCompile 'junit:junit:4.13.1'
 	testCompile 'org.apache.commons:commons-lang3:3.8.1'
 	testCompile 'org.apache.commons:commons-text:1.6'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	testRuntime 'org.projectlombok:lombok'
-
-//	testCompile 'org.testcontainers:postgresql:1.15.0'
 }
 
 test {

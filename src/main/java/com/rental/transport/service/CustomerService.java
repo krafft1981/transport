@@ -35,17 +35,6 @@ public class CustomerService extends PropertyService implements UserDetailsServi
     @Value("${spring.sequrity.password}")
     private String password;
 
-    public CustomerService() {
-
-        setProp("name", "");
-        setProp("family", "");
-        setProp("last_name", "");
-        setProp("phone", "");
-        setProp("start_work_time", "8");
-        setProp("stop_work_time", "17");
-        setProp("work_at_week_end", "yes");
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
@@ -71,7 +60,6 @@ public class CustomerService extends PropertyService implements UserDetailsServi
         CustomerEntity entity = customerRepository.findByAccount(account);
         if (Objects.isNull(entity)) {
             entity = new CustomerEntity(account);
-            setProps(entity.getProperty());
             entity = customerRepository.save(entity);
         }
 
