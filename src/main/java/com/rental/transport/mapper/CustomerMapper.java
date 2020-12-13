@@ -1,6 +1,7 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Customer;
+import com.rental.transport.dto.Property;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
@@ -11,7 +12,9 @@ import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> {
+
+    @Autowired
+    private PropertyRepository propertyRepository;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -31,9 +37,6 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
 
     @Autowired
     private ImageRepository imageRepository;
-
-    @Autowired
-    private PropertyRepository propertyRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -95,28 +98,20 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
                     if (Objects.nonNull(image)) { destination.addImage(image); }
                 });
 
-        CustomerEntity customer = customerRepository
-                .findById(source.getId())
-                .orElse(null);
-
+        CustomerEntity customer = customerRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(customer)) {
-            source.getProperty().stream()
-                    .forEach(property -> {
-                        PropertyEntity entity = customer
-                                .getProperty()
-                                .stream()
-                                .filter(record -> record.getName().equals(property.getName()))
-                                .findFirst()
-                                .orElse(null);
+            customer.getProperty().stream()
+                    .forEach( entity -> {
+                            Property property = source.getProperty().stream()
+                                    .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                    .findFirst()
+                                    .orElse(null);
 
-                        if (Objects.nonNull(entity)) {
-                            entity.setValue(property.getValue());
-                        }
-                        else {
-                            entity = new PropertyEntity(property.getName(), property.getValue());
-                            propertyRepository.save(entity);
-                        }
-                        destination.addProperty(entity);
+                            if (Objects.nonNull(property)) {
+                                entity.setValue(property.getValue());
+                            }
+
+                            destination.addProperty(entity);
                     });
         }
     }

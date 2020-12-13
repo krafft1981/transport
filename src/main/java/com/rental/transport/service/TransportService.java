@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TransportService extends PropertyService {
+public class TransportService {
 
     @Autowired
     private ParkingRepository parkingRepository;
@@ -86,17 +86,18 @@ public class TransportService extends PropertyService {
     public void update(@NonNull String account, @NonNull Transport dto)
             throws AccessDeniedException {
 
-        TransportEntity transport = transportRepository
+        TransportEntity entity = transportRepository
                 .findById(dto.getId())
                 .orElseThrow(() -> new ObjectNotFoundException("Транспорт", dto.getId()));
 
-        transport = mapper.toEntity(dto);
+        entity = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
-        if (transport.getCustomer().contains(customer) == false)
+        if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
 
-        transportRepository.save(transport);
+        entity.addPropertyList();
+        transportRepository.save(entity);
     }
 
     public List<Transport> getPage(Pageable pageable) {

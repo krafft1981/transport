@@ -2,6 +2,7 @@ package com.rental.transport.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -42,9 +43,18 @@ public class TransportEntity extends AbstractEntity {
         customer.getParking()
                 .stream()
                 .forEach(parking -> { addParking(parking); });
+
+        addPropertyList();
     }
 
-    @OneToMany
+    public void addPropertyList() {
+
+        addProperty(new PropertyEntity("Кворум", "quorum", "1"));
+        addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200"));
+        addProperty(new PropertyEntity("Описание", "description", ""));
+    }
+
+    @OneToMany(cascade = {CascadeType.ALL})
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -100,6 +110,14 @@ public class TransportEntity extends AbstractEntity {
     }
 
     public void addProperty(PropertyEntity entity) {
+
+        String name = entity.getLogicName();
+
+        entity = property.stream()
+                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity);
+
         property.add(entity);
     }
 }

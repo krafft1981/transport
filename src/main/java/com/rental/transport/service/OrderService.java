@@ -22,13 +22,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class OrderService extends PropertyService {
+public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
-    private OrderBundleService orderBundleService;
+    private OrderRequestService orderRequestService;
 
     @Autowired
     private TransportRepository transportRepository;
@@ -40,10 +40,13 @@ public class OrderService extends PropertyService {
     private CalendarService calendarService;
 
     @Autowired
+    private PropertyService propertyService;
+
+    @Autowired
     private OrderMapper mapper;
 
     public OrderService() {
-        setProp("state", "New");
+
     }
 
     public List<Order> getByPage(@NonNull String account, Pageable pageable) {
@@ -83,7 +86,7 @@ public class OrderService extends PropertyService {
     public List<Long> getOrderRequestList(String account) {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        return orderBundleService.getCustomerBranches(customer);
+        return orderRequestService.getCustomerBranches(customer);
     }
 
     @Transactional
@@ -144,7 +147,7 @@ public class OrderService extends PropertyService {
 
         Long order_id = orderRepository.save(order).getId();
 
-        orderBundleService.checkOrderRequestQuorum(order, transport);
+        orderRequestService.checkOrderRequestQuorum(order, transport);
         return order_id;
     }
 
@@ -164,7 +167,7 @@ public class OrderService extends PropertyService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Подтверждение");
 
-        orderBundleService.deleteOrderBranch(order, driver);
+        orderRequestService.deleteOrderBranch(order, driver);
 
 //        Integer confirmed = order.getConfirmed() + 1;
 //        order.setConfirmed(confirmed);
@@ -193,7 +196,7 @@ public class OrderService extends PropertyService {
             throw new AccessDeniedException("Rejected");
 
         //delete from calendar events by orderId
-        orderBundleService.deleteOrderBundle(order);
+        orderRequestService.deleteOrderBundle(order);
         orderRepository.deleteById(orderId);
     }
 }

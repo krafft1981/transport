@@ -18,15 +18,22 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PropertyEntity extends AbstractEntity  {
+public class PropertyEntity extends AbstractEntity {
 
-    private String name = "";
+    private String humanName = "";
+    private String logicName = "";
     private String value = "";
 
     @Basic
-    @Column(name = "name", nullable = false, insertable = true, updatable = true)
-    public String getName() {
-        return name;
+    @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
+    public String getHumanName() {
+        return humanName;
+    }
+
+    @Basic
+    @Column(name = "logic_name", nullable = false, insertable = true, updatable = true)
+    public String getLogicName() {
+        return logicName;
     }
 
     @Basic

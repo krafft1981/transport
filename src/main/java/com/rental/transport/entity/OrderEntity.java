@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -16,7 +17,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "orders")
@@ -32,7 +32,6 @@ import lombok.Setter;
 
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class OrderEntity extends AbstractEntity  {
 
     private CustomerEntity customer;
@@ -44,6 +43,10 @@ public class OrderEntity extends AbstractEntity  {
     private Set<MessageEntity> message = new HashSet<>();
 
     private Date createdAt = new Date();
+
+    public OrderEntity() {
+        addProperty(new PropertyEntity("Описание", "description", ""));
+    }
 
     @Basic
     @ManyToOne
@@ -58,7 +61,7 @@ public class OrderEntity extends AbstractEntity  {
         return transport;
     }
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -90,6 +93,14 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     public void addProperty(PropertyEntity entity) {
+
+        String name = entity.getLogicName();
+
+        entity = property.stream()
+                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity);
+
         property.add(entity);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface OrderBundleRepository extends AbstractRepository<OrderBundleEntity> {
+public interface OrderRequestRepository extends AbstractRepository<OrderRequestEntity> {
 
     Long countByOrderId(Long id);
 
@@ -18,11 +18,11 @@ public interface OrderBundleRepository extends AbstractRepository<OrderBundleEnt
 
     @Transactional
     @Modifying
-    @Query("delete from orders_bundle where order_id = :order_id and customer_id = :customer_id")
+    @Query("delete from orders_request where order_id = :order_id and customer_id = :customer_id")
     void deleteByOrderIdAndCustomerId(
             @Param("order_id") Long orderId,
             @Param("customer_id") Long customerId
     );
 
-    List<OrderBundleEntity> findByCustomerId(Long id);
+    List<OrderRequestEntity> findByCustomerId(Long id);
 }

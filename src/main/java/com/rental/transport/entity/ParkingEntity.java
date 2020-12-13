@@ -2,6 +2,7 @@ package com.rental.transport.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -29,9 +30,14 @@ public class ParkingEntity extends AbstractEntity {
 
 	public ParkingEntity(CustomerEntity entity) {
 		addCustomer(entity);
+		addPropertyList();
 	}
 
-	@OneToMany
+	public void addPropertyList() {
+		addProperty(new PropertyEntity("Описание", "description", ""));
+	}
+
+	@OneToMany(cascade = {CascadeType.ALL})
 	public Set<PropertyEntity> getProperty() {
 		return property;
 	}
@@ -72,6 +78,14 @@ public class ParkingEntity extends AbstractEntity {
 	}
 
 	public void addProperty(PropertyEntity entity) {
+
+		String name = entity.getLogicName();
+
+		entity = property.stream()
+				.filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+				.findFirst()
+				.orElse(entity);
+
 		property.add(entity);
 	}
 }

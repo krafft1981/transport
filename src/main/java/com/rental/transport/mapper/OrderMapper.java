@@ -1,14 +1,11 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Order;
+import com.rental.transport.dto.Property;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
-import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.ParkingEntity;
-import com.rental.transport.entity.PropertyEntity;
-import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Date;
 import java.util.Objects;
@@ -80,26 +77,17 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
             destination.setCustomer(customer);
         }
 
-        OrderEntity order = orderRepository
-                .findById(source.getId())
-                .orElse(null);
-
+        OrderEntity order = orderRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(order)) {
-            source.getProperty().stream()
-                    .forEach(property -> {
-                        PropertyEntity entity = order
-                                .getProperty()
-                                .stream()
-                                .filter(record -> record.getName().equals(property.getName()))
+            order.getProperty().stream()
+                    .forEach( entity -> {
+                        Property property = source.getProperty().stream()
+                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 
-                        if (Objects.nonNull(entity)) {
+                        if (Objects.nonNull(property)) {
                             entity.setValue(property.getValue());
-                        }
-
-                        else {
-                            entity = new PropertyEntity(property.getName(), property.getValue());
                         }
 
                         destination.addProperty(entity);

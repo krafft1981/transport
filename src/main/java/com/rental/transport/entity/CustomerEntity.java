@@ -1,9 +1,10 @@
 package com.rental.transport.entity;
 
-import com.rental.transport.service.PropertyService;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -40,7 +41,17 @@ public class CustomerEntity extends AbstractEntity {
 
     public CustomerEntity(String account) {
         setAccount(account);
-     }
+        addPropertyList();
+    }
+
+    public void addPropertyList() {
+        addProperty(new PropertyEntity("ФИО", "fio", ""));
+        addProperty(new PropertyEntity("Телефон", "phone", ""));
+        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8"));
+        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18"));
+        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1"));
+        addProperty(new PropertyEntity("Описание", "description", ""));
+    }
 
     @Basic
     @Column(name = "account", unique = true, nullable = false, insertable = true, updatable = false)
@@ -71,7 +82,7 @@ public class CustomerEntity extends AbstractEntity {
         return parking;
     }
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -89,18 +100,14 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     public void addProperty(PropertyEntity entity) {
-        property.add(entity);
-    }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("CustomerEntity{");
-        sb.append("account='").append(account).append('\'');
-        sb.append(", image=").append(image);
-        sb.append(", transport=").append(transport);
-        sb.append(", parking=").append(parking);
-        sb.append(", property=").append(property);
-        sb.append('}');
-        return sb.toString();
+        String name = entity.getLogicName();
+
+        entity = property.stream()
+                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity);
+
+        property.add(entity);
     }
 }

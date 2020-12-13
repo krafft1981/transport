@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "orders_bundle")
+@Entity(name = "orders_request")
 @Table(
-        name="orders_bundle",
+        name="orders_request",
         schema = "public",
         catalog = "relationship"
 )
@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderBundleEntity extends AbstractEntity {
+public class OrderRequestEntity extends AbstractEntity {
 
         private CustomerEntity customer;
         private OrderEntity order;

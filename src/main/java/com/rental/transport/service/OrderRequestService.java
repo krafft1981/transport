@@ -1,8 +1,8 @@
 package com.rental.transport.service;
 
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.OrderBundleEntity;
-import com.rental.transport.entity.OrderBundleRepository;
+import com.rental.transport.entity.OrderRequestEntity;
+import com.rental.transport.entity.OrderRequestRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -12,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderBundleService {
+public class OrderRequestService {
 
     @Autowired
-    private OrderBundleRepository orderBundleRepository;
+    private OrderRequestRepository orderRequestRepository;
 
     @Autowired
     private PropertyService propertyService;
@@ -31,21 +31,21 @@ public class OrderBundleService {
     public void createOrderBranch(CustomerEntity customer, OrderEntity order)
             throws IllegalArgumentException {
 
-        OrderBundleEntity orderRequest = new OrderBundleEntity(customer, order);
-        orderBundleRepository.save(orderRequest);
+        OrderRequestEntity orderRequest = new OrderRequestEntity(customer, order);
+        orderRequestRepository.save(orderRequest);
     }
 
     public void deleteOrderBranch(OrderEntity order, CustomerEntity driver) {
-        orderBundleRepository.deleteByOrderIdAndCustomerId(order.getId(), driver.getId());
+        orderRequestRepository.deleteByOrderIdAndCustomerId(order.getId(), driver.getId());
     }
 
     public void deleteOrderBundle(OrderEntity order) {
 
-        orderBundleRepository.deleteByOrderId(order.getId());
+        orderRequestRepository.deleteByOrderId(order.getId());
     }
 
     public List<Long> getCustomerBranches(CustomerEntity customer) {
-        return orderBundleRepository
+        return orderRequestRepository
                 .findByCustomerId(customer.getId())
                 .stream()
                 .map(entity -> { return entity.getOrder().getId(); })
@@ -56,7 +56,7 @@ public class OrderBundleService {
             throws IllegalArgumentException, ObjectNotFoundException {
 
         String quorum = propertyService.getValue(transport.getProperty(), "quorum");
-        if (orderBundleRepository.countByOrderId(order.getId()) < Long.getLong(quorum))
+        if (orderRequestRepository.countByOrderId(order.getId()) < Long.getLong(quorum))
             throw new IllegalArgumentException("Customer quorum not reached");
     }
 }

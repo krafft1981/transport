@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Primary
 @Service
-public class CustomerService extends PropertyService implements UserDetailsService {
+public class CustomerService implements UserDetailsService {
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -81,7 +81,7 @@ public class CustomerService extends PropertyService implements UserDetailsServi
     public void update(String account, Customer dto)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        if (account.equals(dto.getAccount()) == false)
+        if (!account.equals(dto.getAccount()))
             throw new AccessDeniedException("Change");
 
         CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
@@ -89,8 +89,7 @@ public class CustomerService extends PropertyService implements UserDetailsServi
             throw new ObjectNotFoundException("Account", account);
 
         entity = mapper.toEntity(dto);
-
-        System.out.println(entity.toString());
+        entity.addPropertyList();
         customerRepository.save(entity);
     }
 

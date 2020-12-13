@@ -1,13 +1,14 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Parking;
+import com.rental.transport.dto.Property;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
+import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
-import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Objects;
@@ -102,26 +103,17 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                     }
                 });
 
-        ParkingEntity parking = parkingRepository
-                .findById(source.getId())
-                .orElse(null);
-
+        ParkingEntity parking = parkingRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(parking)) {
-            source.getProperty().stream()
-                    .forEach(property -> {
-                        PropertyEntity entity = parking
-                                .getProperty()
-                                .stream()
-                                .filter(record -> record.getName().equals(property.getName()))
+            parking.getProperty().stream()
+                    .forEach( entity -> {
+                        Property property = source.getProperty().stream()
+                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 
-                        if (Objects.nonNull(entity)) {
+                        if (Objects.nonNull(property)) {
                             entity.setValue(property.getValue());
-                        }
-
-                        else {
-                            entity = new PropertyEntity(property.getName(), property.getValue());
                         }
 
                         destination.addProperty(entity);

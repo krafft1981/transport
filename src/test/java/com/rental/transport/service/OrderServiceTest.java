@@ -1,7 +1,6 @@
 package com.rental.transport.service;
 
 import com.rental.transport.BaseTest;
-import com.rental.transport.entity.OrderBundleRepository;
 import com.rental.transport.entity.OrderRepository;
 import org.junit.Assert;
 import org.junit.Before;

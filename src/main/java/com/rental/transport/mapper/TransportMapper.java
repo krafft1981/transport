@@ -1,5 +1,6 @@
 package com.rental.transport.mapper;
 
+import com.rental.transport.dto.Property;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
@@ -7,10 +8,8 @@ import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
-import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.entity.TypeRepository;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
@@ -99,26 +98,17 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     if (Objects.nonNull(parking)) { destination.addParking(parking); }
                 });
 
-        TransportEntity transport = transportRepository
-                .findById(source.getId())
-                .orElse(null);
-
+        TransportEntity transport = transportRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(transport)) {
-            source.getProperty().stream()
-                    .forEach(property -> {
-                        PropertyEntity entity = transport
-                                .getProperty()
-                                .stream()
-                                .filter(record -> record.getName().equals(property.getName()))
+            transport.getProperty().stream()
+                    .forEach( entity -> {
+                        Property property = source.getProperty().stream()
+                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 
-                        if (Objects.nonNull(entity)) {
+                        if (Objects.nonNull(property)) {
                             entity.setValue(property.getValue());
-                        }
-
-                        else {
-                            entity = new PropertyEntity(property.getName(), property.getValue());
                         }
 
                         destination.addProperty(entity);
