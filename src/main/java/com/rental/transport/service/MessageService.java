@@ -9,4 +9,9 @@ public class MessageService {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private MessageMapping messageMapping;
+    
+    
 }

@@ -37,32 +37,11 @@ public class TransportService {
     @Autowired
     private TransportMapper mapper;
 
-    public Transport get(@NonNull String account, @NonNull Long id)
-            throws ObjectNotFoundException {
-
-        TransportEntity transport = transportRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
-
-        return mapper.toDto(transport);
-    }
-
-    public TransportEntity get(Long id)
-            throws ObjectNotFoundException {
-
-        TransportEntity transport = transportRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
-
-        return transport;
-    }
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        TransportEntity transport = transportRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
+        TransportEntity transport = get(id);
 
         if (transport.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
@@ -86,10 +65,7 @@ public class TransportService {
     public void update(@NonNull String account, @NonNull Transport dto)
             throws AccessDeniedException {
 
-        TransportEntity entity = transportRepository
-                .findById(dto.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", dto.getId()));
-
+        TransportEntity entity = get(dto.getId());
         entity = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
@@ -132,5 +108,12 @@ public class TransportService {
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
+    }
+
+    public TransportEntity get(Long id) throws ObjectNotFoundException {
+
+        return transportRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 }

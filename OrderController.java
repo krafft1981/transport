@@ -3,7 +3,6 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Order;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -26,12 +25,12 @@ public class OrderController {
     public Long doPostOrderRequest(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
-            @RequestParam(value = "calendar_id", required = true) Long calendar_id) {
+            @RequestParam(value = "calendar_id", required = true) Long[] calendar_ids) {
 
         return service.create(
                 principal.getName(),
                 transport_id,
-                calendar_id
+                calendar_ids
         );
     }
 

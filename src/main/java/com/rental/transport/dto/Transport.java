@@ -1,8 +1,6 @@
 package com.rental.transport.dto;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,10 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Transport extends AbstractDto {
 
+    private Type type;
     private Set<Property> property = new HashSet<>();
-    private List<Long> parking = new ArrayList<>();
-    private List<Long> image = new ArrayList<>();
-    private List<Long> customer = new ArrayList<>();
+    private Set<Long> parking = new HashSet<>();
+    private Set<Long> image = new HashSet<>();
+    private Set<Long> customer = new HashSet<>();
+
     public void addCustomer(Long id) {
         customer.add(id);
     }

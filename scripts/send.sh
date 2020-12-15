@@ -2,7 +2,7 @@
 
 user=krafft1981@mail.ru
 pass=password
-url="http://88.200.201.2:8080"
+url="http://138.124.187.10:8080"
 
 for file in $(ls images)
 do

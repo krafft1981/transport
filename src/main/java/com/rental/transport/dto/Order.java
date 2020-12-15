@@ -1,9 +1,7 @@
 package com.rental.transport.dto;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,10 +13,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Order extends AbstractDto {
 
-    private Long customer;
+    private String status;
+
+    private Customer customer;
     private Transport transport;
-    private List<Customer> driver = new ArrayList<>();
-    private List<Calendar> calendar = new ArrayList<>();
-    private Set<Property> property = new HashSet<>();
-    private Integer createdAt;
+
+    private List<Property> property;
+    private List<Customer> driver;
+    private List<Calendar> calendar;
+    private List<Message> message;
+
+    private Date createdAt;
 }

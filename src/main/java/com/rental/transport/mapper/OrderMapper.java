@@ -60,23 +60,23 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         if (Objects.nonNull(source.getCreatedAt())) {
             Long value = source.getCreatedAt().getTime() / 1000;
-            destination.setCreatedAt(value.intValue());
+//            destination.setCreatedAt(value.intValue());
         }
 
-        destination.setCustomer(source.getCustomer().getId());
+//        destination.setCustomer(source.getCustomer().getId());
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
 
         destination.setId(source.getId());
 
-        destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
-
+//        destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
+/*
         CustomerEntity customer = customerRepository.findById(source.getCustomer()).orElse(null);
         if (Objects.nonNull(customer)) {
             destination.setCustomer(customer);
         }
-
+*/
         OrderEntity order = orderRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(order)) {
             order.getProperty().stream()

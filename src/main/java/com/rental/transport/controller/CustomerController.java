@@ -31,7 +31,7 @@ public class CustomerController {
 
     @PutMapping
     public void doPutUpdateCustomerRequest(Principal principal,
-                       @RequestBody Customer dto) {
+            @RequestBody Customer dto) {
 
         service.update(principal.getName(), dto);
     }
@@ -47,7 +47,7 @@ public class CustomerController {
 
     @GetMapping
     public List<Customer> doGetFindAllByIdListCustomerRequest(Principal principal,
-                                   @RequestParam(value =  "id", required = true) Long[] ids) {
+            @RequestParam(value =  "id", required = true) Long[] ids) {
 
         return service.findAllByIdList(Arrays.asList(ids));
     }

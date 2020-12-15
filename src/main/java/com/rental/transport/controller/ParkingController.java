@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Parking;
+import com.rental.transport.dto.Transport;
 import com.rental.transport.service.ParkingService;
 import java.security.Principal;
 import java.util.List;

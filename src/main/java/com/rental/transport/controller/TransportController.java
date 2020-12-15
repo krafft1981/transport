@@ -32,16 +32,8 @@ public class TransportController {
         service.delete(principal.getName(), id);
     }
 
-    @GetMapping
-    public Transport doGetTransportRequest(
-            Principal principal,
-            @RequestParam(value = "id", required = true) Long id) {
-
-        return service.get(principal.getName(), id);
-    }
-
     @GetMapping(value = "/list")
-    public List<Transport> goGetPagesTransportRequest(
+    public List<Transport> doGetPagesTransportRequest(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
@@ -50,7 +42,7 @@ public class TransportController {
     }
 
     @GetMapping(value = "/list/type")
-    public List<Transport> goGetPagesTransportByTypeRequest(
+    public List<Transport> doGetPagesTransportByTypeRequest(
             @RequestParam(value = "type", required = true) Long type,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -60,7 +52,7 @@ public class TransportController {
     }
 
     @PostMapping
-    public Long goPostTransportRequest(
+    public Long doPostTransportRequest(
             Principal principal,
             @RequestParam(value = "type", required = true) String type) {
 
@@ -68,7 +60,7 @@ public class TransportController {
     }
 
     @PutMapping
-    public void goPutTransportRequest(
+    public void doPutTransportRequest(
             Principal principal,
             @RequestBody Transport transport) {
 
@@ -86,4 +78,3 @@ public class TransportController {
         return service.getMyTransport(principal.getName());
     }
 }
-

@@ -34,6 +34,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderEntity extends AbstractEntity  {
 
+    private String status = "New";
+
     private CustomerEntity customer;
     private TransportEntity transport;
 
@@ -45,7 +47,19 @@ public class OrderEntity extends AbstractEntity  {
     private Date createdAt = new Date();
 
     public OrderEntity() {
-        addProperty(new PropertyEntity("Описание", "description", ""));
+        addProperty(new PropertyEntity("фИО Заказчика", "fio", ""));
+        addProperty(new PropertyEntity("Телефон Заказчика", "customerPhone", ""));
+        addProperty(new PropertyEntity("Широта", "latitude", "0"));
+        addProperty(new PropertyEntity("Долгота", "longitude", "0"));
+        addProperty(new PropertyEntity("Стоимость", "cost", ""));
+        addProperty(new PropertyEntity("Цена", "price", ""));
+        addProperty(new PropertyEntity("Комментарии", "comment", ""));
+    }
+
+    @Basic
+    @Column(name = "status", nullable = false, insertable = true, updatable = true)
+    public String getStatus() {
+        return status;
     }
 
     @Basic
@@ -75,7 +89,11 @@ public class OrderEntity extends AbstractEntity  {
         return driver;
     }
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(name="orders_calendar",
+            joinColumns=@JoinColumn(name="order_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
+    )
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
@@ -102,5 +120,9 @@ public class OrderEntity extends AbstractEntity  {
                 .orElse(entity);
 
         property.add(entity);
+    }
+
+    public void addDriver(CustomerEntity entity) {
+        driver.add(entity);
     }
 }

@@ -37,10 +37,7 @@ public class ParkingService {
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerRepository.findByAccount(account);
-        ParkingEntity parking = parkingRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
-
+        ParkingEntity parking = get(id);
         if (parking.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
 
@@ -60,10 +57,7 @@ public class ParkingService {
     public void update(@NonNull String account, @NonNull Parking dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        ParkingEntity entity = parkingRepository
-                .findById(dto.getId())
-                .orElseThrow(() -> new ObjectNotFoundException("Parking", dto.getId()));
-
+        ParkingEntity entity = get(dto.getId());
         entity = mapper.toEntity(dto);
         CustomerEntity customer = customerRepository.findByAccount(account);
 
@@ -88,5 +82,12 @@ public class ParkingService {
 
         Long count = parkingRepository.count();
         return count;
+    }
+
+    public ParkingEntity get(Long id) throws ObjectNotFoundException {
+
+        return parkingRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
     }
 }

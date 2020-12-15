@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,6 +30,7 @@ public class MessageEntity extends AbstractEntity {
 
     private String text = "";
     private CustomerEntity customer;
+    private Date date = new Date();
 
     @Basic
     @ManyToOne
@@ -42,5 +44,11 @@ public class MessageEntity extends AbstractEntity {
     @Type(type="text")
     public String getText() {
         return text;
+    }
+
+    @Basic
+    @Column(name = "date", nullable = false, insertable = true, updatable = true)
+    public Date getDate() {
+        return date;
     }
 }

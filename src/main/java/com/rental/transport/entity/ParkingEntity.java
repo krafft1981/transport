@@ -34,6 +34,10 @@ public class ParkingEntity extends AbstractEntity {
 	}
 
 	public void addPropertyList() {
+		addProperty(new PropertyEntity("Название", "name", ""));
+		addProperty(new PropertyEntity("Широта", "latitude", "0"));
+		addProperty(new PropertyEntity("Долгота", "longitude", "0"));
+		addProperty(new PropertyEntity("Адрес", "address", ""));
 		addProperty(new PropertyEntity("Описание", "description", ""));
 	}
 

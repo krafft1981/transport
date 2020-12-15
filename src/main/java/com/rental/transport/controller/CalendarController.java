@@ -29,18 +29,18 @@ public class CalendarController {
     @GetMapping(value = "/transport")
     public List<Calendar> doGetTransportCalendarRequest(
             Principal principal,
-            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "days", required = true) Long[] days,
             @RequestParam(value = "transport_id", required = true) Long id) {
 
-        return service.getTransportEventList(id, day);
+        return service.getTransportCalendar(id, days);
     }
 
     @GetMapping(value = "/customer")
     public List<Calendar> doGetCustomerCalendarRequest(
             Principal principal,
-            @RequestParam(value = "day", required = true) Long day) {
+            @RequestParam(value = "days", required = true) Long[] days) {
 
-        return service.getDayEventList(principal.getName(), day);
+        return service.getCustomerCalendar(principal.getName(), days);
     }
 
     @PutMapping
@@ -50,7 +50,7 @@ public class CalendarController {
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        service.putOutEvent(
+        service.putBusy(
                 principal.getName(),
                 day,
                 new Date(start),
@@ -65,7 +65,7 @@ public class CalendarController {
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        service.deleteOutEvent(
+        service.deleteBusy(
                 principal.getName(),
                 day,
                 new Date(start),

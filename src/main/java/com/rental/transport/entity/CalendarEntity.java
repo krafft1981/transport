@@ -1,16 +1,16 @@
 package com.rental.transport.entity;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -20,21 +20,27 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "day_num", name = "day_num_id_idx" ),
-                @Index(columnList = "order_id", name = "order_id_idx" )
+                @Index(columnList = "day_num", name = "day_num_id_idx" )
         }
 )
 
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class CalendarEntity extends AbstractEntity {
 
     private Date startAt;
     private Date stopAt;
     private Long dayNum;
-    private OrderEntity order;
-    private CustomerEntity customer;
+
+    private Set<OrderEntity> order = new HashSet<>();
+    private Set<CustomerEntity> customer = new HashSet<>();
+
+    public CalendarEntity(Date startAt, Date stopAt, Long dayNum, CustomerEntity customer) {
+        setStartAt(startAt);
+        setStopAt(stopAt);
+        setDayNum(dayNum);
+        addCustomer(customer);
+    }
 
     @Basic
     @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone not null")
@@ -54,13 +60,29 @@ public class CalendarEntity extends AbstractEntity {
         return dayNum;
     }
 
-    @Column(name = "order_id", nullable = true, insertable = true, updatable = true)
-    public OrderEntity getOrder() {
+    @ManyToMany
+    @JoinTable(name="orders_calendar",
+            joinColumns=@JoinColumn(name="order_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
+    )
+    public Set<OrderEntity> getOrder() {
         return order;
     }
 
-    @ManyToOne
-    public CustomerEntity getCustomer() {
+    @ManyToMany
+    @JoinTable(name="customer_calendar",
+            joinColumns=@JoinColumn(name="customer_id", nullable = false),
+            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
+    )
+    public Set<CustomerEntity> getCustomer() {
         return customer;
+    }
+
+    public void addCustomer(CustomerEntity entity) {
+        customer.add(entity);
+    }
+
+    public void addOrder(OrderEntity entity) {
+        order.add(entity);
     }
 }

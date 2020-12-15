@@ -17,7 +17,7 @@ public class PropertyService {
 
         return entryes
                 .stream()
-                .filter(property -> property.getLogicName().equals(name))
+                .filter( property -> property.getLogicName().equals(name) )
                 .findFirst()
                 .orElseThrow(() -> new ObjectNotFoundException("Property", name));
     }

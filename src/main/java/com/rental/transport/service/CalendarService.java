@@ -28,6 +28,9 @@ public class CalendarService {
     private TransportService transportService;
 
     @Autowired
+    private PropertyService propertyService;
+
+    @Autowired
     private CalendarRepository calendarRepository;
 
     @Autowired
@@ -47,11 +50,6 @@ public class CalendarService {
 
         private static final String message = "Wrong time diapazone";
 
-        public Diapazon(Long day, Date start, Date stop) throws IllegalArgumentException {
-
-            this(day);
-        }
-
         public Diapazon(Long day) throws IllegalArgumentException {
 
             GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
@@ -69,38 +67,30 @@ public class CalendarService {
         }
     }
 
-    public CalendarEntity getEntityById(Long id) throws ObjectNotFoundException {
-
-        return calendarRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Diapazone", id));
-    }
-
-    public void putOutEvent(String account, Long day, Date start, Date stop)
+    public void putBusy(String account, Long day, Date start, Date stop)
             throws IllegalArgumentException {
-
-        Diapazon diapazon = new Diapazon(day, start, stop);
 
         CustomerEntity customer = customerRepository.findByAccount(account);
         checkCustomerBusy(customer, day, start, stop);
-
-        CalendarEntity entity = new CalendarEntity(
-                start,
-                stop,
-                day,
-                null,
-                customer);
-
+        CalendarEntity entity = new CalendarEntity(start, stop, day, customer);
         calendarRepository.save(entity);
     }
 
-    public void deleteOutEvent(String account, Long day, Date start, Date stop)
+    public void deleteBusy(String account, Long day, Date start, Date stop)
             throws IllegalArgumentException {
 
-        Diapazon diapazon = new Diapazon(day, start, stop);
-
         CustomerEntity customer = customerRepository.findByAccount(account);
-        calendarRepository.deleteByCustomerIdAndDayAndStartAndStop(customer.getId(), day, start, stop);
+        calendarRepository
+                .findByDayAndStartAndStop(day, start, stop)
+                .stream()
+                .filter(
+                        entity -> entity
+                                .getCustomer()
+                                .contains(customer)
+                )
+                .forEach(entity -> {
+                    calendarRepository.deleteById(entity.getId());
+                });
     }
 
     private void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
@@ -124,107 +114,23 @@ public class CalendarService {
     public void checkCustomerBusy(CustomerEntity customer, Long day, Date start, Date stop)
             throws IllegalArgumentException {
 
-        Diapazon diapazon = new Diapazon(day, start, stop);
-
-        getCustomerEventList(customer, day)
+        getCustomerCalendar(customer, day)
                 .stream()
-                .forEach(entity -> checkTimeDiapazon(
-                        entity.getStartAt(),
-                        entity.getStopAt(),
-                        start.getTime(),
-                        stop.getTime()
-                ));
+                .forEach(
+                        entity -> checkTimeDiapazon(
+                                entity.getStartAt(),
+                                entity.getStopAt(),
+                                start.getTime(),
+                                stop.getTime()
+                        )
+                );
     }
 
-    public List<Calendar> getDayEventList(String account, Long day) {
-
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        return getCustomerEventList(customer, day);
-    }
-
-    public Boolean checkTransportBusy(TransportEntity transport, Long day, Date start, Date stop)
-            throws IllegalArgumentException {
-
-        transport
-                .getCustomer()
-                .stream()
-                .forEach(customer -> checkCustomerBusy(customer, day, start, stop));
-
-        return true;
-    }
-
-    public List<Calendar> getTransportEventList(Long id, Long day)
-            throws ObjectNotFoundException {
-
-        return transportService
-                .get(id)
-                .getCustomer()
-                .stream()
-                .map(customer -> getCustomerEventList(customer, day))
-                .flatMap(events -> events.stream())
-                .collect(Collectors.toList());
-    }
-
-    private List<Calendar> getCustomerHolidayTime(CustomerEntity customer, Diapazon diapazon) {
-
-        Boolean workAtWeekEnd = null;//Boolean.getBoolean(propertyService.getValue(customer.getProperty(), "work_at_week_end"));
-        if (workAtWeekEnd) {
-            return getCustomerWorkTime(customer, diapazon);
-        }
-
-        List<Calendar> events = new ArrayList<>();
-
-        events.add(new Calendar(
-                diapazon.getStart().getTime(),
-                diapazon.getStop().getTime(),
-                diapazon.getDayNum()
-        ));
-
-        return events;
-    }
-
-    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)
-            throws ObjectNotFoundException {
-
-        List<Calendar> events = new ArrayList<>();
-
-        Integer startWorkAt = null;//Integer.getInteger(propertyService.getValue(customer.getProperty(), "startWorkAt"));
-        Integer stopWorkAt  = null;//Integer.getInteger(propertyService.getValue(customer.getProperty(), "stopWorkAt"));
-
-        if (!startWorkAt.equals(stopWorkAt)) {
-            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            gregorianCalendar.setTime(diapazon.getStart());
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, startWorkAt);
-            gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-            gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-            gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
-
-            events.add(new Calendar(
-                    diapazon.getStart().getTime(),
-                    gregorianCalendar.getTimeInMillis(),
-                    diapazon.getDayNum()
-            ));
-
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, stopWorkAt);
-
-            events.add(new Calendar(
-                    gregorianCalendar.getTimeInMillis(),
-                    diapazon.getStop().getTime(),
-                    diapazon.getDayNum()
-            ));
-        }
-
-        return events;
-    }
-
-    private List<Calendar> getCustomerEventList(CustomerEntity customer, Long day)
-            throws IllegalArgumentException {
+    public List<Calendar> getCustomerCalendar(CustomerEntity customer, Long day) {
 
         Diapazon diapazon = new Diapazon(day);
-
-        List<Calendar> events = calendarRepository
-                .findByCustomerIdAndDayAndStartAndStop(
-                        customer.getId(),
+        List<Calendar> res = calendarRepository
+                .findByDayAndStartAndStop(
                         day,
                         diapazon.getStart(),
                         diapazon.getStop()
@@ -242,15 +148,102 @@ public class CalendarService {
             case java.util.Calendar.WEDNESDAY:
             case java.util.Calendar.THURSDAY:
             case java.util.Calendar.FRIDAY: {
-                events.addAll(getCustomerWorkTime(customer, diapazon));
+                res.addAll(getCustomerWorkTime(customer, diapazon));
                 break;
             }
             case java.util.Calendar.SATURDAY:
             case java.util.Calendar.SUNDAY: {
-                events.addAll(getCustomerHolidayTime(customer, diapazon));
+                res.addAll(getCustomerHolidayTime(customer, diapazon));
                 break;
             }
         }
+
+        return res;
+    }
+
+    public List<Calendar> getCustomerCalendar(String account, Long[] day) {
+
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        return getCustomerCalendar(customer, day);
+    }
+
+    public List<Calendar> getTransportCalendar(Long id, Long[] days)
+            throws ObjectNotFoundException {
+
+        List<Calendar> res = new ArrayList<>();
+        for(Long day : days) {
+            res.addAll(transportService
+                    .get(id)
+                    .getCustomer()
+                    .stream()
+                    .map(customer -> getCustomerCalendar(customer, day))
+                    .flatMap(events -> events.stream())
+                    .collect(Collectors.toList()));
+        }
+
+        return res;
+    }
+
+    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)
+            throws ObjectNotFoundException, IllegalArgumentException {
+
+        String startWorkAt = propertyService.getValue(customer.getProperty(), "startWorkTime");
+        String stopWorkAt  = propertyService.getValue(customer.getProperty(), "stopWorkTime");
+
+        GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        gregorianCalendar.setTime(diapazon.getStart());
+        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(startWorkAt));
+        gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
+        gregorianCalendar.set(java.util.Calendar.SECOND, 0);
+        gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
+
+        List<Calendar> events = new ArrayList<>();
+
+        events.add(new Calendar(
+                diapazon.getStart().getTime(),
+                gregorianCalendar.getTimeInMillis(),
+                diapazon.getDayNum()
+        ));
+
+        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(stopWorkAt));
+
+        events.add(new Calendar(
+                gregorianCalendar.getTimeInMillis(),
+                diapazon.getStop().getTime(),
+                diapazon.getDayNum()
+        ));
+
+        return events;
+    }
+
+    private List<Calendar> getCustomerCalendar(CustomerEntity customer, Long[] days)
+            throws IllegalArgumentException {
+
+        List<Calendar> res = new ArrayList<>();
+
+        for(Long day : days) {
+            res.addAll(getCustomerCalendar(customer, day));
+        }
+
+        return res;
+    }
+
+    private List<Calendar> getCustomerHolidayTime(CustomerEntity customer, Diapazon diapazon)
+            throws ObjectNotFoundException {
+
+        String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "workAtWeekEnd");
+
+        if (workAtWeekEnd.equals("1")) {
+            return getCustomerWorkTime(customer, diapazon);
+        }
+
+        List<Calendar> events = new ArrayList<>();
+
+        events.add(new Calendar(
+                diapazon.getStart().getTime(),
+                diapazon.getStop().getTime(),
+                diapazon.getDayNum()
+        ));
 
         return events;
     }
