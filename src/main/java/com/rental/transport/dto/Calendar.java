@@ -1,7 +1,5 @@
 package com.rental.transport.dto;
 
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,13 +14,14 @@ public class Calendar extends AbstractDto {
     private Long startAt;
     private Long stopAt;
     private Long dayNum;
-    private Set<Order> order = new HashSet<>();
-    private Set<Customer> customer = new HashSet<>();
+    private Long order = null;
+    private Long customerId;
 
-    public Calendar(Long startAt, Long stopAt, Long dayNum) {
+    public Calendar(Long startAt, Long stopAt, Long dayNum, Customer customer) {
 
         setStartAt(startAt);
         setStopAt(stopAt);
         setDayNum(dayNum);
+        setCustomerId(customer.getId());
     }
 }

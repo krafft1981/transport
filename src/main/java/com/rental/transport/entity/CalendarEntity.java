@@ -1,15 +1,12 @@
 package com.rental.transport.entity;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,14 +29,14 @@ public class CalendarEntity extends AbstractEntity {
     private Date stopAt;
     private Long dayNum;
 
-    private Set<OrderEntity> order = new HashSet<>();
-    private Set<CustomerEntity> customer = new HashSet<>();
+    private Long order;
+    private CustomerEntity customer;
 
     public CalendarEntity(Date startAt, Date stopAt, Long dayNum, CustomerEntity customer) {
         setStartAt(startAt);
         setStopAt(stopAt);
         setDayNum(dayNum);
-        addCustomer(customer);
+        setCustomer(customer);
     }
 
     @Basic
@@ -60,29 +57,16 @@ public class CalendarEntity extends AbstractEntity {
         return dayNum;
     }
 
-    @ManyToMany
-    @JoinTable(name="orders_calendar",
-            joinColumns=@JoinColumn(name="order_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
-    )
-    public Set<OrderEntity> getOrder() {
-        return order;
-    }
-
-    @ManyToMany
-    @JoinTable(name="customer_calendar",
-            joinColumns=@JoinColumn(name="customer_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
-    )
-    public Set<CustomerEntity> getCustomer() {
+    @Basic
+    @ManyToOne
+    @JoinColumn(name="customer_id", referencedColumnName = "id")
+    public CustomerEntity getCustomer() {
         return customer;
     }
 
-    public void addCustomer(CustomerEntity entity) {
-        customer.add(entity);
-    }
-
-    public void addOrder(OrderEntity entity) {
-        order.add(entity);
+    @Basic
+    @Column(name = "order_id", nullable = true, insertable = true, updatable = true)
+    public Long getOrder() {
+        return order;
     }
 }

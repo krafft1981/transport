@@ -6,6 +6,7 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportRepository;
 import java.util.Date;
 import java.util.Objects;
@@ -42,14 +43,10 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         mapper.createTypeMap(OrderEntity.class, Order.class)
                 .addMappings(m -> m.skip(Order::setId))
-                .addMappings(m -> m.skip(Order::setCreatedAt))
-                .addMappings(m -> m.skip(Order::setCustomer))
                   .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Order.class, OrderEntity.class)
                 .addMappings(m -> m.skip(OrderEntity::setId))
-                .addMappings(m -> m.skip(OrderEntity::setCreatedAt))
-                .addMappings(m -> m.skip(OrderEntity::setCustomer))
                 .addMappings(m -> m.skip(OrderEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
@@ -57,26 +54,12 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
     public void mapSpecificFields(OrderEntity source, Order destination) {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
-
-        if (Objects.nonNull(source.getCreatedAt())) {
-            Long value = source.getCreatedAt().getTime() / 1000;
-//            destination.setCreatedAt(value.intValue());
-        }
-
-//        destination.setCustomer(source.getCustomer().getId());
     }
 
     public void mapSpecificFields(Order source, OrderEntity destination) {
 
         destination.setId(source.getId());
 
-//        destination.setCreatedAt(new Date((long) source.getCreatedAt() * 1000));
-/*
-        CustomerEntity customer = customerRepository.findById(source.getCustomer()).orElse(null);
-        if (Objects.nonNull(customer)) {
-            destination.setCustomer(customer);
-        }
-*/
         OrderEntity order = orderRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(order)) {
             order.getProperty().stream()

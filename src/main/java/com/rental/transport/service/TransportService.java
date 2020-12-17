@@ -2,17 +2,13 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.CustomerRepository;
-import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TypeEntity;
-import com.rental.transport.entity.TypeRepository;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,24 +19,21 @@ import org.springframework.stereotype.Service;
 public class TransportService {
 
     @Autowired
-    private ParkingRepository parkingRepository;
-
-    @Autowired
     private TransportRepository transportRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     @Autowired
-    private TypeRepository typeRepository;
+    private TypeService typeService;
 
     @Autowired
     private TransportMapper mapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
-            throws AccessDeniedException {
+            throws AccessDeniedException, ObjectNotFoundException {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
         TransportEntity transport = get(id);
 
         if (transport.getCustomer().contains(customer) == false)
@@ -51,23 +44,20 @@ public class TransportService {
     }
 
     public Long create(@NonNull String account, @NonNull String type)
-            throws IllegalArgumentException {
+            throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        TypeEntity typeEntity = typeRepository.findByName(type);
-        if (Objects.isNull(typeEntity))
-            throw new IllegalArgumentException("Uncknown transport type");
-
+        CustomerEntity customer = customerService.get(account);
+        TypeEntity typeEntity = typeService.get(type);
         TransportEntity entity = new TransportEntity(customer, typeEntity);
         return transportRepository.save(entity).getId();
     }
 
     public void update(@NonNull String account, @NonNull Transport dto)
-            throws AccessDeniedException {
+            throws AccessDeniedException, ObjectNotFoundException {
 
         TransportEntity entity = get(dto.getId());
         entity = mapper.toEntity(dto);
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
@@ -103,7 +93,7 @@ public class TransportService {
 
     public List<Transport> getMyTransport(String account) {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
         return transportRepository.findAllByCustomerId(customer.getId())
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })

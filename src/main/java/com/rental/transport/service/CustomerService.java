@@ -38,9 +38,7 @@ public class CustomerService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
-        CustomerEntity entity = customerRepository.findByAccount(username);
-        if (Objects.isNull(entity))
-            throw new ObjectNotFoundException("Account", username);
+        CustomerEntity entity = get(username);
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         User user = new User(
@@ -84,7 +82,7 @@ public class CustomerService implements UserDetailsService {
         if (!account.equals(dto.getAccount()))
             throw new AccessDeniedException("Change");
 
-        CustomerEntity entity = customerRepository.findByAccount(dto.getAccount());
+        CustomerEntity entity = get(dto.getAccount());
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
@@ -111,5 +109,20 @@ public class CustomerService implements UserDetailsService {
                 .collect(Collectors.toList());
 
         return result;
+    }
+
+    public CustomerEntity get(Long id) throws ObjectNotFoundException {
+
+        return customerRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Account", id));
+    }
+
+    public CustomerEntity get(String account) throws ObjectNotFoundException {
+
+        CustomerEntity entity = customerRepository.findByAccount(account);
+        if (Objects.isNull(entity))
+            throw new ObjectNotFoundException("Account", account);
+        return entity;
     }
 }

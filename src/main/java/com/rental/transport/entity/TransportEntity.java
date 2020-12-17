@@ -53,7 +53,6 @@ public class TransportEntity extends AbstractEntity {
         addProperty(new PropertyEntity("Вместимость", "capacity", "1"));
         addProperty(new PropertyEntity("Описание", "description", ""));
         addProperty(new PropertyEntity("Цена", "price", "0"));
-        addProperty(new PropertyEntity("Кворум", "quorum", "1"));
         addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200"));
     }
 
@@ -79,7 +78,6 @@ public class TransportEntity extends AbstractEntity {
             inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
     )
     public Set<ParkingEntity> getParking() {
-
         return parking;
     }
 
@@ -89,7 +87,6 @@ public class TransportEntity extends AbstractEntity {
             inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
     )
     public Set<CustomerEntity> getCustomer() {
-
         return customer;
     }
 

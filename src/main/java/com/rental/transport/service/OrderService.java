@@ -3,12 +3,11 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Order;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
-import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -29,16 +28,19 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private TransportRepository transportRepository;
+    private CustomerService customerService;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private TransportService transportService;
 
     @Autowired
     private CalendarService calendarService;
 
     @Autowired
     private PropertyService propertyService;
+
+    @Autowired
+    private ConfirmationService confirmationService;
 
     @Autowired
     private OrderMapper mapper;
@@ -54,22 +56,18 @@ public class OrderService {
     }
 
     public List<Order> getByCalendarEvent(Long[] ids)
-            throws ObjectNotFoundException, IllegalArgumentException {
+            throws ObjectNotFoundException {
 
         List<Order> orders = new ArrayList<>();
 
         for(Long id : ids) {
-            CalendarEntity event = calendarService.getEntityById(id);
-
-            if (Objects.isNull(event.getOrder()))
-                throw new IllegalArgumentException("Событие без заказа");
-
-            OrderEntity entity = orderRepository
-                    .findById(event.getOrder().getId())
-                    .orElseThrow(() -> new ObjectNotFoundException("Заказ", event.getOrder().getId()));
-
-            Order order = mapper.toDto(entity);
-            orders.add(order);
+            CalendarEntity calendar = calendarService.get(id);
+            Long orderId = calendar.getOrder();
+            if (Objects.nonNull(orderId)) {
+                OrderEntity entity = get(orderId);
+                Order order = mapper.toDto(entity);
+                orders.add(order);
+            }
         }
 
         return orders;
@@ -77,27 +75,33 @@ public class OrderService {
 
     public List<Long> getOrderRequestList(String account) {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
-        return orderRequestService.getCustomerRequests(customer);
+        return confirmationService.getByAccount(account);
+    }
+
+    public void sendMessage(String account, Long orderId, String message)
+            throws ObjectNotFoundException {
+
+        OrderEntity order = get(orderId);
+        CustomerEntity customer = customerService.get(account);
+        MessageEntity entity = new MessageEntity(message, customer);
+        order.addMessage(entity);
     }
 
     @Transactional
     public void rejectOrder(@NonNull String account, Long orderId)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        CustomerEntity driver = customerRepository.findByAccount(account);
-        OrderEntity order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
+        CustomerEntity driver = customerService.get(account);
+        OrderEntity order = get(orderId);
 
         if (!order.getStatus().equals("New"))
-            throw new IllegalArgumentException("Заказ не новый");
+            throw new IllegalArgumentException("Order status not New");
 
         if (!order.getTransport().getCustomer().contains(driver))
             throw new AccessDeniedException("Rejected");
 
         //delete from calendar events by orderId
-        orderRequestService.deleteOrderRequest(order);
+//        orderRequestService.deleteOrderRequest(order);
         orderRepository.deleteById(orderId);
     }
 
@@ -105,29 +109,26 @@ public class OrderService {
     public void confirmOrder(@NonNull String account, Long orderId)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        CustomerEntity driver = customerRepository.findByAccount(account);
-
-        OrderEntity order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() -> new ObjectNotFoundException("Заказ", orderId));
+        CustomerEntity driver = customerService.get(account);
+        OrderEntity order = get(orderId);
 
         if (!order.getStatus().equals("New"))
-            throw new IllegalArgumentException("Заказ не новый");
+            throw new IllegalArgumentException("Order has status not New");
 
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Подтверждение");
 
-        orderRequestService.deleteOrderRequest(order, driver);
-
-        Integer confirmed = order.incConfirmed();
-
+//        orderRequestService.deleteOrderRequest(order, driver);
+//
+//        Integer confirmed = order.incConfirmed();
+//
         order.addDriver(driver);
-
+//
         String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
-        if (confirmed >= Long.getLong(quorum)) {
-            orderRequestService.deleteOrderRequest(order);
+//        if (confirmed >= Long.getLong(quorum)) {
+//            orderRequestService.deleteOrderRequest(order);
             order.setStatus("Confirmed");
-        }
+//        }
     }
 
     @Transactional
@@ -136,15 +137,13 @@ public class OrderService {
 
         OrderEntity order = new OrderEntity();
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
         order.setCustomer(customer);
 
         String phone = propertyService.getValue(customer.getProperty(), "phone");
         String fio = propertyService.getValue(customer.getProperty(), "fio");
 
-        TransportEntity transport = transportRepository
-                .findById(transportId)
-                .orElseThrow(() -> new ObjectNotFoundException("Транспорт", transportId));
+        TransportEntity transport = transportService.get(transportId);
 
         order.setTransport(transport);
 
@@ -156,27 +155,28 @@ public class OrderService {
         String price = propertyService.getValue(transport.getProperty(), "price");
         String latitude = propertyService.getValue(parking.getProperty(), "latitude");
         String longitude = propertyService.getValue(parking.getProperty(), "longitude");
+        String minTime = propertyService.getValue(parking.getProperty(), "minTime");
+
         for(Long id : eventIds) {
-
-
-//        CalendarEntity event = calendarService.getEntityById(eventId);
-
-        // validate duration
-//        Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
-
-//        if (duration < 1000 * 3600 * transport.getMinHour())
-//            throw new IllegalArgumentException("Временной диапазон меньше минимального");
-
-//        order.addCalendar(event);
-
-//        order.setCost(transport.getCost());
-
-        // generate price value
-//        Long remainder = duration % (1000 * 3600) > 0 ? 1L : 0L;
-//        order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
-
+            CalendarEntity event = calendarService.get(id);
+            // validate duration
+            Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
+            if (duration < 1000 * 3600 * Integer.parseInt(minTime))
+                throw new IllegalArgumentException("Wrong time interval");
+            order.addCalendar(event);
+//            order.setCost(transport.getCost());
+            // generate price value
+            Long remainder = duration % (1000 * 3600) > 0 ? 1L : 0L;
+//            order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
         }
         Long order_id = orderRepository.save(order).getId();
         return order_id;
+    }
+
+    public OrderEntity get(Long id) throws ObjectNotFoundException {
+
+        return orderRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Order", id));
     }
 }

@@ -1,9 +1,7 @@
 package com.rental.transport.service;
 
 import com.rental.transport.BaseTest;
-import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerRepository;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,13 +19,8 @@ public class CustomerServiceTest extends BaseTest {
     }
 
     @Test
-    public void repositoryNullTest() {
-
-        Assert.assertNotNull(repository);
-    }
-
-    @Test
     public void loadUserByUsername() {
+
     }
 
     @Test
@@ -48,9 +41,5 @@ public class CustomerServiceTest extends BaseTest {
 
     @Test
     public void getPage() {
-    }
-
-    @Test
-    public void findAllByIdList() {
     }
 }

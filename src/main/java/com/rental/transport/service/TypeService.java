@@ -4,7 +4,9 @@ import com.rental.transport.dto.Type;
 import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.entity.TypeRepository;
 import com.rental.transport.mapper.TypeMapper;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -39,5 +41,21 @@ public class TypeService {
                 .stream()
                 .map(entity -> { return mapper.toDto(entity); })
                 .collect(Collectors.toList());
+    }
+
+    public TypeEntity get(Long id) throws ObjectNotFoundException {
+
+        return repository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Type", id));
+    }
+
+    public TypeEntity get(String name) throws ObjectNotFoundException {
+
+        TypeEntity entity = repository.findByName(name);
+        if (Objects.isNull(entity)) {
+            throw new ObjectNotFoundException("Type", name);
+        }
+        return entity;
     }
 }

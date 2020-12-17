@@ -1,8 +1,6 @@
 package com.rental.transport.entity;
 
-import java.util.Date;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -11,11 +9,10 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(
-        name="message",
+        name="confirmation",
         schema = "public",
         catalog = "relationship",
         indexes = {
@@ -26,16 +23,10 @@ import org.hibernate.annotations.Type;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageEntity extends AbstractEntity {
+public class ConfirmationEntity extends AbstractEntity {
 
-    private String text = "";
     private CustomerEntity customer;
-    private Date date = new Date();
-
-    public MessageEntity(String text, CustomerEntity customer) {
-        setText(text);
-        setCustomer(customer);
-    }
+    private OrderEntity order;
 
     @Basic
     @ManyToOne
@@ -45,15 +36,9 @@ public class MessageEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "text", nullable = false, insertable = true, updatable = true)
-    @Type(type="text")
-    public String getText() {
-        return text;
-    }
-
-    @Basic
-    @Column(name = "date", nullable = false, insertable = true, updatable = true)
-    public Date getDate() {
-        return date;
+    @ManyToOne
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    public OrderEntity getOrder() {
+        return order;
     }
 }

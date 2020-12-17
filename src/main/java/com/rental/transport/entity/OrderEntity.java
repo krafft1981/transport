@@ -48,11 +48,12 @@ public class OrderEntity extends AbstractEntity  {
 
     public OrderEntity() {
         addProperty(new PropertyEntity("фИО Заказчика", "fio", ""));
-        addProperty(new PropertyEntity("Телефон Заказчика", "customerPhone", ""));
+        addProperty(new PropertyEntity("Телефон Заказчика", "phone", ""));
         addProperty(new PropertyEntity("Широта", "latitude", "0"));
         addProperty(new PropertyEntity("Долгота", "longitude", "0"));
         addProperty(new PropertyEntity("Стоимость", "cost", ""));
         addProperty(new PropertyEntity("Цена", "price", ""));
+        addProperty(new PropertyEntity("Продолжительность", "duration", "0"));
         addProperty(new PropertyEntity("Комментарии", "comment", ""));
     }
 
@@ -89,11 +90,7 @@ public class OrderEntity extends AbstractEntity  {
         return driver;
     }
 
-    @ManyToMany
-    @JoinTable(name="orders_calendar",
-            joinColumns=@JoinColumn(name="order_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="calendar_id", nullable = false)
-    )
+    @OneToMany(cascade = {CascadeType.ALL})
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
@@ -124,5 +121,13 @@ public class OrderEntity extends AbstractEntity  {
 
     public void addDriver(CustomerEntity entity) {
         driver.add(entity);
+    }
+
+    public void addCalendar(CalendarEntity entity) {
+        calendar.add(entity);
+    }
+
+    public void addMessage(MessageEntity entity) {
+        message.add(entity);
     }
 }

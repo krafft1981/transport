@@ -2,7 +2,6 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Parking;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.mapper.ParkingMapper;
@@ -22,7 +21,7 @@ public class ParkingService {
     private ParkingRepository parkingRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     @Autowired
     private TransportService transportService;
@@ -36,7 +35,7 @@ public class ParkingService {
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
         ParkingEntity parking = get(id);
         if (parking.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
@@ -47,9 +46,10 @@ public class ParkingService {
         parkingRepository.delete(parking);
     }
 
-    public Long create(@NonNull String account) {
+    public Long create(@NonNull String account)
+            throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
         ParkingEntity entity = new ParkingEntity(customer);
         return parkingRepository.save(entity).getId();
     }
@@ -59,7 +59,7 @@ public class ParkingService {
 
         ParkingEntity entity = get(dto.getId());
         entity = mapper.toEntity(dto);
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerService.get(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");

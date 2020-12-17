@@ -3,6 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Image;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
+import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.mapper.ImageMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
@@ -37,10 +38,7 @@ public class ImageService {
 
     public Image getImage(Long id) throws ObjectNotFoundException {
 
-        ImageEntity entity = imageRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
-
+        ImageEntity entity = get(id);
         return mapper.toDto(entity);
     }
 
@@ -60,5 +58,12 @@ public class ImageService {
 
         Long count = imageRepository.count();
         return count;
+    }
+
+    public ImageEntity get(Long id) throws ObjectNotFoundException {
+
+        return imageRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
     }
 }

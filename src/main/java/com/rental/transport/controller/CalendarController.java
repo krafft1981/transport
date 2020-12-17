@@ -44,13 +44,13 @@ public class CalendarController {
     }
 
     @PutMapping
-    public void doPutOutRequest(
+    public Long doPutOutRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        service.putBusy(
+        return service.putBusy(
                 principal.getName(),
                 day,
                 new Date(start),
