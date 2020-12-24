@@ -33,9 +33,11 @@ public class CalendarServiceTest {
     public void checkCustomerBusy() {
     }
 
+    @Test
     public void getCustomerCalendar() {
     }
 
+    @Test
     public void getTransportCalendar() {
     }
 }

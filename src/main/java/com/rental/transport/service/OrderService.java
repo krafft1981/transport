@@ -59,13 +59,9 @@ public class OrderService {
             throws ObjectNotFoundException {
 
         List<Order> orders = new ArrayList<>();
-
         for(Long id : ids) {
-            CalendarEntity calendar = calendarService.get(id);
-            Long orderId = calendar.getOrder();
-            if (Objects.nonNull(orderId)) {
-                OrderEntity entity = get(orderId);
-                Order order = mapper.toDto(entity);
+            Order order = getByCalendarEvent(id);
+            if (Objects.nonNull(order)) {
                 orders.add(order);
             }
         }
@@ -73,18 +69,60 @@ public class OrderService {
         return orders;
     }
 
-    public List<Long> getOrderRequestList(String account) {
+    public Order getByCalendarEvent(Long id)
+            throws ObjectNotFoundException {
 
-        return confirmationService.getByAccount(account);
+        CalendarEntity calendar = calendarService.get(id);
+        Long orderId = calendar.getOrder();
+        if (Objects.nonNull(orderId)) {
+            OrderEntity entity = get(orderId);
+            Order order = mapper.toDto(entity);
+            return order;
+        }
+
+        throw new ObjectNotFoundException("Calendar", id);
     }
 
+    public List<Long> getOrderRequestList(String account) {
+
+        CustomerEntity customer = customerService.get(account);
+        return confirmationService.getByCustomer(customer);
+    }
+
+    @Transactional
     public void sendMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException {
 
         OrderEntity order = get(orderId);
         CustomerEntity customer = customerService.get(account);
-        MessageEntity entity = new MessageEntity(message, customer);
+        MessageEntity entity = new MessageEntity(customer, message);
         order.addMessage(entity);
+
+        System.out.println(message + " sended");
+    }
+
+    @Transactional
+    public void confirmOrder(@NonNull String account, Long orderId)
+            throws ObjectNotFoundException, AccessDeniedException {
+
+        CustomerEntity driver = customerService.get(account);
+        OrderEntity order = get(orderId);
+
+        if (!order.getStatus().equals("New"))
+            throw new IllegalArgumentException("Order has status not New");
+
+        if (order.getTransport().getCustomer().contains(driver) == false)
+            throw new AccessDeniedException("Confirmation");
+
+//        confirmationService. .deleteOrderRequest(order, driver);
+//        Integer confirmed = 0;//er.incConfirmed();
+        order.addDriver(driver);
+//
+        String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
+//        if (confirmed >= Long.getLong(quorum)) {
+//            confirmationService.deleteByOrderId(order.getId());
+//            order.setStatus("Confirmed");
+//        }
     }
 
     @Transactional
@@ -101,34 +139,9 @@ public class OrderService {
             throw new AccessDeniedException("Rejected");
 
         //delete from calendar events by orderId
-//        orderRequestService.deleteOrderRequest(order);
+        confirmationService.deleteByOrderId(order.getId());
         orderRepository.deleteById(orderId);
-    }
-
-    @Transactional
-    public void confirmOrder(@NonNull String account, Long orderId)
-            throws ObjectNotFoundException, AccessDeniedException {
-
-        CustomerEntity driver = customerService.get(account);
-        OrderEntity order = get(orderId);
-
-        if (!order.getStatus().equals("New"))
-            throw new IllegalArgumentException("Order has status not New");
-
-        if (order.getTransport().getCustomer().contains(driver) == false)
-            throw new AccessDeniedException("Подтверждение");
-
-//        orderRequestService.deleteOrderRequest(order, driver);
-//
-//        Integer confirmed = order.incConfirmed();
-//
-        order.addDriver(driver);
-//
-        String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
-//        if (confirmed >= Long.getLong(quorum)) {
-//            orderRequestService.deleteOrderRequest(order);
-            order.setStatus("Confirmed");
-//        }
+        order.setStatus("Rejected");
     }
 
     @Transactional
@@ -140,37 +153,51 @@ public class OrderService {
         CustomerEntity customer = customerService.get(account);
         order.setCustomer(customer);
 
-        String phone = propertyService.getValue(customer.getProperty(), "phone");
-        String fio = propertyService.getValue(customer.getProperty(), "fio");
-
         TransportEntity transport = transportService.get(transportId);
-
         order.setTransport(transport);
 
         if (transport.getParking().isEmpty())
-            throw new IllegalArgumentException("Транспорт не имеет стоянки");
+            throw new IllegalArgumentException("Transport has't parking");
 
         ParkingEntity parking = transport.getParking().iterator().next();
 
-        String price = propertyService.getValue(transport.getProperty(), "price");
+        String phone = propertyService.getValue(customer.getProperty(), "phone");
+        String fio = propertyService.getValue(customer.getProperty(), "fio");
+        String minTime = propertyService.getValue(transport.getProperty(), "minTime");
+        String cost = propertyService.getValue(transport.getProperty(), "cost");
         String latitude = propertyService.getValue(parking.getProperty(), "latitude");
         String longitude = propertyService.getValue(parking.getProperty(), "longitude");
-        String minTime = propertyService.getValue(parking.getProperty(), "minTime");
 
+        propertyService.setValue(order.getProperty(), "fio", fio);
+        propertyService.setValue(order.getProperty(), "phone", phone);
+        propertyService.setValue(order.getProperty(), "latitude", latitude);
+        propertyService.setValue(order.getProperty(), "longitude", longitude);
+
+        Long total = 0L;
         for(Long id : eventIds) {
+
             CalendarEntity event = calendarService.get(id);
+            event.setOrder(order.getId());
+
             // validate duration
             Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
-            if (duration < 1000 * 3600 * Integer.parseInt(minTime))
+            if (duration < Integer.parseInt(minTime) * 1000)
                 throw new IllegalArgumentException("Wrong time interval");
+
             order.addCalendar(event);
-//            order.setCost(transport.getCost());
-            // generate price value
-            Long remainder = duration % (1000 * 3600) > 0 ? 1L : 0L;
-//            order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
+            total += duration;
         }
-        Long order_id = orderRepository.save(order).getId();
-        return order_id;
+
+        // generate price value
+        // Long remainder = total % 1000 > 0 ? 1L : 0L;
+        // order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
+
+        propertyService.setValue(order.getProperty(), "duration", total.toString());
+        propertyService.setValue(order.getProperty(), "cost", cost);
+        propertyService.setValue(order.getProperty(), "price", total + " * " + cost);
+
+        Long id = orderRepository.save(order).getId();
+        return id;
     }
 
     public OrderEntity get(Long id) throws ObjectNotFoundException {

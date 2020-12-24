@@ -27,7 +27,7 @@ public class CalendarMapper implements AbstractMapper<CalendarEntity, Calendar> 
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(CalendarEntity.class, Calendar.class)
-                .addMappings(m -> m.skip(Calendar::setCustomerId))
+                .addMappings(m -> m.skip(Calendar::setCustomer))
                 .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Calendar.class, CalendarEntity.class)
@@ -37,6 +37,6 @@ public class CalendarMapper implements AbstractMapper<CalendarEntity, Calendar> 
     public void mapSpecificFields(CalendarEntity source, Calendar destination) {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
-        destination.setCustomerId(source.getCustomer().getId());
+        destination.setCustomer(source.getCustomer().getId());
     }
 }

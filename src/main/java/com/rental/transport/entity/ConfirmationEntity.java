@@ -16,7 +16,8 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "customer_id", name = "customer_id_idx")
+                @Index(columnList = "customer_id", name = "customer_id_idx"),
+                @Index(columnList = "order_id", name = "order_id_idx")
         }
 )
 

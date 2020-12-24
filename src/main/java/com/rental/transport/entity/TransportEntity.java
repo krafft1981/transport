@@ -52,8 +52,10 @@ public class TransportEntity extends AbstractEntity {
         addProperty(new PropertyEntity("Название", "name", ""));
         addProperty(new PropertyEntity("Вместимость", "capacity", "1"));
         addProperty(new PropertyEntity("Описание", "description", ""));
-        addProperty(new PropertyEntity("Цена", "price", "0"));
+        addProperty(new PropertyEntity("Цена", "cost", "0"));
+        addProperty(new PropertyEntity("Кворум", "quorum", "1"));
         addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200"));
+        addProperty(new PropertyEntity("Нужен водитель", "useDriver", "1"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})

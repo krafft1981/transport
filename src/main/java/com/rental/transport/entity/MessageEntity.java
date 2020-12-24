@@ -32,9 +32,9 @@ public class MessageEntity extends AbstractEntity {
     private CustomerEntity customer;
     private Date date = new Date();
 
-    public MessageEntity(String text, CustomerEntity customer) {
-        setText(text);
+    public MessageEntity(CustomerEntity customer, String text) {
         setCustomer(customer);
+        setText(text);
     }
 
     @Basic

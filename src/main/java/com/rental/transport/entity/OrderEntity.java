@@ -51,8 +51,8 @@ public class OrderEntity extends AbstractEntity  {
         addProperty(new PropertyEntity("Телефон Заказчика", "phone", ""));
         addProperty(new PropertyEntity("Широта", "latitude", "0"));
         addProperty(new PropertyEntity("Долгота", "longitude", "0"));
-        addProperty(new PropertyEntity("Стоимость", "cost", ""));
-        addProperty(new PropertyEntity("Цена", "price", ""));
+        addProperty(new PropertyEntity("Стоимость", "cost", "0"));
+        addProperty(new PropertyEntity("Цена", "price", "0"));
         addProperty(new PropertyEntity("Продолжительность", "duration", "0"));
         addProperty(new PropertyEntity("Комментарии", "comment", ""));
     }
