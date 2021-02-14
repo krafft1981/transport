@@ -2,6 +2,7 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TypeEntity;
@@ -28,13 +29,16 @@ public class TransportService {
     private TypeService typeService;
 
     @Autowired
-    private TransportMapper mapper;
+    private ParkingService parkingService;
+
+    @Autowired
+    private TransportMapper transportMapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
-        TransportEntity transport = get(id);
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = getEntity(id);
 
         if (transport.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
@@ -46,8 +50,8 @@ public class TransportService {
     public Long create(@NonNull String account, @NonNull String type)
             throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
-        TypeEntity typeEntity = typeService.get(type);
+        CustomerEntity customer = customerService.getEntity(account);
+        TypeEntity typeEntity = typeService.getEntity(type);
         TransportEntity entity = new TransportEntity(customer, typeEntity);
         return transportRepository.save(entity).getId();
     }
@@ -55,9 +59,9 @@ public class TransportService {
     public void update(@NonNull String account, @NonNull Transport dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        TransportEntity entity = get(dto.getId());
-        entity = mapper.toEntity(dto);
-        CustomerEntity customer = customerService.get(account);
+        TransportEntity entity = getEntity(dto.getId());
+        entity = transportMapper.toEntity(dto);
+        CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
@@ -72,7 +76,9 @@ public class TransportService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> {
+                    return transportMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -81,29 +87,48 @@ public class TransportService {
         return transportRepository
                 .findAllByTypeId(pageable, type)
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> {
+                    return transportMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
     public Long count() {
 
-        Long count = transportRepository.count();
-        return count;
+        return transportRepository.count();
     }
 
     public List<Transport> getMyTransport(String account) {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         return transportRepository.findAllByCustomerId(customer.getId())
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> {
+                    return transportMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
-    public TransportEntity get(Long id) throws ObjectNotFoundException {
+    public TransportEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return transportRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
+    }
+
+    public Transport getDto(Long id) throws ObjectNotFoundException {
+
+        return transportMapper.toDto(getEntity(id));
+    }
+
+    public List<Transport> getParkingTransport(Long parkingId) throws ObjectNotFoundException {
+
+        return parkingService.getEntity(parkingId)
+                .getTransport()
+                .stream()
+                .map(transport -> {
+                    return transportMapper.toDto(transport);
+                })
+                .collect(Collectors.toList());
     }
 }

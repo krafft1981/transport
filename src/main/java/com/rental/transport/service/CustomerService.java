@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +20,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Primary
 @Service
@@ -30,50 +30,46 @@ public class CustomerService implements UserDetailsService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private CustomerMapper mapper;
+    private EmailService emailService;
 
-    @Value("${spring.sequrity.password}")
-    private String password;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
-        CustomerEntity entity = get(username);
+        CustomerEntity entity = getEntity(username);
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         User user = new User(
                 entity.getAccount(),
-                password,
+                entity.getPassword(),
                 Arrays.asList(authority)
         );
 
         return user;
     }
 
-    public Customer create(String account) throws IllegalArgumentException {
+    public Customer create(String account, String password, String phone, String fio) throws IllegalArgumentException {
 
         if (account.isEmpty())
             throw new IllegalArgumentException("Account can't be empty");
 
-        CustomerEntity entity = customerRepository.findByAccount(account);
-        if (Objects.isNull(entity)) {
-            entity = new CustomerEntity(account);
-            entity = customerRepository.save(entity);
+        if (Objects.nonNull(customerRepository.findByAccount(account))) {
+            throw new IllegalArgumentException("account already exists");
         }
 
-        return mapper.toDto(entity);
+        CustomerEntity customer = new CustomerEntity(account, password, phone, fio);
+        customerRepository.save(customer);
+        emailService.sendVerifyEmail(customer);
+        return customerMapper.toDto(customer);
     }
 
-    public Long count() {
+    public void confirm(String account) throws ObjectNotFoundException {
 
-        Long count = customerRepository.count();
-        return count;
-    }
-
-    public Boolean exist(String account) {
-
-        CustomerEntity entity = customerRepository.findByAccount(account);
-        return Objects.isNull(entity) ? false : true;
+        CustomerEntity entity = getEntity(account);
+        entity.setConfirmed();
+        customerRepository.save(entity);
     }
 
     public void update(String account, Customer dto)
@@ -82,12 +78,18 @@ public class CustomerService implements UserDetailsService {
         if (!account.equals(dto.getAccount()))
             throw new AccessDeniedException("Change");
 
-        CustomerEntity entity = get(dto.getAccount());
-        if (Objects.isNull(entity))
-            throw new ObjectNotFoundException("Account", account);
-
-        entity = mapper.toEntity(dto);
+        CustomerEntity entityFromDb = getEntity(account);
+        CustomerEntity entity = customerMapper.toEntity(dto);
+        entity.setPassword(entityFromDb.getPassword());
         entity.addPropertyList();
+        customerRepository.save(entity);
+    }
+
+    public void updatePassword(String account, String password)
+            throws ObjectNotFoundException {
+
+        CustomerEntity entity = getEntity(account);
+        entity.setPassword(password);
         customerRepository.save(entity);
     }
 
@@ -97,7 +99,10 @@ public class CustomerService implements UserDetailsService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(customer -> { return mapper.toDto(customer); })
+                .filter(entity -> entity.getConfirmed())
+                .map(customer -> {
+                    return customerMapper.toDto(customer);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -105,24 +110,41 @@ public class CustomerService implements UserDetailsService {
 
         List<Customer> result = StreamSupport
                 .stream(customerRepository.findAllById(ids).spliterator(), false)
-                .map(customer -> { return mapper.toDto(customer); })
+                .filter(entity -> entity.getConfirmed())
+                .map(customer -> {
+                    return customerMapper.toDto(customer);
+                })
                 .collect(Collectors.toList());
 
         return result;
     }
 
-    public CustomerEntity get(Long id) throws ObjectNotFoundException {
-
-        return customerRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Account", id));
-    }
-
-    public CustomerEntity get(String account) throws ObjectNotFoundException {
+    public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
 
         CustomerEntity entity = customerRepository.findByAccount(account);
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
+
+        if (!entity.getConfirmed()) {
+            throw new ObjectNotFoundException("Account", account);
+        }
+
         return entity;
+    }
+
+    public Customer getDto(String account) throws ObjectNotFoundException {
+
+        CustomerEntity entity = getEntity(account);
+        return customerMapper.toDto(entity);
+    }
+
+    public Long count() {
+
+        return customerRepository.count();
+    }
+
+    public void check(String account) throws ObjectNotFoundException {
+        CustomerEntity customer = customerRepository.findByAccount(account);
+        emailService.sendVerifyEmail(customer);
     }
 }

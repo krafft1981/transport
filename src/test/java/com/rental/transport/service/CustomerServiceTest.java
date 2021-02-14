@@ -20,7 +20,6 @@ public class CustomerServiceTest extends BaseTest {
 
     @Test
     public void loadUserByUsername() {
-
     }
 
     @Test

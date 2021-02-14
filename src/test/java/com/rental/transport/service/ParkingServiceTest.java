@@ -22,8 +22,6 @@ public class ParkingServiceTest extends BaseTest {
 
     @Test
     public void repositoryNullTest() {
-
-        Assert.assertNotNull(repository);
     }
 
     @Test

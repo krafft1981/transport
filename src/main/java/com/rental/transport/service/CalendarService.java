@@ -7,6 +7,8 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.validator.BooleanYesValidator;
+import com.rental.transport.validator.IStringValidator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -38,11 +40,6 @@ public class CalendarService {
     @Autowired
     private CustomerService customerService;
 
-    public Long count() {
-
-        return calendarRepository.count();
-    }
-
     @Getter
     public class Diapazon {
 
@@ -72,7 +69,7 @@ public class CalendarService {
     public Long putBusy(String account, Long day, Date start, Date stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         checkCustomerBusy(customer, day, start, stop);
         CalendarEntity entity = new CalendarEntity(start, stop, day, customer);
         return calendarRepository.save(entity).getId();
@@ -81,12 +78,14 @@ public class CalendarService {
     public void deleteBusy(String account, Long day, Date start, Date stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         calendarRepository
                 .findByDayAndStartAndStop(day, start, stop)
                 .stream()
                 .filter(entity -> entity.getCustomer().getId().equals(customer.getId()))
-                .forEach(entity -> { calendarRepository.deleteById(entity.getId()); });
+                .forEach(entity -> {
+                    calendarRepository.deleteById(entity.getId());
+                });
     }
 
     private void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
@@ -122,6 +121,19 @@ public class CalendarService {
                 );
     }
 
+    public List<Calendar> getTransportCalendar(Long id, Long day) {
+
+        return transportService
+                .getEntity(id)
+                .getCustomer()
+                .stream()
+                .map(customer -> {
+                    return getCustomerCalendar(customer, day);
+                })
+                .flatMap(customer -> customer.stream())
+                .collect(Collectors.toList());
+    }
+
     public List<Calendar> getCustomerCalendar(CustomerEntity customer, Long day) {
 
         Diapazon diapazon = new Diapazon(day);
@@ -133,7 +145,9 @@ public class CalendarService {
                         diapazon.getStop()
                 )
                 .stream()
-                .map(entity -> { return calendarMapper.toDto(entity); })
+                .map(entity -> {
+                    return calendarMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
@@ -161,24 +175,16 @@ public class CalendarService {
     public List<Calendar> getCustomerCalendar(String account, Long[] day)
             throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         return getCustomerCalendar(customer, day);
     }
 
-    public List<Calendar> getTransportCalendar(Long id, Long[] days)
+    public List<Calendar> getTransportCalendar(String account, Long id, Long[] days)
             throws ObjectNotFoundException {
 
         List<Calendar> res = new ArrayList<>();
-        for(Long day : days) {
-            res.addAll(transportService
-                    .get(id)
-                    .getCustomer()
-                    .stream()
-                    .map(customer -> getCustomerCalendar(customer, day))
-                    .flatMap(events -> events.stream())
-                    .collect(Collectors.toList()));
-        }
-
+        for (Long day : days)
+            res.addAll(getTransportCalendar(id, day));
         return res;
     }
 
@@ -186,7 +192,7 @@ public class CalendarService {
             throws ObjectNotFoundException, IllegalArgumentException, NumberFormatException {
 
         String startWorkAt = propertyService.getValue(customer.getProperty(), "startWorkTime");
-        String stopWorkAt  = propertyService.getValue(customer.getProperty(), "stopWorkTime");
+        String stopWorkAt = propertyService.getValue(customer.getProperty(), "stopWorkTime");
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         gregorianCalendar.setTime(diapazon.getStart());
@@ -220,7 +226,7 @@ public class CalendarService {
             throws IllegalArgumentException {
 
         List<Calendar> res = new ArrayList<>();
-        for(Long day : days)
+        for (Long day : days)
             res.addAll(getCustomerCalendar(customer, day));
 
         return res;
@@ -231,7 +237,8 @@ public class CalendarService {
 
         String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "workAtWeekEnd");
 
-        if (workAtWeekEnd.equals("1"))
+        IStringValidator validator = new BooleanYesValidator();
+        if (validator.validate(workAtWeekEnd))
             return getCustomerWorkTime(customer, diapazon);
 
         List<Calendar> events = new ArrayList<>();
@@ -246,10 +253,19 @@ public class CalendarService {
         return events;
     }
 
-    public CalendarEntity get(Long id) throws ObjectNotFoundException {
+    public CalendarEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return calendarRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Calendar", id));
+    }
+
+    public Calendar getDto(Long id) throws ObjectNotFoundException {
+
+        return calendarMapper.toDto(getEntity(id));
+    }
+
+    public Long count() {
+        return calendarRepository.count();
     }
 }

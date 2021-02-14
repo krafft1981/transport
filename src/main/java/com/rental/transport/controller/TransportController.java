@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value="/transport")
+@RequestMapping(value = "/transport")
 @RestController
 public class TransportController {
 
@@ -76,5 +76,12 @@ public class TransportController {
     public List<Transport> doGetMyTransportRequest(Principal principal) {
 
         return service.getMyTransport(principal.getName());
+    }
+
+    @GetMapping(value = "/parking")
+    public List<Transport> doGetParkingTransportRequest(
+            @RequestParam(value = "parking_id", required = true) Long parkingId) {
+
+        return service.getParkingTransport(parkingId);
     }
 }

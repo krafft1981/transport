@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CalendarRepository extends AbstractRepository<CalendarEntity> {
+public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query("select c from calendar c where day_num = :day and (" +
             "(:start <= start_at and :stop >= stop_at) or " +

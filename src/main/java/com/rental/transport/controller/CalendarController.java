@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value="/calendar")
+@RequestMapping(value = "/calendar")
 @RestController
 public class CalendarController {
 
@@ -32,7 +32,7 @@ public class CalendarController {
             @RequestParam(value = "days", required = true) Long[] days,
             @RequestParam(value = "transport_id", required = true) Long id) {
 
-        return service.getTransportCalendar(id, days);
+        return service.getTransportCalendar(principal.getName(), id, days);
     }
 
     @GetMapping(value = "/customer")

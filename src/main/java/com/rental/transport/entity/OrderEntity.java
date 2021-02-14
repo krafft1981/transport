@@ -21,7 +21,7 @@ import lombok.Setter;
 
 @Entity(name = "orders")
 @Table(
-        name="orders",
+        name = "orders",
         schema = "public",
         catalog = "relationship",
         indexes = {
@@ -32,7 +32,7 @@ import lombok.Setter;
 
 @Setter
 @AllArgsConstructor
-public class OrderEntity extends AbstractEntity  {
+public class OrderEntity extends AbstractEntity {
 
     private String status = "New";
 
@@ -47,14 +47,14 @@ public class OrderEntity extends AbstractEntity  {
     private Date createdAt = new Date();
 
     public OrderEntity() {
-        addProperty(new PropertyEntity("фИО Заказчика", "fio", ""));
-        addProperty(new PropertyEntity("Телефон Заказчика", "phone", ""));
-        addProperty(new PropertyEntity("Широта", "latitude", "0"));
-        addProperty(new PropertyEntity("Долгота", "longitude", "0"));
-        addProperty(new PropertyEntity("Стоимость", "cost", "0"));
-        addProperty(new PropertyEntity("Цена", "price", "0"));
-        addProperty(new PropertyEntity("Продолжительность", "duration", "0"));
-        addProperty(new PropertyEntity("Комментарии", "comment", ""));
+        addProperty(new PropertyEntity("фИО Заказчика", "fio", "Не указано", "String"));
+        addProperty(new PropertyEntity("Телефон Заказчика", "phone", "", "Phone"));
+        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
+        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
+        addProperty(new PropertyEntity("Стоимость", "cost", "0", "Double"));
+        addProperty(new PropertyEntity("Цена", "price", "0", "Double"));
+        addProperty(new PropertyEntity("Продолжительность", "duration", "0", "Integer"));
+        addProperty(new PropertyEntity("Комментарии", "comment", "Не указано", "String"));
     }
 
     @Basic
@@ -82,9 +82,9 @@ public class OrderEntity extends AbstractEntity  {
     }
 
     @ManyToMany
-    @JoinTable(name="orders_driver",
-            joinColumns=@JoinColumn(name="order_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
+    @JoinTable(name = "orders_driver",
+            joinColumns = @JoinColumn(name = "order_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
     )
     public Set<CustomerEntity> getDriver() {
         return driver;
@@ -95,7 +95,7 @@ public class OrderEntity extends AbstractEntity  {
         return calendar;
     }
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     public Set<MessageEntity> getMessage() {
         return message;
     }

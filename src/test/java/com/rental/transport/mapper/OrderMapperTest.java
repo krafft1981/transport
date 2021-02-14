@@ -19,11 +19,6 @@ public class OrderMapperTest extends BaseTest {
     }
 
     @Test
-    public void OrderMapperNotNullTest() {
-        Assert.assertNotNull(mapper);
-    }
-
-    @Test
     public void toEntity() {
     }
 

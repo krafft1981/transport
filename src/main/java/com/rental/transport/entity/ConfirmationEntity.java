@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name="confirmation",
+        name = "confirmation",
         schema = "public",
         catalog = "relationship",
         indexes = {

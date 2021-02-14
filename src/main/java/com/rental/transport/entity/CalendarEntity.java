@@ -13,11 +13,11 @@ import lombok.Setter;
 
 @Entity(name = "calendar")
 @Table(
-        name="calendar",
+        name = "calendar",
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "day_num", name = "day_num_id_idx" )
+                @Index(columnList = "day_num", name = "day_num_id_idx")
         }
 )
 
@@ -59,7 +59,7 @@ public class CalendarEntity extends AbstractEntity {
 
     @Basic
     @ManyToOne
-    @JoinColumn(name="customer_id", referencedColumnName = "id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
     public CustomerEntity getCustomer() {
         return customer;
     }

@@ -3,7 +3,6 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Image;
 import com.rental.transport.service.ImageService;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value="/image")
+@RequestMapping(value = "/image")
 @RestController
 public class ImageController {
 
@@ -29,24 +28,26 @@ public class ImageController {
     private ImageService service;
 
     @PostMapping
-    public Long doPutImageRequest(@RequestBody String image) {
+    public Long doPutImageRequest(
+            @RequestBody String image) {
 
         return service.create(image);
     }
 
     @GetMapping
-    public Image doGetImageRequest(@RequestParam(value =  "id", required = true) Long id)
+    public Image doGetImageRequest(
+            @RequestParam(value = "id", required = true) Long id)
             throws ObjectNotFoundException {
 
         return service.getImage(id);
     }
 
     @GetMapping(
-            value="/{id}",
+            value = "/{id}",
             produces = MediaType.IMAGE_JPEG_VALUE
     )
-    public byte[] doGetImageByPathRequest (
-            @PathVariable(value =  "id") Long id) throws ObjectNotFoundException {
+    public byte[] doGetImageByPathRequest(
+            @PathVariable(value = "id") Long id) throws ObjectNotFoundException {
 
         Image image = service.getImage(id);
         byte[] base64Bytes = image.getData().getBytes();
@@ -55,7 +56,8 @@ public class ImageController {
     }
 
     @DeleteMapping
-    public void doDeleteImageRequest(@RequestParam(value =  "id", required = true) Long[] ids) {
+    public void doDeleteImageRequest(
+            @RequestParam(value = "id", required = true) Long[] ids) {
 
         service.delete(Arrays.asList(ids));
     }

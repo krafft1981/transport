@@ -4,6 +4,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 @NoRepositoryBean
-public interface AbstractRepository <E extends AbstractEntity> extends PagingAndSortingRepository<E, Long> {
+public interface IRepository<E extends AbstractEntity> extends PagingAndSortingRepository<E, Long> {
 
 }

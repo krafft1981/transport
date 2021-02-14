@@ -30,13 +30,13 @@ public class ParkingService {
     private ImageService imageService;
 
     @Autowired
-    private ParkingMapper mapper;
+    private ParkingMapper parkingMapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
-        CustomerEntity customer = customerService.get(account);
-        ParkingEntity parking = get(id);
+        CustomerEntity customer = customerService.getEntity(account);
+        ParkingEntity parking = getEntity(id);
         if (parking.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
 
@@ -49,7 +49,7 @@ public class ParkingService {
     public Long create(@NonNull String account)
             throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         ParkingEntity entity = new ParkingEntity(customer);
         return parkingRepository.save(entity).getId();
     }
@@ -57,9 +57,9 @@ public class ParkingService {
     public void update(@NonNull String account, @NonNull Parking dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        ParkingEntity entity = get(dto.getId());
-        entity = mapper.toEntity(dto);
-        CustomerEntity customer = customerService.get(account);
+        ParkingEntity entity = getEntity(dto.getId());
+        entity = parkingMapper.toEntity(dto);
+        CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
@@ -74,20 +74,26 @@ public class ParkingService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> {
+                    return parkingMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
     public Long count() {
 
-        Long count = parkingRepository.count();
-        return count;
+        return parkingRepository.count();
     }
 
-    public ParkingEntity get(Long id) throws ObjectNotFoundException {
+    public ParkingEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return parkingRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
+    }
+
+    public Parking getDto(Long id) throws ObjectNotFoundException {
+
+        return parkingMapper.toDto(getEntity(id));
     }
 }

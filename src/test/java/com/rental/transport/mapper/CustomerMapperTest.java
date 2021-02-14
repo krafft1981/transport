@@ -19,11 +19,6 @@ public class CustomerMapperTest extends BaseTest {
     }
 
     @Test
-    public void CustomerMapperNotNullTest() {
-        Assert.assertNotNull(mapper);
-    }
-
-    @Test
     public void toEntity() {
     }
 

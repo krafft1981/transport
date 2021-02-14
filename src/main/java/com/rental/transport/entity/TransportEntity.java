@@ -15,9 +15,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name="transport")
+@Entity(name = "transport")
 @Table(
-        name="transport",
+        name = "transport",
         schema = "public",
         catalog = "relationship",
         indexes = {
@@ -42,20 +42,21 @@ public class TransportEntity extends AbstractEntity {
         setType(type);
         customer.getParking()
                 .stream()
-                .forEach(parking -> { addParking(parking); });
+                .forEach(parking -> {
+                    addParking(parking);
+                });
 
         addPropertyList();
     }
 
     public void addPropertyList() {
-
-        addProperty(new PropertyEntity("Название", "name", ""));
-        addProperty(new PropertyEntity("Вместимость", "capacity", "1"));
-        addProperty(new PropertyEntity("Описание", "description", ""));
-        addProperty(new PropertyEntity("Цена", "cost", "0"));
-        addProperty(new PropertyEntity("Кворум", "quorum", "1"));
-        addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200"));
-        addProperty(new PropertyEntity("Нужен водитель", "useDriver", "1"));
+        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
+        addProperty(new PropertyEntity("Вместимость", "capacity", "1", "Integer"));
+        addProperty(new PropertyEntity("Описание", "description", "Описания нет", "String"));
+        addProperty(new PropertyEntity("Цена", "cost", "0", "Double"));
+        addProperty(new PropertyEntity("Кворум", "quorum", "1", "Integer"));
+        addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200", "Integer"));
+        addProperty(new PropertyEntity("Нужен водитель", "useDriver", "Yes", "Boolean"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -75,18 +76,18 @@ public class TransportEntity extends AbstractEntity {
     }
 
     @ManyToMany
-    @JoinTable(name="parking_transport",
-            joinColumns=@JoinColumn(name="transport_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
+    @JoinTable(name = "parking_transport",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
     )
     public Set<ParkingEntity> getParking() {
         return parking;
     }
 
     @ManyToMany
-    @JoinTable(name="customer_transport",
-            joinColumns=@JoinColumn(name="transport_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="customer_id", nullable = false)
+    @JoinTable(name = "customer_transport",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
     )
     public Set<CustomerEntity> getCustomer() {
         return customer;

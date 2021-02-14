@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+@Entity(name = "transport_type")
 @Table(
-        name="transport_type",
+        name = "transport_type",
         schema = "public",
         catalog = "relationship",
         indexes = {

@@ -1,7 +1,6 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Parking;
-import com.rental.transport.dto.Transport;
 import com.rental.transport.service.ParkingService;
 import java.security.Principal;
 import java.util.List;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value="/parking")
+@RequestMapping(value = "/parking")
 @RestController
 public class ParkingController {
 

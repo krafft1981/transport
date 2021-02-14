@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value="/order")
+@RequestMapping(value = "/order")
 @RestController
 public class OrderController {
 
@@ -60,7 +60,7 @@ public class OrderController {
         return service.getOrderRequestList(principal.getName());
     }
 
-   @PostMapping(value = "/confirm")
+    @PostMapping(value = "/confirm")
     public void doPostConfirmOrderRequest(
             Principal principal,
             @RequestParam(value = "order_id", required = true) Long orderId) {

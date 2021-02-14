@@ -19,11 +19,6 @@ public class ParkingMapperTest extends BaseTest {
     }
 
     @Test
-    public void ParkingMapperNotNullTest() {
-        Assert.assertNotNull(mapper);
-    }
-
-    @Test
     public void toEntity() {
     }
 

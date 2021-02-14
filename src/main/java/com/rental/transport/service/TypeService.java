@@ -19,7 +19,7 @@ public class TypeService {
     private TypeRepository repository;
 
     @Autowired
-    private TypeMapper mapper;
+    private TypeMapper typeMapper;
 
     public Long create(String name) throws IllegalArgumentException {
 
@@ -29,8 +29,7 @@ public class TypeService {
 
     public Long count() {
 
-        Long count = repository.count();
-        return count;
+        return repository.count();
     }
 
     public List<Type> getPage(Pageable pageable) {
@@ -39,23 +38,31 @@ public class TypeService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> {
+                    return typeMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
-    public TypeEntity get(Long id) throws ObjectNotFoundException {
+    public TypeEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return repository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Type", id));
     }
 
-    public TypeEntity get(String name) throws ObjectNotFoundException {
+    public TypeEntity getEntity(String name) throws ObjectNotFoundException {
 
         TypeEntity entity = repository.findByName(name);
-        if (Objects.isNull(entity)) {
-            throw new ObjectNotFoundException("Type", name);
+        if (Objects.nonNull(entity)) {
+            return entity;
         }
-        return entity;
+
+        throw new ObjectNotFoundException("Type", name);
+    }
+
+    public Type getDto(Long id) throws ObjectNotFoundException {
+
+        return typeMapper.toDto(getEntity(id));
     }
 }

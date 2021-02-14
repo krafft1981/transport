@@ -8,9 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name="property")
+@Entity(name = "property")
 @Table(
-        name="property",
+        name = "property",
         schema = "public",
         catalog = "relationship"
 )
@@ -23,6 +23,7 @@ public class PropertyEntity extends AbstractEntity {
     private String humanName = "";
     private String logicName = "";
     private String value = "";
+    private String type = "String";
 
     @Basic
     @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
@@ -40,5 +41,11 @@ public class PropertyEntity extends AbstractEntity {
     @Column(name = "value", nullable = false, insertable = true, updatable = true)
     public String getValue() {
         return value;
+    }
+
+    @Basic
+    @Column(name = "type", nullable = false, insertable = true, updatable = true)
+    public String getType() {
+        return type;
     }
 }

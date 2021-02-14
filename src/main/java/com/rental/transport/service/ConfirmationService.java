@@ -32,7 +32,7 @@ public class ConfirmationService {
         return confirmationRepository
                 .getByCustomer(customer.getId())
                 .stream()
-                .map(entity -> entity.getOrder().getId() )
+                .map(entity -> entity.getOrder().getId())
                 .collect(Collectors.toList());
     }
 
@@ -41,7 +41,7 @@ public class ConfirmationService {
         return confirmationRepository
                 .getByOrder(id)
                 .stream()
-                .map(entity -> entity.getOrder().getId() )
+                .map(entity -> entity.getOrder().getId())
                 .collect(Collectors.toList());
     }
 
@@ -69,9 +69,8 @@ public class ConfirmationService {
 
     public ConfirmationEntity get(Long id) throws ObjectNotFoundException {
 
-        ConfirmationEntity entity = confirmationRepository
+        return confirmationRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Confirmation", id));
-        return entity;
     }
 }

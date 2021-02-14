@@ -15,7 +15,7 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(
-        name="message",
+        name = "message",
         schema = "public",
         catalog = "relationship",
         indexes = {
@@ -46,7 +46,7 @@ public class MessageEntity extends AbstractEntity {
 
     @Basic
     @Column(name = "text", nullable = false, insertable = true, updatable = true)
-    @Type(type="text")
+    @Type(type = "text")
     public String getText() {
         return text;
     }

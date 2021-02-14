@@ -1,5 +1,6 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Message;
 import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.MessageRepository;
 import com.rental.transport.mapper.MessageMapper;
@@ -16,10 +17,20 @@ public class MessageService {
     @Autowired
     private MessageMapper messageMapper;
 
-    public MessageEntity get(Long id) throws ObjectNotFoundException {
+    public Long count() {
+        return messageRepository.count();
+    }
+
+    public MessageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return messageRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Message", id));
+    }
+
+
+    public Message getDto(Long id) throws ObjectNotFoundException {
+
+        return messageMapper.toDto(getEntity(id));
     }
 }

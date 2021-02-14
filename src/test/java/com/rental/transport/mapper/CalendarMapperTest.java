@@ -19,11 +19,6 @@ public class CalendarMapperTest extends BaseTest {
     }
 
     @Test
-    public void CalendarMapperNotNullTest() {
-        Assert.assertNotNull(mapper);
-    }
-
-    @Test
     public void toEntity() {
     }
 

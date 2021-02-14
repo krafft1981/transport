@@ -11,7 +11,7 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(
-        name="image",
+        name = "image",
         schema = "public",
         catalog = "relationship"
 )
@@ -25,7 +25,7 @@ public class ImageEntity extends AbstractEntity {
 
     @Basic
     @Column(name = "data", nullable = false, insertable = true, updatable = true)
-    @Type(type="text")
+    @Type(type = "text")
     public String getData() {
         return data;
     }

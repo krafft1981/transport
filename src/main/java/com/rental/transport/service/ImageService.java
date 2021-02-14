@@ -3,7 +3,6 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Image;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
-import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.mapper.ImageMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
@@ -20,7 +19,7 @@ public class ImageService {
     private ImageRepository imageRepository;
 
     @Autowired
-    private ImageMapper mapper;
+    private ImageMapper imageMapper;
 
     public Long create(@NonNull String image) {
 
@@ -38,8 +37,8 @@ public class ImageService {
 
     public Image getImage(Long id) throws ObjectNotFoundException {
 
-        ImageEntity entity = get(id);
-        return mapper.toDto(entity);
+        ImageEntity entity = getEntity(id);
+        return imageMapper.toDto(entity);
     }
 
     public List<Long> getPage(Pageable pageable) {
@@ -48,7 +47,9 @@ public class ImageService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return entity.getId(); })
+                .map(entity -> {
+                    return entity.getId();
+                })
                 .collect(Collectors.toList());
 
         return result;
@@ -56,14 +57,18 @@ public class ImageService {
 
     public Long count() {
 
-        Long count = imageRepository.count();
-        return count;
+        return imageRepository.count();
     }
 
-    public ImageEntity get(Long id) throws ObjectNotFoundException {
+    public ImageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return imageRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Image", id));
+    }
+
+    public Image getDto(Long id) throws ObjectNotFoundException {
+
+        return imageMapper.toDto(getEntity(id));
     }
 }

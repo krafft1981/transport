@@ -1,6 +1,6 @@
 package com.rental.transport.entity;
 
-import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.dto.Property;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -20,7 +20,7 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name="customer",
+        name = "customer",
         schema = "public",
         catalog = "relationship",
         indexes = {
@@ -34,23 +34,38 @@ import lombok.Setter;
 public class CustomerEntity extends AbstractEntity {
 
     private String account;
+    private String password;
+    private Boolean confirmed = true;
+    private Boolean sendEmail = false;
     private Set<ImageEntity> image = new HashSet<>();
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<PropertyEntity> property = new HashSet<>();
 
-    public CustomerEntity(String account) {
+    public CustomerEntity(String account, String password, String phone, String fio) {
         setAccount(account);
+        setPassword(password);
         addPropertyList();
+        property.stream()
+                .filter(propertyEntity -> propertyEntity.getLogicName().equals("phone"))
+                .findFirst()
+                .orElse(new PropertyEntity())
+                .setValue(phone);
+
+        property.stream()
+                .filter(propertyEntity -> propertyEntity.getLogicName().equals("fio"))
+                .findFirst()
+                .orElse(new PropertyEntity())
+                .setValue(fio);
     }
 
     public void addPropertyList() {
-        addProperty(new PropertyEntity("ФИО", "fio", ""));
-        addProperty(new PropertyEntity("Телефон", "phone", ""));
-        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8"));
-        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18"));
-        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1"));
-        addProperty(new PropertyEntity("Описание", "description", ""));
+        addProperty(new PropertyEntity("ФИО", "fio", "", "String"));
+        addProperty(new PropertyEntity("Телефон", "phone", "", "Phone"));
+        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8", "Hour"));
+        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18", "Hour"));
+        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1", "Boolean"));
+        addProperty(new PropertyEntity("Описание", "description", "", "String"));
     }
 
     @Basic
@@ -58,6 +73,29 @@ public class CustomerEntity extends AbstractEntity {
     @NotEmpty
     public String getAccount() {
         return account;
+    }
+
+    @Basic
+    @Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true)
+    @NotEmpty
+    public String getPassword() {
+        return password;
+    }
+
+    @Basic
+    @Column(name = "send_email", nullable = false, insertable = true, updatable = true)
+    public Boolean getSendEmail() {
+        return sendEmail;
+    }
+
+    public void setConfirmed() {
+        confirmed = true;
+    }
+
+    @Basic
+    @Column(name = "confirmed", nullable = false, insertable = true, updatable = true)
+    public Boolean getConfirmed() {
+        return confirmed;
     }
 
     @OneToMany
@@ -74,9 +112,9 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     @ManyToMany
-    @JoinTable(name="customer_parking",
-            joinColumns=@JoinColumn(name="customer_id", nullable = false),
-            inverseJoinColumns=@JoinColumn(name="parking_id", nullable = false)
+    @JoinTable(name = "customer_parking",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
     )
     public Set<ParkingEntity> getParking() {
         return parking;

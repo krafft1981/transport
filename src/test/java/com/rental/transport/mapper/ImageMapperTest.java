@@ -19,11 +19,6 @@ public class ImageMapperTest extends BaseTest {
     }
 
     @Test
-    public void ImageMapperNotNullTest() {
-        Assert.assertNotNull(mapper);
-    }
-
-    @Test
     public void toEntity() {
     }
 

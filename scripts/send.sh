@@ -1,7 +1,8 @@
 #!/bin/bash
 
 user=krafft1981@mail.ru
-pass=password
+pass=b
+#url="http://127.0.0.1:8080"
 url="http://138.124.187.10:8080"
 
 for file in $(ls images)
@@ -14,7 +15,4 @@ do
 
 	rm images/$file
 	rm /tmp/$file
-
-#	curl -X POST "$url/transport?type=11" --digest --user "$user:$pass"
-#	echo
 done

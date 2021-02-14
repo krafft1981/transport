@@ -43,7 +43,7 @@ public class OrderService {
     private ConfirmationService confirmationService;
 
     @Autowired
-    private OrderMapper mapper;
+    private OrderMapper orderMapper;
 
     public List<Order> getByPage(@NonNull String account, Pageable pageable) {
 
@@ -51,7 +51,7 @@ public class OrderService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return mapper.toDto(entity); })
+                .map(entity -> { return orderMapper.toDto(entity); })
                 .collect(Collectors.toList());
     }
 
@@ -72,12 +72,11 @@ public class OrderService {
     public Order getByCalendarEvent(Long id)
             throws ObjectNotFoundException {
 
-        CalendarEntity calendar = calendarService.get(id);
+        CalendarEntity calendar = calendarService.getEntity(id);
         Long orderId = calendar.getOrder();
         if (Objects.nonNull(orderId)) {
-            OrderEntity entity = get(orderId);
-            Order order = mapper.toDto(entity);
-            return order;
+            OrderEntity entity = getEntity(orderId);
+            return orderMapper.toDto(entity);
         }
 
         throw new ObjectNotFoundException("Calendar", id);
@@ -85,28 +84,25 @@ public class OrderService {
 
     public List<Long> getOrderRequestList(String account) {
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         return confirmationService.getByCustomer(customer);
     }
 
-    @Transactional
     public void sendMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException {
 
-        OrderEntity order = get(orderId);
-        CustomerEntity customer = customerService.get(account);
+        OrderEntity order = getEntity(orderId);
+        CustomerEntity customer = customerService.getEntity(account);
         MessageEntity entity = new MessageEntity(customer, message);
         order.addMessage(entity);
-
-        System.out.println(message + " sended");
     }
 
     @Transactional
     public void confirmOrder(@NonNull String account, Long orderId)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        CustomerEntity driver = customerService.get(account);
-        OrderEntity order = get(orderId);
+        CustomerEntity driver = customerService.getEntity(account);
+        OrderEntity order = getEntity(orderId);
 
         if (!order.getStatus().equals("New"))
             throw new IllegalArgumentException("Order has status not New");
@@ -114,10 +110,10 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
-//        confirmationService. .deleteOrderRequest(order, driver);
+//        confirmationService.deleteOrderRequest(order, driver);
 //        Integer confirmed = 0;//er.incConfirmed();
         order.addDriver(driver);
-//
+
         String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
 //        if (confirmed >= Long.getLong(quorum)) {
 //            confirmationService.deleteByOrderId(order.getId());
@@ -129,8 +125,8 @@ public class OrderService {
     public void rejectOrder(@NonNull String account, Long orderId)
             throws ObjectNotFoundException, AccessDeniedException {
 
-        CustomerEntity driver = customerService.get(account);
-        OrderEntity order = get(orderId);
+        CustomerEntity driver = customerService.getEntity(account);
+        OrderEntity order = getEntity(orderId);
 
         if (!order.getStatus().equals("New"))
             throw new IllegalArgumentException("Order status not New");
@@ -150,10 +146,10 @@ public class OrderService {
 
         OrderEntity order = new OrderEntity();
 
-        CustomerEntity customer = customerService.get(account);
+        CustomerEntity customer = customerService.getEntity(account);
         order.setCustomer(customer);
 
-        TransportEntity transport = transportService.get(transportId);
+        TransportEntity transport = transportService.getEntity(transportId);
         order.setTransport(transport);
 
         if (transport.getParking().isEmpty())
@@ -176,7 +172,7 @@ public class OrderService {
         Long total = 0L;
         for(Long id : eventIds) {
 
-            CalendarEntity event = calendarService.get(id);
+            CalendarEntity event = calendarService.getEntity(id);
             event.setOrder(order.getId());
 
             // validate duration
@@ -200,10 +196,19 @@ public class OrderService {
         return id;
     }
 
-    public OrderEntity get(Long id) throws ObjectNotFoundException {
+    public OrderEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return orderRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Order", id));
+    }
+
+    public Long count() {
+        return orderRepository.count();
+    }
+
+    public Order getDto(Long id) throws ObjectNotFoundException {
+
+        return orderMapper.toDto(getEntity(id));
     }
 }
