@@ -103,7 +103,7 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
             transport.getProperty().stream()
                     .forEach( entity -> {
                         Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 

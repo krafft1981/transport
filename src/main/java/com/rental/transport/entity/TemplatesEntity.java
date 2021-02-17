@@ -17,7 +17,8 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "transport_type_id", name = "transport_type_id_idx")
+                @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
+                @Index(columnList = "property_type_id", name = "property_type_id_idx")
         }
 )
 
@@ -26,27 +27,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TemplatesEntity extends AbstractEntity {
 
-    private TypeEntity type;
-    private String humanName;
-    private String logicName;
+    private TypeEntity transportType;
+    private PropertyTypeEntity propertyTypeEntity;
     private String value;
 
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
-    public TypeEntity getType() {
-        return type;
+    public TypeEntity getTransportType() {
+        return transportType;
     }
 
-    @Basic
-    @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
-    public String getHumanName() {
-        return humanName;
-    }
-
-    @Basic
-    @Column(name = "logic_name", nullable = false, insertable = true, updatable = true)
-    public String getLogicName() {
-        return logicName;
+    @ManyToOne
+    @JoinColumn(name = "property_type_id", referencedColumnName = "id")
+    public PropertyTypeEntity getPropertyTypeEntity() {
+        return propertyTypeEntity;
     }
 
     @Basic

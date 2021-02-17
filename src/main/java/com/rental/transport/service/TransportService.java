@@ -2,7 +2,6 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TypeEntity;
@@ -32,6 +31,9 @@ public class TransportService {
     private ParkingService parkingService;
 
     @Autowired
+    private TemplatesService templatesService;
+
+    @Autowired
     private TransportMapper transportMapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
@@ -50,23 +52,22 @@ public class TransportService {
     public Long create(@NonNull String account, @NonNull String type)
             throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customerEntity = customerService.getEntity(account);
         TypeEntity typeEntity = typeService.getEntity(type);
-        TransportEntity entity = new TransportEntity(customer, typeEntity);
+        TransportEntity entity = new TransportEntity(customerEntity, typeEntity);
+        entity.setProperty(templatesService.getTypeProperty(typeEntity));
         return transportRepository.save(entity).getId();
     }
 
     public void update(@NonNull String account, @NonNull Transport dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        TransportEntity entity = getEntity(dto.getId());
-        entity = transportMapper.toEntity(dto);
+        TransportEntity entity = transportMapper.toEntity(dto);
         CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
 
-        entity.addPropertyList();
         transportRepository.save(entity);
     }
 

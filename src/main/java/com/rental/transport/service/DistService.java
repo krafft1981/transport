@@ -1,8 +1,6 @@
 package com.rental.transport.service;
 
 import com.google.common.io.ByteStreams;
-import com.rental.transport.dto.Customer;
-import com.rental.transport.entity.CustomerEntity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service

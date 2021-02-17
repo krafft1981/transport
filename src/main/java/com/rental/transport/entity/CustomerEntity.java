@@ -45,27 +45,29 @@ public class CustomerEntity extends AbstractEntity {
     public CustomerEntity(String account, String password, String phone, String fio) {
         setAccount(account);
         setPassword(password);
+
         addPropertyList();
+
         property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals("phone"))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals("phone"))
                 .findFirst()
                 .orElse(new PropertyEntity())
                 .setValue(phone);
 
         property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals("fio"))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals("fio"))
                 .findFirst()
                 .orElse(new PropertyEntity())
                 .setValue(fio);
     }
 
     public void addPropertyList() {
-        addProperty(new PropertyEntity("ФИО", "fio", "", "String"));
-        addProperty(new PropertyEntity("Телефон", "phone", "", "Phone"));
-        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8", "Hour"));
-        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18", "Hour"));
-        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1", "Boolean"));
-        addProperty(new PropertyEntity("Описание", "description", "", "String"));
+//        addProperty(new PropertyEntity("ФИО", "fio", "", "String"));
+//        addProperty(new PropertyEntity("Телефон", "phone", "", "Phone"));
+//        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8", "Hour"));
+//        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18", "Hour"));
+//        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1", "Boolean"));
+//        addProperty(new PropertyEntity("Описание", "description", "", "String"));
     }
 
     @Basic
@@ -139,10 +141,10 @@ public class CustomerEntity extends AbstractEntity {
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
 
         entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElse(entity);
 

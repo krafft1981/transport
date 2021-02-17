@@ -212,3 +212,14 @@ public class OrderService {
         return orderMapper.toDto(getEntity(id));
     }
 }
+
+/*
+    // templates
+    addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
+    addProperty(new PropertyEntity("Вместимость", "capacity", "1", "Integer"));
+    addProperty(new PropertyEntity("Описание", "description", "Описания нет", "String"));
+    addProperty(new PropertyEntity("Цена", "cost", "0", "Double"));
+    addProperty(new PropertyEntity("Кворум", "quorum", "1", "Integer"));
+    addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200", "Integer"));
+    addProperty(new PropertyEntity("Нужен водитель", "useDriver", "Yes", "Boolean"));
+*/

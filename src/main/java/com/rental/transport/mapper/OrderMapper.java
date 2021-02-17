@@ -2,13 +2,10 @@ package com.rental.transport.mapper;
 
 import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Property;
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportRepository;
-import java.util.Date;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -65,7 +62,7 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
             order.getProperty().stream()
                     .forEach( entity -> {
                         Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 

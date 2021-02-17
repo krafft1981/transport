@@ -34,13 +34,14 @@ public class ParkingEntity extends AbstractEntity {
     }
 
     public void addPropertyList() {
-        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
-        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
-        addProperty(new PropertyEntity("Адрес", "address", "Адрес не указан", "String"));
-        addProperty(new PropertyEntity("Ближайший населённый пункт", "locality", "Тольятти", "String"));
-        addProperty(new PropertyEntity("Район", "region", "Регион", "String"));
-        addProperty(new PropertyEntity("Описание", "description", "Чертовски клёвое место", "String"));
+
+//        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
+//        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
+//        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
+//        addProperty(new PropertyEntity("Адрес", "address", "Адрес не указан", "String"));
+//        addProperty(new PropertyEntity("Ближайший населённый пункт", "locality", "", "String"));
+//        addProperty(new PropertyEntity("Район", "region", "Регион", "String"));
+//        addProperty(new PropertyEntity("Описание", "description", "Место для отдыха", "String"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -85,10 +86,10 @@ public class ParkingEntity extends AbstractEntity {
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
 
         entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElse(entity);
 

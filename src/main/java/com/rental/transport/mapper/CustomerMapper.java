@@ -8,13 +8,10 @@ import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
-import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Objects;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +100,7 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
             customer.getProperty().stream()
                     .forEach( entity -> {
                             Property property = source.getProperty().stream()
-                                    .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                    .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                     .findFirst()
                                     .orElse(null);
 

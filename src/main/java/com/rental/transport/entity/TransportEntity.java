@@ -45,18 +45,6 @@ public class TransportEntity extends AbstractEntity {
                 .forEach(parking -> {
                     addParking(parking);
                 });
-
-        addPropertyList();
-    }
-
-    public void addPropertyList() {
-        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-        addProperty(new PropertyEntity("Вместимость", "capacity", "1", "Integer"));
-        addProperty(new PropertyEntity("Описание", "description", "Описания нет", "String"));
-        addProperty(new PropertyEntity("Цена", "cost", "0", "Double"));
-        addProperty(new PropertyEntity("Кворум", "quorum", "1", "Integer"));
-        addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200", "Integer"));
-        addProperty(new PropertyEntity("Нужен водитель", "useDriver", "Yes", "Boolean"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -80,6 +68,7 @@ public class TransportEntity extends AbstractEntity {
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
     )
+
     public Set<ParkingEntity> getParking() {
         return parking;
     }
@@ -89,6 +78,7 @@ public class TransportEntity extends AbstractEntity {
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
     )
+
     public Set<CustomerEntity> getCustomer() {
         return customer;
     }
@@ -105,19 +95,19 @@ public class TransportEntity extends AbstractEntity {
 
     public void addParking(ParkingEntity entity) {
 
-        if (!getParking().isEmpty()) {
+        if (!getParking().isEmpty())
             parking.clear();
-        }
 
         parking.add(entity);
     }
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
 
-        entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+        entity = property
+                .stream()
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElse(entity);
 

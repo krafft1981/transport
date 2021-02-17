@@ -47,14 +47,6 @@ public class OrderEntity extends AbstractEntity {
     private Date createdAt = new Date();
 
     public OrderEntity() {
-        addProperty(new PropertyEntity("фИО Заказчика", "fio", "Не указано", "String"));
-        addProperty(new PropertyEntity("Телефон Заказчика", "phone", "", "Phone"));
-        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
-        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
-        addProperty(new PropertyEntity("Стоимость", "cost", "0", "Double"));
-        addProperty(new PropertyEntity("Цена", "price", "0", "Double"));
-        addProperty(new PropertyEntity("Продолжительность", "duration", "0", "Integer"));
-        addProperty(new PropertyEntity("Комментарии", "comment", "Не указано", "String"));
     }
 
     @Basic
@@ -109,10 +101,10 @@ public class OrderEntity extends AbstractEntity {
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
 
         entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElse(entity);
 

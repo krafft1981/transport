@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Primary
 @Service
@@ -81,7 +80,6 @@ public class CustomerService implements UserDetailsService {
         CustomerEntity entityFromDb = getEntity(account);
         CustomerEntity entity = customerMapper.toEntity(dto);
         entity.setPassword(entityFromDb.getPassword());
-        entity.addPropertyList();
         customerRepository.save(entity);
     }
 

@@ -6,7 +6,6 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
-import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
@@ -108,7 +107,7 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
             parking.getProperty().stream()
                     .forEach( entity -> {
                         Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 

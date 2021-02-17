@@ -57,8 +57,7 @@ public class ParkingService {
     public void update(@NonNull String account, @NonNull Parking dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        ParkingEntity entity = getEntity(dto.getId());
-        entity = parkingMapper.toEntity(dto);
+        ParkingEntity entity = parkingMapper.toEntity(dto);
         CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
