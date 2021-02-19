@@ -51,18 +51,18 @@ public class CalendarService {
 
         public Diapazon(Long day) throws IllegalArgumentException {
 
-            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            gregorianCalendar.setTimeInMillis(day);
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
-            gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-            gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-            gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            calendar.setTimeInMillis(day);
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            calendar.set(java.util.Calendar.MINUTE, 0);
+            calendar.set(java.util.Calendar.SECOND, 0);
+            calendar.set(java.util.Calendar.MILLISECOND, 0);
 
-            this.start = gregorianCalendar.getTime();
+            this.start = calendar.getTime();
             this.dayNum = start.getTime();
 
-            gregorianCalendar.add(java.util.Calendar.DAY_OF_MONTH, 1);
-            this.stop = gregorianCalendar.getTime();
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, 1);
+            this.stop = calendar.getTime();
         }
     }
 
@@ -150,10 +150,10 @@ public class CalendarService {
                 })
                 .collect(Collectors.toList());
 
-        GregorianCalendar gregorianCalendar = new GregorianCalendar();
-        gregorianCalendar.setTimeInMillis(day);
+        java.util.Calendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(day);
 
-        switch (gregorianCalendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+        switch (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
             case java.util.Calendar.MONDAY:
             case java.util.Calendar.TUESDAY:
             case java.util.Calendar.WEDNESDAY:
@@ -194,26 +194,26 @@ public class CalendarService {
         String startWorkAt = propertyService.getValue(customer.getProperty(), "startWorkTime");
         String stopWorkAt = propertyService.getValue(customer.getProperty(), "stopWorkTime");
 
-        GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        gregorianCalendar.setTime(diapazon.getStart());
-        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(startWorkAt));
-        gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-        gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-        gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
+        java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        calendar.setTime(diapazon.getStart());
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(startWorkAt));
+        calendar.set(java.util.Calendar.MINUTE, 0);
+        calendar.set(java.util.Calendar.SECOND, 0);
+        calendar.set(java.util.Calendar.MILLISECOND, 0);
 
         List<Calendar> events = new ArrayList<>();
 
         events.add(new Calendar(
                 diapazon.getStart().getTime(),
-                gregorianCalendar.getTimeInMillis(),
+                calendar.getTimeInMillis(),
                 diapazon.getDayNum(),
                 customerMapper.toDto(customer)
         ));
 
-        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(stopWorkAt));
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(stopWorkAt));
 
         events.add(new Calendar(
-                gregorianCalendar.getTimeInMillis(),
+                calendar.getTimeInMillis(),
                 diapazon.getStop().getTime(),
                 diapazon.getDayNum(),
                 customerMapper.toDto(customer)
