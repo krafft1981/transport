@@ -1,9 +1,8 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Property;
-import com.rental.transport.dto.Transport;
-import com.rental.transport.entity.PropertyTypeEntity;
-import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.dto.PropertyType;
+import com.rental.transport.dto.Templates;
 import com.rental.transport.service.PropertyService;
 import com.rental.transport.service.TemplatesService;
 import java.security.Principal;
@@ -26,17 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class PropertyController {
 
     @Autowired
-    private PropertyService propertyService;
-
-    @Autowired
     private TemplatesService templatesService;
 
-    @GetMapping(value = "/value/count")
+    @Autowired
+    private PropertyService propertyService;
+
+    @GetMapping(value = "/count")
     public Long doGetValueCountRequest() {
         return propertyService.count();
     }
 
-    @GetMapping(value = "/value/list")
+    @GetMapping(value = "/list")
     public List<Property> goGetPagesPropertyRequest(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -50,43 +49,92 @@ public class PropertyController {
         return templatesService.count();
     }
 
+    @GetMapping(value = "/templates/list")
+    public List<Templates> goGetPagesTemplatesRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return templatesService.getTemplatesPage(pageable);
+    }
+
     @GetMapping(value = "/templates")
-    public void doGetTemplatesRequest(
+    public Templates doGetTemplatesRequest(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
 
-//        templatesService.getDto(id);
+        return templatesService.getDto(id);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/templates")
     public void doDeleteTemplatesRequest(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
 
-//        templatesService.delete(id);
+        templatesService.delete(id);
     }
 
-//    @PostMapping
-//    public Long doPostTemplatesRequest(
-//            Principal principal,
-//            @RequestParam(value = "transport_type_id", required = true) String type_id,
-//            @RequestParam(value = "value", required = true) String value,
-//            @RequestParam(value = "type", required = true) String type) {
-//
-//        private String humanName = "";
-//        private String logicName = "";
-//        private String type = "String";
-//
-//        private PropertyTypeEntity name;
-//
-////        return service.create(principal.getName(), type);
-//    }
-
-    @PutMapping
+    @PutMapping(value = "/templates")
     public void doPutTemplatesRequest(
-            Principal principal,
-            @RequestBody Transport transport) {
+            @RequestBody Templates templates) {
 
-//        service.update(principal.getName(), transport);
+        templatesService.update(templates);
+    }
+
+    @PostMapping(value = "/templates")
+    public Long doPostTemplatesRequest(
+            @RequestParam(value = "type", required = true) String type,
+            @RequestParam(value = "logic_name", required = true) String logicName,
+            @RequestParam(value = "default", required = true) String defValue) {
+
+        return templatesService.create(type, logicName, defValue);
+    }
+
+    @GetMapping(value = "/type/count")
+    public Long doGetTemplatesNameCountRequest() {
+        return templatesService.nameCount();
+    }
+
+    @GetMapping(value = "/type/list")
+    public List<PropertyType> goGetPagesTemplatesNameRequest(
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return templatesService.getPropertyTypePage(pageable);
+    }
+
+    @GetMapping(value = "/type")
+    public PropertyType doGetTemplatesNameRequest(
+            @RequestParam(value = "id", required = true) Long id) {
+
+        return templatesService.getPropertyTypeDto(id);
+    }
+
+    @DeleteMapping(value = "/type")
+    public void doDeleteTemplatesNameRequest(
+            @RequestParam(value = "id", required = true) Long id) {
+
+        templatesService.deletePropertyType(id);
+    }
+
+    @PutMapping(value = "/type")
+    public void doPutTemplatesNameRequest(
+            @RequestBody PropertyType propertyType) {
+
+        templatesService.updatePropertyType(propertyType);
+    }
+
+    @PostMapping(value = "/type")
+    public Long doPostTemplatesNameRequest(
+            @RequestParam(value = "type", required = true) String type,
+            @RequestParam(value = "logic_name", required = true) String logicName,
+            @RequestParam(value = "human_name", required = true) String humanName) {
+
+        return templatesService.createPropertyType(
+                type,
+                logicName,
+                humanName
+        );
     }
 }

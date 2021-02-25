@@ -22,53 +22,53 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ObjectNotFoundException.class)
     public ResponseEntity<Object> handleObjectNotFoundException(
-            ObjectNotFoundException ex, WebRequest request) {
+            ObjectNotFoundException e, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
+        body.put("message", e.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(
-            AccessDeniedException ex, WebRequest request) {
+            AccessDeniedException e, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
+        body.put("message", e.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
-            IllegalArgumentException ex, WebRequest request) {
+            IllegalArgumentException e, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
+        body.put("message", e.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Object> handleIOException(
-            IOException ex, WebRequest request) {
+            IOException e, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", ex.getMessage());
+        body.put("message", e.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers,
+            MethodArgumentNotValidException e, HttpHeaders headers,
             HttpStatus status, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("status", status.value());
 
-        List<String> errors = ex.getBindingResult()
+        List<String> errors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(x -> x.getDefaultMessage())

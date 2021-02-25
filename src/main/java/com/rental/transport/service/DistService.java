@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DistService {
+
+    private Map<String, Long> score = new HashMap<>();
 
     @Value("${spring.dist.path}")
     private String distPath;
@@ -36,6 +40,22 @@ public class DistService {
         byte[] data = new byte[len];
         InputStream is = new FileInputStream(file);
         ByteStreams.read(is, data, 0, len);
+        appendScore(name);
         return data;
+    }
+
+    private void appendScore(String name) {
+        synchronized (score) {
+            score.computeIfPresent(name, (key, value) -> value++);
+            score.computeIfAbsent(name, key -> 1L);
+            score.notify();
+        }
+    }
+
+    public Map<String, Long> readScore(String name) throws InterruptedException {
+        synchronized (score) {
+            score.wait();
+            return score;
+        }
     }
 }

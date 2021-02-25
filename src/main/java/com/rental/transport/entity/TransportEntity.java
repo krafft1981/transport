@@ -35,6 +35,7 @@ public class TransportEntity extends AbstractEntity {
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
+    private Set<CalendarEntity> calendar = new HashSet<>();
 
     public TransportEntity(CustomerEntity customer, TypeEntity type) {
 
@@ -71,6 +72,11 @@ public class TransportEntity extends AbstractEntity {
 
     public Set<ParkingEntity> getParking() {
         return parking;
+    }
+
+    @OneToMany(cascade = {CascadeType.ALL})
+    public Set<CalendarEntity> getCalendar() {
+        return calendar;
     }
 
     @ManyToMany

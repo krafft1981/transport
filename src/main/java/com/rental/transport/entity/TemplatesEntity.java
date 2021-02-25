@@ -29,7 +29,7 @@ public class TemplatesEntity extends AbstractEntity {
 
     private TypeEntity transportType;
     private PropertyTypeEntity propertyTypeEntity;
-    private String value;
+    private String value = "";
 
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
@@ -38,7 +38,7 @@ public class TemplatesEntity extends AbstractEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "property_type_id", referencedColumnName = "id")
+    @JoinColumn(name = "property_type_id", nullable = false, referencedColumnName = "id")
     public PropertyTypeEntity getPropertyTypeEntity() {
         return propertyTypeEntity;
     }

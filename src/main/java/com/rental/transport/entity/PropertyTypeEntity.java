@@ -31,7 +31,7 @@ public class PropertyTypeEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "logic_name", nullable = false, insertable = true, updatable = true)
+    @Column(name = "logic_name", unique = true, nullable = false, insertable = true, updatable = true)
     public String getLogicName() {
         return logicName;
     }

@@ -114,7 +114,7 @@ public class OrderService {
 //        Integer confirmed = 0;//er.incConfirmed();
         order.addDriver(driver);
 
-        String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
+//        String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
 //        if (confirmed >= Long.getLong(quorum)) {
 //            confirmationService.deleteByOrderId(order.getId());
 //            order.setStatus("Confirmed");
@@ -157,40 +157,40 @@ public class OrderService {
 
         ParkingEntity parking = transport.getParking().iterator().next();
 
-        String phone = propertyService.getValue(customer.getProperty(), "phone");
-        String fio = propertyService.getValue(customer.getProperty(), "fio");
-        String minTime = propertyService.getValue(transport.getProperty(), "minTime");
-        String cost = propertyService.getValue(transport.getProperty(), "cost");
-        String latitude = propertyService.getValue(parking.getProperty(), "latitude");
-        String longitude = propertyService.getValue(parking.getProperty(), "longitude");
+//        String phone = propertyService.getValue(customer.getProperty(), "phone");
+//        String fio = propertyService.getValue(customer.getProperty(), "fio");
+//        String minTime = propertyService.getValue(transport.getProperty(), "minTime");
+//        String cost = propertyService.getValue(transport.getProperty(), "cost");
+//        String latitude = propertyService.getValue(parking.getProperty(), "latitude");
+//        String longitude = propertyService.getValue(parking.getProperty(), "longitude");
+//
+//        propertyService.setValue(order.getProperty(), "fio", fio);
+//        propertyService.setValue(order.getProperty(), "phone", phone);
+//        propertyService.setValue(order.getProperty(), "latitude", latitude);
+//        propertyService.setValue(order.getProperty(), "longitude", longitude);
 
-        propertyService.setValue(order.getProperty(), "fio", fio);
-        propertyService.setValue(order.getProperty(), "phone", phone);
-        propertyService.setValue(order.getProperty(), "latitude", latitude);
-        propertyService.setValue(order.getProperty(), "longitude", longitude);
-
-        Long total = 0L;
-        for(Long id : eventIds) {
-
-            CalendarEntity event = calendarService.getEntity(id);
-            event.setOrder(order.getId());
+//        Long total = 0L;
+//        for(Long id : eventIds) {
+//
+//            CalendarEntity event = calendarService.getEntity(id);
+//            event.setOrder(order.getId());
 
             // validate duration
-            Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
-            if (duration < Integer.parseInt(minTime) * 1000)
-                throw new IllegalArgumentException("Wrong time interval");
+//            Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
+//            if (duration < Integer.parseInt(minTime) * 1000)
+//                throw new IllegalArgumentException("Wrong time interval");
 
-            order.addCalendar(event);
-            total += duration;
-        }
+//            order.addCalendar(event);
+//            total += duration;
+//        }
 
         // generate price value
         // Long remainder = total % 1000 > 0 ? 1L : 0L;
         // order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
 
-        propertyService.setValue(order.getProperty(), "duration", total.toString());
-        propertyService.setValue(order.getProperty(), "cost", cost);
-        propertyService.setValue(order.getProperty(), "price", total + " * " + cost);
+//        propertyService.setValue(order.getProperty(), "duration", total.toString());
+//        propertyService.setValue(order.getProperty(), "cost", cost);
+//        propertyService.setValue(order.getProperty(), "price", total + " * " + cost);
 
         Long id = orderRepository.save(order).getId();
         return id;
