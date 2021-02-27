@@ -3,6 +3,7 @@ package com.rental.transport.mapper;
 import com.rental.transport.dto.Property;
 import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyTypeEntity;
+import com.rental.transport.entity.PropertyTypeRepository;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -14,6 +15,9 @@ public class PropertyMapper implements AbstractMapper<PropertyEntity, Property> 
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private PropertyTypeRepository propertyTypeRepository;
 
     @Override
     public PropertyEntity toEntity(Property dto) {
@@ -53,11 +57,9 @@ public class PropertyMapper implements AbstractMapper<PropertyEntity, Property> 
 
         destination.setId(source.getId());
 
-        PropertyTypeEntity type = new PropertyTypeEntity();
-        type.setHumanName(source.getHumanName());
-        type.setLogicName(source.getLogicName());
-        type.setType(source.getType());
-
-        destination.setType(type);
+        PropertyTypeEntity type = propertyTypeRepository.findByLogicName(source.getLogicName());
+        if (!Objects.isNull(type)) {
+            destination.setType(type);
+        }
     }
 }

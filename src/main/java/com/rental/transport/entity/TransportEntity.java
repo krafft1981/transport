@@ -22,7 +22,7 @@ import lombok.Setter;
         catalog = "relationship",
         indexes = {
                 @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
-                @Index(columnList = "enable", name = "transport_enabled_idx")
+                @Index(columnList = "enable", name = "transport_enable_idx")
         }
 )
 

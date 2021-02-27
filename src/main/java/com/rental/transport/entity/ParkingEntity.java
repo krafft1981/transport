@@ -19,7 +19,7 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "enable", name = "parking_enabled_idx")
+                @Index(columnList = "enable", name = "parking_enable_idx")
         }
 )
 
