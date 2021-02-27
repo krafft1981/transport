@@ -34,18 +34,6 @@ public class ParkingEntity extends AbstractEnabledEntity {
 
     public ParkingEntity(CustomerEntity entity) {
         addCustomer(entity);
-        addPropertyList();
-    }
-
-    public void addPropertyList() {
-
-//        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-//        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
-//        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
-//        addProperty(new PropertyEntity("Адрес", "address", "Адрес не указан", "String"));
-//        addProperty(new PropertyEntity("Ближайший населённый пункт", "locality", "", "String"));
-//        addProperty(new PropertyEntity("Район", "region", "Регион", "String"));
-//        addProperty(new PropertyEntity("Описание", "description", "Место для отдыха", "String"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -91,12 +79,17 @@ public class ParkingEntity extends AbstractEnabledEntity {
     public void addProperty(PropertyEntity entity) {
 
         String name = entity.getType().getLogicName();
+        property.add(
+                property.stream()
+                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                        .findFirst()
+                        .orElse(entity)
+        );
+    }
 
-        entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+    public void addProperty(PropertyEntity... entryes) {
 
-        property.add(entity);
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
     }
 }

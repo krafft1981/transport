@@ -31,6 +31,9 @@ public class ParkingService {
     private ImageService imageService;
 
     @Autowired
+    private PropertyService propertyService;
+
+    @Autowired
     private ParkingMapper parkingMapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
@@ -47,12 +50,21 @@ public class ParkingService {
         parkingRepository.delete(parking);
     }
 
-    public Long create(@NonNull String account)
-            throws ObjectNotFoundException {
+    public Long create(@NonNull String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        ParkingEntity entity = new ParkingEntity(customer);
-        return parkingRepository.save(entity).getId();
+        ParkingEntity parking = new ParkingEntity(customer);
+        parking.addProperty(
+                propertyService.create("parking_name", "Название не указано"),
+                propertyService.create("parking_latitude", "0"),
+                propertyService.create("parking_longitude", "0"),
+                propertyService.create("parking_address", "Не указан"),
+                propertyService.create("parking_locality", "Не указан"),
+                propertyService.create("parking_region", "Не указан"),
+                propertyService.create("parking_description", "Место для отдыха")
+        );
+
+        return parkingRepository.save(parking).getId();
     }
 
     public void update(@NonNull String account, @NonNull Parking dto)
@@ -64,11 +76,10 @@ public class ParkingService {
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
 
-        entity.addPropertyList();
         parkingRepository.save(entity);
     }
 
-    public List<Parking> getMyParking(String account) {
+    public List<Parking> getMyParking(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         return parkingRepository.findAllByCustomerId(customer.getId())
@@ -82,10 +93,8 @@ public class ParkingService {
     public List<Parking> getPage(Pageable pageable) {
 
         return parkingRepository
-                .findAll(pageable)
-                .getContent()
+                .findAllByEnableTrue(pageable)
                 .stream()
-                .filter(entity -> entity.getEnable())
                 .map(entity -> {
                     return parkingMapper.toDto(entity);
                 })

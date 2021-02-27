@@ -50,7 +50,7 @@ public class PropertyMapper implements AbstractMapper<PropertyEntity, Property> 
 
         destination.setHumanName(source.getType().getHumanName());
         destination.setLogicName(source.getType().getLogicName());
-        destination.setType(source.getType().getType());
+        destination.setType(source.getType().getType().name());
     }
 
     public void mapSpecificFields(Property source, PropertyEntity destination) {

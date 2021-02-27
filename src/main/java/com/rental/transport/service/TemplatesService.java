@@ -8,6 +8,7 @@ import com.rental.transport.entity.PropertyTypeRepository;
 import com.rental.transport.entity.TemplatesEntity;
 import com.rental.transport.entity.TemplatesRepository;
 import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.PropertyTypeMapper;
 import com.rental.transport.mapper.TemplatesMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -142,7 +143,12 @@ public class TemplatesService {
     public Long createPropertyType(String type, String logicName, String humanName) throws IllegalArgumentException {
 
         vFactory.getValidator(type);
-        PropertyTypeEntity propertyTypeEntity = new PropertyTypeEntity(humanName, logicName, type);
+        PropertyTypeEntity propertyTypeEntity = new PropertyTypeEntity(
+                humanName,
+                logicName,
+                PropertyTypeEnum.valueOf(type)
+        );
+
         return propertyTypeRepository.save(propertyTypeEntity).getId();
     }
 }

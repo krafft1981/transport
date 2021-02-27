@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.enums.OrderStatusEnum;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +27,6 @@ public interface OrderRepository extends IRepository<OrderEntity> {
     @Query("update orders set state = :state where id = :id")
     void updateOrderState(
             @Param("id") Long id,
-            @Param("state") String state
+            @Param("state") OrderStatusEnum state
     );
 }

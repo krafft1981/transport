@@ -1,11 +1,15 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Property;
+import com.rental.transport.dto.PropertyType;
 import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyRepository;
+import com.rental.transport.entity.PropertyTypeEntity;
+import com.rental.transport.entity.PropertyTypeRepository;
 import com.rental.transport.mapper.PropertyMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,9 @@ public class PropertyService {
 
     @Autowired
     private PropertyRepository repository;
+
+    @Autowired
+    private PropertyTypeRepository propertyTypeRepository;
 
     @Autowired
     private PropertyMapper propertyMapper;
@@ -57,5 +64,16 @@ public class PropertyService {
                     return propertyMapper.toDto(entity);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public PropertyEntity create(String name, String value) throws ObjectNotFoundException {
+
+        PropertyTypeEntity type = propertyTypeRepository.findByLogicName(name);
+        if (Objects.isNull(type)) {
+            throw new ObjectNotFoundException("Property Type", name);
+        }
+
+        PropertyEntity entity = new PropertyEntity(type, value);
+        return entity;
     }
 }

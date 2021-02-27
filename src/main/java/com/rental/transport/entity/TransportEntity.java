@@ -111,13 +111,18 @@ public class TransportEntity extends AbstractEnabledEntity {
     public void addProperty(PropertyEntity entity) {
 
         String name = entity.getType().getLogicName();
+        property.add(
+                property
+                        .stream()
+                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                        .findFirst()
+                        .orElse(entity)
+        );
+    }
 
-        entity = property
-                .stream()
-                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+    public void addProperty(PropertyEntity... entryes) {
 
-        property.add(entity);
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
     }
 }

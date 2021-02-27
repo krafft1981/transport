@@ -54,9 +54,9 @@ public class TransportService {
 
         CustomerEntity customerEntity = customerService.getEntity(account);
         TypeEntity typeEntity = typeService.getEntity(type);
-        TransportEntity entity = new TransportEntity(customerEntity, typeEntity);
-        entity.setProperty(templatesService.getTypeProperty(typeEntity));
-        return transportRepository.save(entity).getId();
+        TransportEntity transport = new TransportEntity(customerEntity, typeEntity);
+        transport.setProperty(templatesService.getTypeProperty(typeEntity));
+        return transportRepository.save(transport).getId();
     }
 
     public void update(@NonNull String account, @NonNull Transport dto)
@@ -90,7 +90,6 @@ public class TransportService {
         return transportRepository
                 .findAllByEnableTrueAndTypeId(pageable, type)
                 .stream()
-                .filter(entity -> entity.getEnable())
                 .filter(entity -> entity.getType().getEnable())
                 .map(entity -> {
                     return transportMapper.toDto(entity);
@@ -103,7 +102,7 @@ public class TransportService {
         return transportRepository.count();
     }
 
-    public List<Transport> getMyTransport(String account) {
+    public List<Transport> getMyTransport(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         return transportRepository.findAllByCustomerId(customer.getId())

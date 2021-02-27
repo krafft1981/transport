@@ -34,6 +34,9 @@ public class CustomerService implements UserDetailsService {
     @Autowired
     private CustomerMapper customerMapper;
 
+    @Autowired
+    private PropertyService propertyService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
@@ -58,7 +61,16 @@ public class CustomerService implements UserDetailsService {
             throw new IllegalArgumentException("account already exists");
         }
 
-        CustomerEntity customer = new CustomerEntity(account, password, phone, fio);
+        CustomerEntity customer = new CustomerEntity(account, password);
+        customer.addProperty(
+                propertyService.create("customer_fio", fio),
+                propertyService.create("customer_phone", phone),
+                propertyService.create("customer_startWorkTime", "10"),
+                propertyService.create("customer_stopWorkTime", "18"),
+                propertyService.create("customer_workAtWeekEnd", "No"),
+                propertyService.create("customer_description", "Не указано")
+        );
+
         customerRepository.save(customer);
         emailService.sendVerifyEmail(customer);
         return customerMapper.toDto(customer);
