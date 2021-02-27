@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.enums.OrderStatusEnum;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,6 +8,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -34,7 +37,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderEntity extends AbstractEntity {
 
-    private String status = "New";
+    private OrderStatusEnum status = OrderStatusEnum.New;
 
     private CustomerEntity customer;
     private TransportEntity transport;
@@ -50,8 +53,9 @@ public class OrderEntity extends AbstractEntity {
     }
 
     @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, insertable = true, updatable = true)
-    public String getStatus() {
+    public OrderStatusEnum getStatus() {
         return status;
     }
 

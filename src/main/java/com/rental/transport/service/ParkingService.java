@@ -1,6 +1,7 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Parking;
+import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
@@ -67,12 +68,24 @@ public class ParkingService {
         parkingRepository.save(entity);
     }
 
+    public List<Parking> getMyParking(String account) {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return parkingRepository.findAllByCustomerId(customer.getId())
+                .stream()
+                .map(entity -> {
+                    return parkingMapper.toDto(entity);
+                })
+                .collect(Collectors.toList());
+    }
+
     public List<Parking> getPage(Pageable pageable) {
 
         return parkingRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
                 .map(entity -> {
                     return parkingMapper.toDto(entity);
                 })
@@ -88,6 +101,7 @@ public class ParkingService {
 
         return parkingRepository
                 .findById(id)
+                .filter(entity -> entity.getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
     }
 

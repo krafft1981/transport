@@ -38,6 +38,7 @@ public class TypeService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
                 .map(entity -> {
                     return typeMapper.toDto(entity);
                 })
@@ -48,12 +49,13 @@ public class TypeService {
 
         return repository
                 .findById(id)
+                .filter(entity -> entity.getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Type", id));
     }
 
     public TypeEntity getEntity(String name) throws ObjectNotFoundException {
 
-        TypeEntity entity = repository.findByName(name);
+        TypeEntity entity = repository.findByEnableTrueAndName(name);
         if (Objects.nonNull(entity)) {
             return entity;
         }

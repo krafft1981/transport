@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -16,12 +17,15 @@ import lombok.Setter;
 @Table(
         name = "parking",
         schema = "public",
-        catalog = "relationship"
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "enable", name = "parking_enabled_idx")
+        }
 )
 
 @Setter
 @NoArgsConstructor
-public class ParkingEntity extends AbstractEntity {
+public class ParkingEntity extends AbstractEnabledEntity {
 
     private Set<PropertyEntity> property = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();

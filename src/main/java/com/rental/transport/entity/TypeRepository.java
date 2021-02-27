@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TypeRepository extends IRepository<TypeEntity> {
 
-    TypeEntity findByName(String name);
+    TypeEntity findByEnableTrueAndName(String name);
 }

@@ -24,14 +24,15 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "account", name = "account_idx")
+                @Index(columnList = "account", name = "account_idx"),
+                @Index(columnList = "enable", name = "account_enabled_idx")
         }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerEntity extends AbstractEntity {
+public class CustomerEntity extends AbstractEnabledEntity {
 
     private String account;
     private String password;

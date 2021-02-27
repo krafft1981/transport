@@ -48,6 +48,12 @@ public class ParkingController {
         return service.create(principal.getName());
     }
 
+    @GetMapping(value = "/my")
+    public List<Parking> doGetMyParkingRequest(Principal principal) {
+
+        return service.getMyParking(principal.getName());
+    }
+
     @PutMapping
     public void goPutParkingRequest(
             Principal principal,

@@ -54,7 +54,7 @@ public class CustomerService implements UserDetailsService {
         if (account.isEmpty())
             throw new IllegalArgumentException("Account can't be empty");
 
-        if (Objects.nonNull(customerRepository.findByAccount(account))) {
+        if (Objects.nonNull(customerRepository.findByEnableTrueAndAccount(account))) {
             throw new IllegalArgumentException("account already exists");
         }
 
@@ -97,6 +97,7 @@ public class CustomerService implements UserDetailsService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
                 .filter(entity -> entity.getConfirmed())
                 .map(customer -> {
                     return customerMapper.toDto(customer);
@@ -119,7 +120,7 @@ public class CustomerService implements UserDetailsService {
 
     public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
 
-        CustomerEntity entity = customerRepository.findByAccount(account);
+        CustomerEntity entity = customerRepository.findByEnableTrueAndAccount(account);
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
@@ -142,7 +143,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public void check(String account) throws ObjectNotFoundException {
-        CustomerEntity customer = customerRepository.findByAccount(account);
+        CustomerEntity customer = customerRepository.findByEnableTrueAndAccount(account);
         emailService.sendVerifyEmail(customer);
     }
 }

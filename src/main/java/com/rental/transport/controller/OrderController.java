@@ -50,7 +50,7 @@ public class OrderController {
             Principal principal,
             @RequestParam(value = "calendar_id", required = true) Long[] ids) {
 
-        return service.getByCalendarEvent(ids);
+        return service.getByCalendarEvents(ids);
     }
 
     @GetMapping(value = "/request")

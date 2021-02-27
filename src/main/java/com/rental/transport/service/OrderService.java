@@ -8,6 +8,7 @@ import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.enums.OrderStatusEnum;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -51,15 +52,17 @@ public class OrderService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> { return orderMapper.toDto(entity); })
+                .map(entity -> {
+                    return orderMapper.toDto(entity);
+                })
                 .collect(Collectors.toList());
     }
 
-    public List<Order> getByCalendarEvent(Long[] ids)
+    public List<Order> getByCalendarEvents(Long[] ids)
             throws ObjectNotFoundException {
 
         List<Order> orders = new ArrayList<>();
-        for(Long id : ids) {
+        for (Long id : ids) {
             Order order = getByCalendarEvent(id);
             if (Objects.nonNull(order)) {
                 orders.add(order);
@@ -104,21 +107,21 @@ public class OrderService {
         CustomerEntity driver = customerService.getEntity(account);
         OrderEntity order = getEntity(orderId);
 
-        if (!order.getStatus().equals("New"))
+        if (!order.getStatus().equals(OrderStatusEnum.New))
             throw new IllegalArgumentException("Order has status not New");
 
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
-//        confirmationService.deleteOrderRequest(order, driver);
-//        Integer confirmed = 0;//er.incConfirmed();
+        confirmationService.interactionCustomerWithOrder(driver, order);
+        Integer confirmed = 0;//er.incConfirmed();
         order.addDriver(driver);
 
-//        String quorum = propertyService.getValue(order.getTransport().getProperty(), "quorum");
-//        if (confirmed >= Long.getLong(quorum)) {
-//            confirmationService.deleteByOrderId(order.getId());
-//            order.setStatus("Confirmed");
-//        }
+        String quorum = "";//propertyService.getValue(order.getTransport().getProperty(), "quorum");
+        if (confirmed >= Long.getLong(quorum)) {
+            confirmationService.deleteByOrderId(order.getId());
+            order.setStatus(OrderStatusEnum.Confirmed);
+        }
     }
 
     @Transactional
@@ -134,10 +137,12 @@ public class OrderService {
         if (!order.getTransport().getCustomer().contains(driver))
             throw new AccessDeniedException("Rejected");
 
+        confirmationService.interactionCustomerWithOrder(driver, order);
+
         //delete from calendar events by orderId
         confirmationService.deleteByOrderId(order.getId());
-        orderRepository.deleteById(orderId);
-        order.setStatus("Rejected");
+
+        order.setStatus(OrderStatusEnum.Rejected);
     }
 
     @Transactional
@@ -175,7 +180,7 @@ public class OrderService {
 //            CalendarEntity event = calendarService.getEntity(id);
 //            event.setOrder(order.getId());
 
-            // validate duration
+        // validate duration
 //            Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
 //            if (duration < Integer.parseInt(minTime) * 1000)
 //                throw new IllegalArgumentException("Wrong time interval");

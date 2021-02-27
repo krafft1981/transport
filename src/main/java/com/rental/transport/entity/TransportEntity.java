@@ -21,14 +21,15 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "transport_type_id", name = "transport_type_id_idx")
+                @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
+                @Index(columnList = "enable", name = "transport_enabled_idx")
         }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransportEntity extends AbstractEntity {
+public class TransportEntity extends AbstractEnabledEntity {
 
     private TypeEntity type;
     private Set<PropertyEntity> property = new HashSet<>();

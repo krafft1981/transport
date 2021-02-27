@@ -7,6 +7,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,9 @@ import lombok.Setter;
         indexes = {
                 @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
                 @Index(columnList = "property_type_id", name = "property_type_id_idx")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"transport_type_id", "property_type_id"})
         }
 )
 

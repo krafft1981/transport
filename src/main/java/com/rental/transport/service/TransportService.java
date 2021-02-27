@@ -77,6 +77,8 @@ public class TransportService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .map(entity -> {
                     return transportMapper.toDto(entity);
                 })
@@ -86,8 +88,10 @@ public class TransportService {
     public List<Transport> getPageTyped(Pageable pageable, Long type) {
 
         return transportRepository
-                .findAllByTypeId(pageable, type)
+                .findAllByEnableTrueAndTypeId(pageable, type)
                 .stream()
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .map(entity -> {
                     return transportMapper.toDto(entity);
                 })
@@ -114,6 +118,8 @@ public class TransportService {
 
         return transportRepository
                 .findById(id)
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 
@@ -127,6 +133,8 @@ public class TransportService {
         return parkingService.getEntity(parkingId)
                 .getTransport()
                 .stream()
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .map(transport -> {
                     return transportMapper.toDto(transport);
                 })
