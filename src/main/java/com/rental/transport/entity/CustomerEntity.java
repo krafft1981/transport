@@ -41,6 +41,7 @@ public class CustomerEntity extends AbstractEnabledEntity {
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<PropertyEntity> property = new HashSet<>();
+    private Set<CalendarEntity> calendar = new HashSet<>();
 
     public CustomerEntity(String account, String password) {
         setAccount(account);
@@ -80,6 +81,11 @@ public class CustomerEntity extends AbstractEnabledEntity {
     @OneToMany
     public Set<ImageEntity> getImage() {
         return image;
+    }
+
+    @OneToMany(cascade = {CascadeType.ALL})
+    public Set<CalendarEntity> getCalendar() {
+        return calendar;
     }
 
     @ManyToMany

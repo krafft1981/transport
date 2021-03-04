@@ -29,18 +29,18 @@ public class CalendarController {
     @GetMapping(value = "/transport")
     public List<Calendar> doGetTransportCalendarRequest(
             Principal principal,
-            @RequestParam(value = "days", required = true) Long[] days,
-            @RequestParam(value = "transport_id", required = true) Long id) {
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "transport_id", required = true) Long transportId) {
 
-        return service.getTransportCalendar(principal.getName(), id, days);
+        return service.getTransportCalendar(principal.getName(), day, transportId);
     }
 
     @GetMapping(value = "/customer")
     public List<Calendar> doGetCustomerCalendarRequest(
             Principal principal,
-            @RequestParam(value = "days", required = true) Long[] days) {
+            @RequestParam(value = "day", required = true) Long day) {
 
-        return service.getCustomerCalendar(principal.getName(), days);
+        return service.getCustomerCalendar(principal.getName(), day);
     }
 
     @PutMapping

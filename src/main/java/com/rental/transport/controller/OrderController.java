@@ -26,13 +26,11 @@ public class OrderController {
     public Long doPostOrderRequest(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
-            @RequestParam(value = "calendar_id", required = true) Long[] calendar_ids) {
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "start", required = true) Long start,
+            @RequestParam(value = "stop", required = true) Long stop) {
 
-        return service.create(
-                principal.getName(),
-                transport_id,
-                calendar_ids
-        );
+        return service.create(principal.getName(), transport_id, day, start, stop);
     }
 
     @GetMapping(value = "/page")

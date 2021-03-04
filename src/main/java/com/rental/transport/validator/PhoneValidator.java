@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public class PhoneValidator implements IStringValidator {
 
     StringValidator validator = new StringValidator();
-    private Pattern pattern = Pattern.compile("\\d{11}");
+    private Pattern pattern = Pattern.compile("^[7-8]\\d{10}");
 
     @Override
     public Boolean validate(String value) {

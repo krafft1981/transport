@@ -29,5 +29,5 @@ public class Order extends AbstractDto {
     @JsonProperty("message")
     private List<Message> message;
     @JsonProperty("created_at")
-    private Date createdAt;
+    private Long createdAt;
 }

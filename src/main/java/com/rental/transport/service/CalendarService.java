@@ -4,6 +4,8 @@ import com.rental.transport.dto.Calendar;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -35,10 +37,16 @@ public class CalendarService {
     private PropertyService propertyService;
 
     @Autowired
+    private CustomerService customerService;
+
+    @Autowired
     private CalendarRepository calendarRepository;
 
     @Autowired
-    private CustomerService customerService;
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private TransportRepository transportRepository;
 
     @Getter
     public class Diapazon {
@@ -123,15 +131,14 @@ public class CalendarService {
 
     public List<Calendar> getTransportCalendar(Long id, Long day) {
 
-        return transportService
-                .getEntity(id)
-                .getCustomer()
-                .stream()
-                .map(customer -> {
-                    return getCustomerCalendar(customer, day);
-                })
-                .flatMap(customer -> customer.stream())
-                .collect(Collectors.toList());
+        return new ArrayList<>();
+
+//        return transportService
+//                .getEntity(id)
+//                .getCalendar()
+//                .stream()
+//                .map(entity -> {return entity;})
+//                .collect(Collectors.toList());
     }
 
     public List<Calendar> getCustomerCalendar(CustomerEntity customer, Long day) {
@@ -149,6 +156,8 @@ public class CalendarService {
                     return calendarMapper.toDto(entity);
                 })
                 .collect(Collectors.toList());
+
+
 
         java.util.Calendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(day);
@@ -172,20 +181,22 @@ public class CalendarService {
         return res;
     }
 
-    public List<Calendar> getCustomerCalendar(String account, Long[] day)
+    public List<Calendar> getCustomerCalendar(String account, Long day)
             throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         return getCustomerCalendar(customer, day);
     }
 
-    public List<Calendar> getTransportCalendar(String account, Long id, Long[] days)
+    public List<Calendar> getTransportCalendar(String account, Long day, Long transportId)
             throws ObjectNotFoundException {
 
-        List<Calendar> res = new ArrayList<>();
-        for (Long day : days)
-            res.addAll(getTransportCalendar(id, day));
-        return res;
+        CustomerEntity customerId = customerService.getEntity(account);
+        List<Calendar> customerEvents = getCustomerCalendar(customerId, day);
+        List<Calendar> transportEvents = getTransportCalendar(transportId, day);
+
+        // TODO release mixer
+        return new ArrayList<>();
     }
 
     private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)

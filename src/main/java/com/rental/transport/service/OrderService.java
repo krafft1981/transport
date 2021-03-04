@@ -146,7 +146,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Long create(@NonNull String account, Long transportId, Long[] eventIds)
+    public Long create(@NonNull String account, Long transportId, Long day, Long start, Long stop)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         OrderEntity order = new OrderEntity();

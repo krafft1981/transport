@@ -30,3 +30,4 @@ public interface OrderRepository extends IRepository<OrderEntity> {
             @Param("state") OrderStatusEnum state
     );
 }
+
