@@ -36,17 +36,6 @@ public class EmailService {
         private GoogleMail() {
         }
 
-        /**
-         * Send email using GMail SMTP server.
-         *
-         * @param username       GMail username
-         * @param password       GMail password
-         * @param recipientEmail TO recipient
-         * @param title          title of the message
-         * @param message        message to be sent
-         * @throws AddressException   if the email address parse failed
-         * @throws MessagingException if the connection is dead or not in the connected state or if the message is not a MimeMessage
-         */
         public void Send(final String username, final String password, String recipientEmail, String title, String message)
                 throws AddressException, MessagingException {
 

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -31,14 +32,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TransportEntity extends AbstractEnabledEntity {
 
-    private TypeEntity type;
+    private TransportTypeEntity type;
     private Set<PropertyEntity> property = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
     private Set<CalendarEntity> calendar = new HashSet<>();
 
-    public TransportEntity(CustomerEntity customer, TypeEntity type) {
+    public TransportEntity(CustomerEntity customer, TransportTypeEntity type) {
 
         addCustomer(customer);
         setType(type);
@@ -56,11 +57,15 @@ public class TransportEntity extends AbstractEnabledEntity {
 
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
-    public TypeEntity getType() {
+    public TransportTypeEntity getType() {
         return type;
     }
 
     @OneToMany
+    @JoinTable(name = "transport_image",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
     }
@@ -70,12 +75,15 @@ public class TransportEntity extends AbstractEnabledEntity {
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
     )
-
     public Set<ParkingEntity> getParking() {
         return parking;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinTable(name = "transport_calendar",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
@@ -85,7 +93,6 @@ public class TransportEntity extends AbstractEnabledEntity {
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
     )
-
     public Set<CustomerEntity> getCustomer() {
         return customer;
     }
@@ -124,5 +131,15 @@ public class TransportEntity extends AbstractEnabledEntity {
 
         for (int id = 0; id < entryes.length; id++)
             addProperty(entryes[id]);
+    }
+
+    public void addCalendar(CalendarEntity entity) {
+
+        calendar.add(entity);
+    }
+
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

@@ -7,15 +7,21 @@ import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.PropertyEntity;
+import com.rental.transport.entity.PropertyTypeEntity;
+import com.rental.transport.entity.PropertyTypeRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.OrderStatusEnum;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
-
-    @Autowired
-    private OrderRepository orderRepository;
 
     @Autowired
     private CustomerService customerService;
@@ -46,50 +49,11 @@ public class OrderService {
     @Autowired
     private OrderMapper orderMapper;
 
-    public List<Order> getByPage(@NonNull String account, Pageable pageable) {
+    @Autowired
+    private OrderRepository orderRepository;
 
-        return orderRepository
-                .findAll(pageable)
-                .getContent()
-                .stream()
-                .map(entity -> {
-                    return orderMapper.toDto(entity);
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<Order> getByCalendarEvents(Long[] ids)
-            throws ObjectNotFoundException {
-
-        List<Order> orders = new ArrayList<>();
-        for (Long id : ids) {
-            Order order = getByCalendarEvent(id);
-            if (Objects.nonNull(order)) {
-                orders.add(order);
-            }
-        }
-
-        return orders;
-    }
-
-    public Order getByCalendarEvent(Long id)
-            throws ObjectNotFoundException {
-
-        CalendarEntity calendar = calendarService.getEntity(id);
-        Long orderId = calendar.getOrder();
-        if (Objects.nonNull(orderId)) {
-            OrderEntity entity = getEntity(orderId);
-            return orderMapper.toDto(entity);
-        }
-
-        throw new ObjectNotFoundException("Calendar", id);
-    }
-
-    public List<Long> getOrderRequestList(String account) {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        return confirmationService.getByCustomer(customer);
-    }
+    @Autowired
+    private PropertyTypeRepository propertyTypeRepository;
 
     public void sendMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException {
@@ -113,15 +77,16 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
-        confirmationService.interactionCustomerWithOrder(driver, order);
-        Integer confirmed = 0;//er.incConfirmed();
-        order.addDriver(driver);
+        confirmationService.interaction(driver, order);
+        confirmationService.deleteByOrderId(order.getId());
 
-        String quorum = "";//propertyService.getValue(order.getTransport().getProperty(), "quorum");
-        if (confirmed >= Long.getLong(quorum)) {
-            confirmationService.deleteByOrderId(order.getId());
-            order.setStatus(OrderStatusEnum.Confirmed);
-        }
+        order.addDriver(driver);
+        order.addProperty(
+                copyProperty("order_driver_fio", driver.getProperty(), "customer_fio"),
+                copyProperty("order_driver_phone", driver.getProperty(), "customer_phone")
+        );
+
+        order.setStatus(OrderStatusEnum.Confirmed);
     }
 
     @Transactional
@@ -131,18 +96,30 @@ public class OrderService {
         CustomerEntity driver = customerService.getEntity(account);
         OrderEntity order = getEntity(orderId);
 
-        if (!order.getStatus().equals("New"))
-            throw new IllegalArgumentException("Order status not New");
+        if (!order.getStatus().equals(OrderStatusEnum.New))
+            throw new IllegalArgumentException("Order has status not New");
 
-        if (!order.getTransport().getCustomer().contains(driver))
-            throw new AccessDeniedException("Rejected");
+        if (order.getTransport().getCustomer().contains(driver) == false)
+            throw new AccessDeniedException("Confirmation");
 
-        confirmationService.interactionCustomerWithOrder(driver, order);
-
-        //delete from calendar events by orderId
-        confirmationService.deleteByOrderId(order.getId());
-
+        confirmationService.interaction(driver, order);
         order.setStatus(OrderStatusEnum.Rejected);
+        //free people and transport time
+    }
+
+    public PropertyEntity copyProperty(String newType, Set<PropertyEntity> entryes, String oldType)
+            throws ObjectNotFoundException {
+
+        PropertyTypeEntity pNew = propertyTypeRepository.findByLogicName(newType);
+        if (Objects.isNull(pNew))
+            throw new ObjectNotFoundException("PropertyType", newType);
+
+        PropertyTypeEntity pOld = propertyTypeRepository.findByLogicName(oldType);
+        if (Objects.isNull(pOld))
+            throw new ObjectNotFoundException("PropertyType", oldType);
+
+        PropertyEntity entity = propertyService.searchProperty(entryes, oldType);
+        return propertyService.create(newType, entity.getValue());
     }
 
     @Transactional
@@ -152,53 +129,109 @@ public class OrderService {
         OrderEntity order = new OrderEntity();
 
         CustomerEntity customer = customerService.getEntity(account);
-        order.setCustomer(customer);
-
         TransportEntity transport = transportService.getEntity(transportId);
-        order.setTransport(transport);
 
         if (transport.getParking().isEmpty())
             throw new IllegalArgumentException("Transport has't parking");
 
         ParkingEntity parking = transport.getParking().iterator().next();
+        CalendarEntity calendar = calendarService.putOrderEntry(customer, transport, day, start, stop);
 
-//        String phone = propertyService.getValue(customer.getProperty(), "phone");
-//        String fio = propertyService.getValue(customer.getProperty(), "fio");
-//        String minTime = propertyService.getValue(transport.getProperty(), "minTime");
-//        String cost = propertyService.getValue(transport.getProperty(), "cost");
-//        String latitude = propertyService.getValue(parking.getProperty(), "latitude");
-//        String longitude = propertyService.getValue(parking.getProperty(), "longitude");
-//
-//        propertyService.setValue(order.getProperty(), "fio", fio);
-//        propertyService.setValue(order.getProperty(), "phone", phone);
-//        propertyService.setValue(order.getProperty(), "latitude", latitude);
-//        propertyService.setValue(order.getProperty(), "longitude", longitude);
+        customer.addCalendar(calendar);
+        transport.addCalendar(calendar);
 
-//        Long total = 0L;
-//        for(Long id : eventIds) {
-//
-//            CalendarEntity event = calendarService.getEntity(id);
-//            event.setOrder(order.getId());
+        transport
+                .getCustomer()
+                .stream()
+                .forEach(entity -> {
+                    try {
+                        calendarService.checkCustomerBusy(entity, day, start, stop);
+                        entity.addCalendar(calendar);
+                    }
+                    catch(IllegalArgumentException e) {
+
+                    }
+                });
+
+        confirmationService.putOrder(order);
+
+        order.setCustomer(customer);
+        order.setTransport(transport);
+        order.addCalendar(calendar);
+
+        String price = propertyService.getValue(transport.getProperty(), "transport_price");
+        String minTime = propertyService.getValue(transport.getProperty(), "transport_min_rent_time");
 
         // validate duration
-//            Long duration = event.getStopAt().getTime() - event.getStartAt().getTime();
-//            if (duration < Integer.parseInt(minTime) * 1000)
-//                throw new IllegalArgumentException("Wrong time interval");
+        Long interval = calendar.getStopAt().getTime() - calendar.getStartAt().getTime();
+        if (interval < Integer.parseInt(minTime) * 3600)
+            throw new IllegalArgumentException("Wrong time interval");
 
-//            order.addCalendar(event);
-//            total += duration;
-//        }
+        // calculate cost
+        double cost = Math.ceil(interval / 3600) * Double.parseDouble(price);
 
-        // generate price value
-        // Long remainder = total % 1000 > 0 ? 1L : 0L;
-        // order.setPrice(order.getCost() * ((duration / 1000 / 3600) + remainder * 1));
+        order.addProperty(
+                copyProperty("order_parking_name", parking.getProperty(), "parking_name"),
+                copyProperty("order_parking_latitude", parking.getProperty(), "parking_latitude"),
+                copyProperty("order_parking_longitude", parking.getProperty(), "parking_longitude"),
+                copyProperty("order_parking_address", parking.getProperty(), "parking_address"),
+                copyProperty("order_parking_locality", parking.getProperty(), "parking_locality"),
+                copyProperty("order_parking_region", parking.getProperty(), "parking_region"),
 
-//        propertyService.setValue(order.getProperty(), "duration", total.toString());
-//        propertyService.setValue(order.getProperty(), "cost", cost);
-//        propertyService.setValue(order.getProperty(), "price", total + " * " + cost);
+                copyProperty("order_transport_name", transport.getProperty(), "transport_name"),
+                copyProperty("order_transport_capacity", transport.getProperty(), "transport_capacity"),
+                copyProperty("order_transport_price", transport.getProperty(), "transport_price"),
+                copyProperty("order_transport_use_driver", transport.getProperty(), "transport_use_driver"),
+                propertyService.create("order_transport_cost", String.valueOf(cost)),
 
-        Long id = orderRepository.save(order).getId();
-        return id;
+                copyProperty("order_customer_fio", customer.getProperty(), "customer_fio"),
+                copyProperty("order_customer_phone", customer.getProperty(), "customer_phone")
+        );
+
+        return orderRepository.save(order).getId();
+    }
+
+    public List<Order> getOrderListByConfirmation(String account, Pageable pageable) {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return confirmationService
+                .getByCustomer(customer, pageable)
+                .stream()
+                .map(entity -> {
+                    return orderMapper.toDto(entity);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByCustomer(String account, Pageable pageable)
+            throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return orderRepository
+                .findByCustomer(customer, pageable)
+                .stream()
+                .map(order -> {
+                    return orderMapper.toDto(order);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByTransport(String account, Pageable pageable) {
+
+        List<Order> orderList = new ArrayList();
+        customerService
+                .getEntity(account)
+                .getTransport()
+                .stream()
+                .forEach(transport -> {
+                    orderRepository
+                            .findByTransport(transport, pageable)
+                            .stream()
+                            .forEach(order -> {
+                                orderList.add(orderMapper.toDto(order));
+                            });
+                });
+        return orderList;
     }
 
     public OrderEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -208,23 +241,32 @@ public class OrderService {
                 .orElseThrow(() -> new ObjectNotFoundException("Order", id));
     }
 
-    public Long count() {
-        return orderRepository.count();
-    }
-
     public Order getDto(Long id) throws ObjectNotFoundException {
 
         return orderMapper.toDto(getEntity(id));
     }
-}
 
-/*
-    // templates
-    addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-    addProperty(new PropertyEntity("Вместимость", "capacity", "1", "Integer"));
-    addProperty(new PropertyEntity("Описание", "description", "Описания нет", "String"));
-    addProperty(new PropertyEntity("Цена", "cost", "0", "Double"));
-    addProperty(new PropertyEntity("Кворум", "quorum", "1", "Integer"));
-    addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200", "Integer"));
-    addProperty(new PropertyEntity("Нужен водитель", "useDriver", "Yes", "Boolean"));
-*/
+    @PostConstruct
+    public void postConstruct() {
+
+        // templates
+        propertyService.createType("order_parking_name", "Название", PropertyTypeEnum.String);
+        propertyService.createType("order_parking_latitude", "Широта", PropertyTypeEnum.Double);
+        propertyService.createType("order_parking_longitude", "Долгота", PropertyTypeEnum.Double);
+        propertyService.createType("order_parking_address", "Адрес", PropertyTypeEnum.String);
+        propertyService.createType("order_parking_locality", "Местонахождение", PropertyTypeEnum.String);
+        propertyService.createType("order_parking_region", "Район", PropertyTypeEnum.String);
+
+        propertyService.createType("order_transport_name", "Название транспорта", PropertyTypeEnum.String);
+        propertyService.createType("order_transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
+        propertyService.createType("order_transport_cost", "Стоимость заказа", PropertyTypeEnum.Double);
+        propertyService.createType("order_transport_price", "стоимость", PropertyTypeEnum.Double);
+        propertyService.createType("order_transport_use_driver", "Сдаётся с водителем", PropertyTypeEnum.Boolean);
+
+        propertyService.createType("order_customer_fio", "Имя", PropertyTypeEnum.String);
+        propertyService.createType("order_customer_phone", "Сотовый", PropertyTypeEnum.Phone);
+
+        propertyService.createType("order_driver_fio", "Имя", PropertyTypeEnum.String);
+        propertyService.createType("order_driver_phone", "Сотовый", PropertyTypeEnum.Phone);
+    }
+}

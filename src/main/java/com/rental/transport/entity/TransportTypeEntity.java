@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TypeEntity extends AbstractEnabledEntity {
+public class TransportTypeEntity extends AbstractEnabledEntity {
 
     private String name;
 

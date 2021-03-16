@@ -3,7 +3,6 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.service.CalendarService;
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,12 +18,6 @@ public class CalendarController {
 
     @Autowired
     private CalendarService service;
-
-    @GetMapping(value = "/count")
-    public Long doGetCountRequest() {
-
-        return service.count();
-    }
 
     @GetMapping(value = "/transport")
     public List<Calendar> doGetTransportCalendarRequest(
@@ -50,12 +43,7 @@ public class CalendarController {
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        return service.putBusy(
-                principal.getName(),
-                day,
-                new Date(start),
-                new Date(stop)
-        );
+        return service.putAbsentEntry(principal.getName(), day, start, stop);
     }
 
     @DeleteMapping
@@ -65,10 +53,6 @@ public class CalendarController {
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        service.deleteBusy(
-                principal.getName(),
-                day,
-                new Date(start),
-                new Date(stop));
+        service.deleteAbsentEntry(principal.getName(), day, start, stop);
     }
 }

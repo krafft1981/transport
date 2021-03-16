@@ -3,6 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Customer;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -10,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
@@ -52,12 +53,23 @@ public class CustomerService implements UserDetailsService {
         return user;
     }
 
+    @PostConstruct
+    public void postConstruct() {
+
+        propertyService.createType("customer_fio", "Имя", PropertyTypeEnum.String);
+        propertyService.createType("customer_phone", "Сотовый", PropertyTypeEnum.Phone);
+        propertyService.createType("customer_startWorkTime", "Час начала работы", PropertyTypeEnum.Hour);
+        propertyService.createType("customer_stopWorkTime", "Час окончания работы", PropertyTypeEnum.Hour);
+        propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
+        propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
+    }
+
     public Customer create(String account, String password, String phone, String fio) throws IllegalArgumentException {
 
         if (account.isEmpty())
             throw new IllegalArgumentException("Account can't be empty");
 
-        if (Objects.nonNull(customerRepository.findByEnableTrueAndAccount(account))) {
+        if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account))) {
             throw new IllegalArgumentException("account already exists");
         }
 
@@ -106,33 +118,17 @@ public class CustomerService implements UserDetailsService {
     public List<Customer> getPage(Pageable pageable) {
 
         return customerRepository
-                .findAll(pageable)
-                .getContent()
+                .findAllByEnableTrueAndConfirmed(pageable)
                 .stream()
-                .filter(entity -> entity.getEnable())
-                .filter(entity -> entity.getConfirmed())
                 .map(customer -> {
                     return customerMapper.toDto(customer);
                 })
                 .collect(Collectors.toList());
-    }
-
-    public List<Customer> findAllByIdList(Iterable<Long> ids) throws ObjectNotFoundException {
-
-        List<Customer> result = StreamSupport
-                .stream(customerRepository.findAllById(ids).spliterator(), false)
-                .filter(entity -> entity.getConfirmed())
-                .map(customer -> {
-                    return customerMapper.toDto(customer);
-                })
-                .collect(Collectors.toList());
-
-        return result;
     }
 
     public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
 
-        CustomerEntity entity = customerRepository.findByEnableTrueAndAccount(account);
+        CustomerEntity entity = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
@@ -155,7 +151,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public void check(String account) throws ObjectNotFoundException {
-        CustomerEntity customer = customerRepository.findByEnableTrueAndAccount(account);
+        CustomerEntity customer = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         emailService.sendVerifyEmail(customer);
     }
 }

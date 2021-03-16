@@ -37,6 +37,10 @@ public class ParkingEntity extends AbstractEnabledEntity {
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "parking_property",
+            joinColumns = @JoinColumn(name = "parking_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "property_id", nullable = false)
+    )
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -60,6 +64,10 @@ public class ParkingEntity extends AbstractEnabledEntity {
     }
 
     @OneToMany
+    @JoinTable(name = "parking_image",
+            joinColumns = @JoinColumn(name = "parking_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
     }

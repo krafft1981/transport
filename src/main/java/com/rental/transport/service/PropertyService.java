@@ -1,11 +1,11 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Property;
-import com.rental.transport.dto.PropertyType;
 import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyRepository;
 import com.rental.transport.entity.PropertyTypeEntity;
 import com.rental.transport.entity.PropertyTypeRepository;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.PropertyMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
@@ -28,7 +28,7 @@ public class PropertyService {
     @Autowired
     private PropertyMapper propertyMapper;
 
-    private PropertyEntity searchProperty(Set<PropertyEntity> entryes, String name) throws ObjectNotFoundException {
+    public PropertyEntity searchProperty(Set<PropertyEntity> entryes, String name) throws ObjectNotFoundException {
 
         return entryes
                 .stream()
@@ -75,5 +75,14 @@ public class PropertyService {
 
         PropertyEntity entity = new PropertyEntity(type, value);
         return entity;
+    }
+
+    public void createType(String logic, String name, PropertyTypeEnum valueType) {
+
+        PropertyTypeEntity type = propertyTypeRepository.findByLogicName(logic);
+        if (Objects.isNull(type)) {
+            type = new PropertyTypeEntity(logic, name, valueType);
+            propertyTypeRepository.save(type);
+        }
     }
 }

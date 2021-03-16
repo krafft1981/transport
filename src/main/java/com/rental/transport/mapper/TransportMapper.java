@@ -10,7 +10,7 @@ import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.entity.TypeRepository;
+import com.rental.transport.entity.TransportTypeRepository;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -30,7 +30,7 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
     private ImageRepository imageRepository;
 
     @Autowired
-    private TypeRepository typeRepository;
+    private TransportTypeRepository transportTypeRepository;
 
     @Autowired
     private ParkingRepository parkingRepository;
@@ -83,25 +83,31 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
         source.getCustomer().stream()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(customer)) { destination.addCustomer(customer); }
+                    if (Objects.nonNull(customer)) {
+                        destination.addCustomer(customer);
+                    }
                 });
 
         source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(image)) { destination.addImage(image); }
+                    if (Objects.nonNull(image)) {
+                        destination.addImage(image);
+                    }
                 });
 
         source.getParking().stream()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(parking)) { destination.addParking(parking); }
+                    if (Objects.nonNull(parking)) {
+                        destination.addParking(parking);
+                    }
                 });
 
         TransportEntity transport = transportRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(transport)) {
             transport.getProperty().stream()
-                    .forEach( entity -> {
+                    .forEach(entity -> {
                         Property property = source.getProperty().stream()
                                 .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                 .findFirst()

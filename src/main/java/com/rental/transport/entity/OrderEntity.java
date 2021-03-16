@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -20,6 +21,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "orders")
@@ -34,6 +36,7 @@ import lombok.Setter;
 )
 
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class OrderEntity extends AbstractEntity {
 
@@ -48,9 +51,6 @@ public class OrderEntity extends AbstractEntity {
     private Set<MessageEntity> message = new HashSet<>();
 
     private Date createdAt = new Date();
-
-    public OrderEntity() {
-    }
 
     @Basic
     @Enumerated(EnumType.STRING)
@@ -86,13 +86,20 @@ public class OrderEntity extends AbstractEntity {
         return driver;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinTable(name = "orders_calendar",
+            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
-    public Set<MessageEntity> getMessage() {
+    @JoinTable(name = "orders_message",
+            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
+    )    public Set<MessageEntity> getMessage() {
         return message;
     }
 
@@ -115,15 +122,26 @@ public class OrderEntity extends AbstractEntity {
         property.add(entity);
     }
 
+    public void addProperty(PropertyEntity... entryes) {
+
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
+    }
+
     public void addDriver(CustomerEntity entity) {
         driver.add(entity);
+    }
+
+    public void addMessage(MessageEntity entity) {
+        message.add(entity);
     }
 
     public void addCalendar(CalendarEntity entity) {
         calendar.add(entity);
     }
 
-    public void addMessage(MessageEntity entity) {
-        message.add(entity);
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

@@ -5,11 +5,14 @@ import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
+import com.rental.transport.entity.PropertyTypeEntity;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.ParkingMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +51,18 @@ public class ParkingService {
             throw new IllegalArgumentException("Removal of non-empty parking is prohibited");
 
         parkingRepository.delete(parking);
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+        propertyService.createType("parking_name", "Название", PropertyTypeEnum.String);
+        propertyService.createType("parking_latitude", "Широта", PropertyTypeEnum.Double);
+        propertyService.createType("parking_longitude", "Долгота", PropertyTypeEnum.Double);
+        propertyService.createType("parking_address", "Адрес", PropertyTypeEnum.String);
+        propertyService.createType("parking_locality", "Местонахождение", PropertyTypeEnum.String);
+        propertyService.createType("parking_region", "Район", PropertyTypeEnum.String);
+        propertyService.createType("parking_description", "Описание", PropertyTypeEnum.String);
     }
 
     public Long create(@NonNull String account) throws ObjectNotFoundException {

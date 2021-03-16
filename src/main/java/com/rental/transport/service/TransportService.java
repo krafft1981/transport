@@ -4,7 +4,7 @@ import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TransportTypeEntity;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
@@ -53,9 +53,9 @@ public class TransportService {
             throws ObjectNotFoundException {
 
         CustomerEntity customerEntity = customerService.getEntity(account);
-        TypeEntity typeEntity = typeService.getEntity(type);
-        TransportEntity transport = new TransportEntity(customerEntity, typeEntity);
-        transport.setProperty(templatesService.getTypeProperty(typeEntity));
+        TransportTypeEntity transportTypeEntity = typeService.getEntity(type);
+        TransportEntity transport = new TransportEntity(customerEntity, transportTypeEntity);
+        transport.setProperty(templatesService.getTypeProperty(transportTypeEntity));
         return transportRepository.save(transport).getId();
     }
 
@@ -105,7 +105,7 @@ public class TransportService {
     public List<Transport> getMyTransport(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        return transportRepository.findAllByCustomerId(customer.getId())
+        return transportRepository.findAllByCustomerIdAndEnableTrue(customer.getId())
                 .stream()
                 .map(entity -> {
                     return transportMapper.toDto(entity);

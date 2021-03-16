@@ -1,17 +1,14 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.BaseTest;
-import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.PropertyEntity;
-import com.rental.transport.entity.TransportEntity;
-import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TransportTypeEntity;
 import com.rental.transport.utils.RandomPrimitives;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +22,7 @@ public class TransportMapperTest extends BaseTest {
     private TransportMapper mapper;
 
     private Long id;
-    private TypeEntity type;
+    private TransportTypeEntity type;
     private Set<PropertyEntity> property = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();

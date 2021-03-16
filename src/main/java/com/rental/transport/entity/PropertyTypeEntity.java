@@ -6,7 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +17,13 @@ import lombok.Setter;
 @Table(
         name = "property_type",
         schema = "public",
-        catalog = "relationship"
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "logic_name", name = "logic_name_idx")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"logic_name"})
+        }
 )
 
 @Setter
@@ -23,20 +31,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PropertyTypeEntity extends AbstractEntity {
 
-    private String humanName = "";
     private String logicName = "";
+    private String humanName = "";
     private PropertyTypeEnum type = PropertyTypeEnum.String;
-
-    @Basic
-    @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
-    public String getHumanName() {
-        return humanName;
-    }
 
     @Basic
     @Column(name = "logic_name", unique = true, nullable = false, insertable = true, updatable = true)
     public String getLogicName() {
         return logicName;
+    }
+
+    @Basic
+    @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
+    public String getHumanName() {
+        return humanName;
     }
 
     @Basic

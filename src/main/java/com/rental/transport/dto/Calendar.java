@@ -1,6 +1,7 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rental.transport.enums.CalendarEventTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,12 +23,15 @@ public class Calendar extends AbstractDto {
     private Long order = null;
     @JsonProperty("customer")
     private Long customer;
+    @JsonProperty("type")
+    private Long type;
 
-    public Calendar(Long startAt, Long stopAt, Long dayNum, Customer customer) {
+    public Calendar(Long startAt, Long stopAt, Long dayNum, Customer customer, CalendarEventTypeEnum type) {
 
         setStartAt(startAt);
         setStopAt(stopAt);
         setDayNum(dayNum);
         setCustomer(customer.getId());
+        setType(type.getId());
     }
 }

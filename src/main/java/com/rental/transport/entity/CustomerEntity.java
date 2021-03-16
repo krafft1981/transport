@@ -6,12 +6,14 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -25,9 +27,11 @@ import lombok.Setter;
         indexes = {
                 @Index(columnList = "account", name = "account_idx"),
                 @Index(columnList = "enable", name = "account_enabled_idx")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"account"})
         }
 )
-
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -79,11 +83,19 @@ public class CustomerEntity extends AbstractEnabledEntity {
     }
 
     @OneToMany
+    @JoinTable(name = "customer_image",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinTable(name = "customer_calendar",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
@@ -106,6 +118,10 @@ public class CustomerEntity extends AbstractEnabledEntity {
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "customer_property",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "property_id", nullable = false)
+    )
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -137,5 +153,15 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
         for (int id = 0; id < entryes.length; id++)
             addProperty(entryes[id]);
+    }
+
+    public void addCalendar(CalendarEntity entity) {
+
+        calendar.add(entity);
+    }
+
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

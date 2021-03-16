@@ -1,4 +1,4 @@
-package com.rental.transport.validator;
+package com.rental.transport.utils.validator;
 
 public final class ValidatorFactory {
 

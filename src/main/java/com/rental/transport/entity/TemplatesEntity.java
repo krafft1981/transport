@@ -31,20 +31,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TemplatesEntity extends AbstractEntity {
 
-    private TypeEntity transportType;
-    private PropertyTypeEntity propertyTypeEntity;
+    private TransportTypeEntity transportType;
+    private PropertyTypeEntity propertyType;
     private String value = "";
 
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
-    public TypeEntity getTransportType() {
+    public TransportTypeEntity getTransportType() {
         return transportType;
     }
 
     @ManyToOne
     @JoinColumn(name = "property_type_id", nullable = false, referencedColumnName = "id")
-    public PropertyTypeEntity getPropertyTypeEntity() {
-        return propertyTypeEntity;
+    public PropertyTypeEntity getPropertyType() {
+        return propertyType;
     }
 
     @Basic

@@ -4,44 +4,35 @@ import com.rental.transport.entity.ConfirmationEntity;
 import com.rental.transport.entity.ConfirmationRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
-import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConfirmationService {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
     @Autowired
     private ConfirmationRepository confirmationRepository;
 
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    public List<Long> getByCustomer(CustomerEntity customer) {
+    public List<OrderEntity> getByCustomer(CustomerEntity customer, Pageable pageable) {
 
         return confirmationRepository
-                .getByCustomer(customer.getId())
+                .getByCustomer(customer.getId(), pageable)
                 .stream()
-                .map(entity -> entity.getOrder().getId())
+                .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
     }
 
-    public List<Long> getByOrder(Long id) {
+    public List<OrderEntity> getByOrder(OrderEntity order, Pageable pageable) {
 
         return confirmationRepository
-                .getByOrder(id)
+                .getByOrder(order.getId(), pageable)
                 .stream()
-                .map(entity -> entity.getOrder().getId())
+                .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
     }
 
@@ -50,7 +41,7 @@ public class ConfirmationService {
         confirmationRepository.deleteByOrderId(id);
     }
 
-    public void interactionCustomerWithOrder(CustomerEntity customer, OrderEntity order) {
+    public void interaction(CustomerEntity customer, OrderEntity order) {
 
         confirmationRepository.deleteByCustomerIdAndOrderId(customer, order);
     }
