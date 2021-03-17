@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ConfirmationRepository extends IRepository<ConfirmationEntity> {
 
-    List<ConfirmationEntity> getByCustomer(Long id, Pageable pageable);
+    List<ConfirmationEntity> getByCustomerId(Long customerId, Pageable pageable);
 
-    List<ConfirmationEntity> getByOrder(Long id, Pageable pageable);
+    List<ConfirmationEntity> getByOrderId(Long orderId, Pageable pageable);
 
     void deleteByOrderId(Long id);
 

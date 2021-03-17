@@ -240,7 +240,6 @@ public class OrderService {
     @PostConstruct
     public void postConstruct() {
 
-        // templates
         propertyService.createType("order_parking_name", "Название", PropertyTypeEnum.String);
         propertyService.createType("order_parking_latitude", "Широта", PropertyTypeEnum.Double);
         propertyService.createType("order_parking_longitude", "Долгота", PropertyTypeEnum.Double);
@@ -251,8 +250,8 @@ public class OrderService {
         propertyService.createType("order_transport_name", "Название транспорта", PropertyTypeEnum.String);
         propertyService.createType("order_transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
         propertyService.createType("order_transport_cost", "Стоимость заказа", PropertyTypeEnum.Double);
-        propertyService.createType("order_transport_price", "стоимость", PropertyTypeEnum.Double);
-        propertyService.createType("order_transport_use_driver", "Сдаётся с водителем", PropertyTypeEnum.Boolean);
+        propertyService.createType("order_transport_price", "Стоимость за час", PropertyTypeEnum.Double);
+        propertyService.createType("order_transport_use_driver", "Используется с водителем", PropertyTypeEnum.Boolean);
 
         propertyService.createType("order_customer_fio", "Имя", PropertyTypeEnum.String);
         propertyService.createType("order_customer_phone", "Сотовый", PropertyTypeEnum.Phone);

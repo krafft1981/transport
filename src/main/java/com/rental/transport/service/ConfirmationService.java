@@ -27,7 +27,7 @@ public class ConfirmationService {
     public List<OrderEntity> getByCustomer(CustomerEntity customer, Pageable pageable) {
 
         return confirmationRepository
-                .getByCustomer(customer.getId(), pageable)
+                .getByCustomerId(customer.getId(), pageable)
                 .stream()
                 .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
@@ -36,7 +36,7 @@ public class ConfirmationService {
     public List<OrderEntity> getByOrder(OrderEntity order, Pageable pageable) {
 
         return confirmationRepository
-                .getByOrder(order.getId(), pageable)
+                .getByOrderId(order.getId(), pageable)
                 .stream()
                 .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
