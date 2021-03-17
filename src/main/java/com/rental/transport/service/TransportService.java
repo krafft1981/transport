@@ -5,11 +5,13 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TransportTypeEntity;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +33,7 @@ public class TransportService {
     private ParkingService parkingService;
 
     @Autowired
-    private TemplatesService templatesService;
+    private PropertyService propertyService;
 
     @Autowired
     private TransportMapper transportMapper;
@@ -55,7 +57,15 @@ public class TransportService {
         CustomerEntity customerEntity = customerService.getEntity(account);
         TransportTypeEntity transportTypeEntity = typeService.getEntity(type);
         TransportEntity transport = new TransportEntity(customerEntity, transportTypeEntity);
-        transport.setProperty(templatesService.getTypeProperty(transportTypeEntity));
+        transport.addProperty(
+                propertyService.create("transport_name", "Не указано"),
+                propertyService.create("transport_capacity", "1"),
+                propertyService.create("transport_price", "1000"),
+                propertyService.create("transport_min_rent_time", "1"),
+                propertyService.create("transport_use_driver", "Да"),
+                propertyService.create("transport_description", "Не указано")
+        );
+
         return transportRepository.save(transport).getId();
     }
 
@@ -138,5 +148,16 @@ public class TransportService {
                     return transportMapper.toDto(transport);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+        propertyService.createType("transport_name", "Название", PropertyTypeEnum.String);
+        propertyService.createType("transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
+        propertyService.createType("transport_price", "Цена", PropertyTypeEnum.Double);
+        propertyService.createType("transport_min_rent_time", "Минимальное время аренды", PropertyTypeEnum.Hour);
+        propertyService.createType("transport_use_driver", "Сдаётся с водителем", PropertyTypeEnum.Boolean);
+        propertyService.createType("transport_description", "Описание", PropertyTypeEnum.String);
     }
 }

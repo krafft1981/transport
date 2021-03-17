@@ -11,7 +11,7 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "select c from calendar c join customer_calendar l on c.id = l.calendar_id where c.day_num = :day and l.customer_id = :customerId"
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join customer_calendar l on c.id = l.calendar_id where c.day_num = :day and l.customer_id = :customerId"
     )
     List<CalendarEntity> findCustomerCalendarByDay(
             @Param("customerId") Long customerId,
@@ -20,7 +20,7 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "select c from calendar c join transport_calendar l on c.id = l.calendar_id where c.day_num = :day and l.transport_id = :transportId"
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join transport_calendar l on c.id = l.calendar_id where c.day_num = :day and l.transport_id = :transportId"
     )
     List<CalendarEntity> findTransportCalendarByDay(
             @Param("transportId") Long transportId,
@@ -29,7 +29,7 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "select c from calendar c join orders_calendar l on c.id = l.calendar_id where c.day_num = :day and l.order_id = :orderId"
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join orders_calendar l on c.id = l.calendar_id where c.day_num = :day and l.order_id = :orderId"
     )
     List<CalendarEntity> findOrderCalendarByDay(
             @Param("orderId") Long orderId,

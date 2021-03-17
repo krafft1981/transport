@@ -88,14 +88,6 @@ public class CalendarService {
         customer.deleteCalendarEntity(entity);
     }
 
-    public CalendarEntity putOrderEntry(CustomerEntity customer, TransportEntity transport, Long day, Long start, Long stop)
-            throws IllegalArgumentException, ObjectNotFoundException {
-
-        checkCustomerBusy(customer, day, start, stop);
-        checkTransportBusy(transport, day, start, stop);
-        return getEntity(day, start, stop, true);
-    }
-
     public CalendarEntity getEntity(Long day, Long start, Long stop, Boolean create)
             throws ObjectNotFoundException {
 
@@ -152,13 +144,14 @@ public class CalendarService {
         calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .forEach(
-                        entity -> checkTimeDiapazon(
-                                entity.getStartAt().getTime(),
-                                entity.getStopAt().getTime(),
-                                start,
-                                stop
-                        )
+                .forEach(entity -> {
+                            checkTimeDiapazon(
+                                    entity.getStartAt().getTime(),
+                                    entity.getStopAt().getTime(),
+                                    start,
+                                    stop
+                            );
+                        }
                 );
     }
 

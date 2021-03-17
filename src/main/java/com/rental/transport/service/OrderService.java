@@ -135,25 +135,7 @@ public class OrderService {
             throw new IllegalArgumentException("Transport has't parking");
 
         ParkingEntity parking = transport.getParking().iterator().next();
-        CalendarEntity calendar = calendarService.putOrderEntry(customer, transport, day, start, stop);
-
-        customer.addCalendar(calendar);
-        transport.addCalendar(calendar);
-
-        transport
-                .getCustomer()
-                .stream()
-                .forEach(entity -> {
-                    try {
-                        calendarService.checkCustomerBusy(entity, day, start, stop);
-                        entity.addCalendar(calendar);
-                    }
-                    catch(IllegalArgumentException e) {
-
-                    }
-                });
-
-        confirmationService.putOrder(order);
+        CalendarEntity calendar = calendarService.getEntity(day, start, stop, true);
 
         order.setCustomer(customer);
         order.setTransport(transport);
@@ -182,11 +164,20 @@ public class OrderService {
                 copyProperty("order_transport_capacity", transport.getProperty(), "transport_capacity"),
                 copyProperty("order_transport_price", transport.getProperty(), "transport_price"),
                 copyProperty("order_transport_use_driver", transport.getProperty(), "transport_use_driver"),
-                propertyService.create("order_transport_cost", String.valueOf(cost)),
+
+                propertyService.create("order_transport_cost", String.format("%f02", cost)),
 
                 copyProperty("order_customer_fio", customer.getProperty(), "customer_fio"),
                 copyProperty("order_customer_phone", customer.getProperty(), "customer_phone")
         );
+
+        confirmationService.putOrder(order);
+
+        calendarService.checkCustomerBusy(customer, day, start, stop);
+        calendarService.checkTransportBusy(transport, day, start, stop);
+
+        customer.addCalendar(calendar);
+        transport.addCalendar(calendar);
 
         return orderRepository.save(order).getId();
     }

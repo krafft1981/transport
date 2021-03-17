@@ -53,17 +53,6 @@ public class CustomerService implements UserDetailsService {
         return user;
     }
 
-    @PostConstruct
-    public void postConstruct() {
-
-        propertyService.createType("customer_fio", "Имя", PropertyTypeEnum.String);
-        propertyService.createType("customer_phone", "Сотовый", PropertyTypeEnum.Phone);
-        propertyService.createType("customer_startWorkTime", "Час начала работы", PropertyTypeEnum.Hour);
-        propertyService.createType("customer_stopWorkTime", "Час окончания работы", PropertyTypeEnum.Hour);
-        propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
-        propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
-    }
-
     public Customer create(String account, String password, String phone, String fio) throws IllegalArgumentException {
 
         if (account.isEmpty())
@@ -118,7 +107,7 @@ public class CustomerService implements UserDetailsService {
     public List<Customer> getPage(Pageable pageable) {
 
         return customerRepository
-                .findAllByEnableTrueAndConfirmed(pageable)
+                .findAllByEnableTrueAndConfirmedTrue(pageable)
                 .stream()
                 .map(customer -> {
                     return customerMapper.toDto(customer);
@@ -153,5 +142,16 @@ public class CustomerService implements UserDetailsService {
     public void check(String account) throws ObjectNotFoundException {
         CustomerEntity customer = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         emailService.sendVerifyEmail(customer);
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+        propertyService.createType("customer_fio", "Имя", PropertyTypeEnum.String);
+        propertyService.createType("customer_phone", "Сотовый", PropertyTypeEnum.Phone);
+        propertyService.createType("customer_startWorkTime", "Час начала работы", PropertyTypeEnum.Hour);
+        propertyService.createType("customer_stopWorkTime", "Час окончания работы", PropertyTypeEnum.Hour);
+        propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
+        propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
     }
 }

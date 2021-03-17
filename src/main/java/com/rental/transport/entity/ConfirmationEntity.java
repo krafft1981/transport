@@ -1,6 +1,7 @@
 package com.rental.transport.entity;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -41,7 +42,7 @@ public class ConfirmationEntity extends AbstractEntity {
     }
 
     @Basic
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     public OrderEntity getOrder() {
         return order;
