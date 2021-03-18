@@ -27,14 +27,17 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
             @Param("day") Long day
     );
 
-    @Query(
-            nativeQuery = true,
-            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join orders_calendar l on c.id = l.calendar_id where c.day_num = :day and l.order_id = :orderId"
-    )
-    List<CalendarEntity> findOrderCalendarByDay(
-            @Param("orderId") Long orderId,
-            @Param("day") Long day
-    );
-
     CalendarEntity findByDayNumAndStartAtAndStopAt(Long day, Date start, Date stop);
+
+    List<CalendarEntity> findByDayNum(Long day);
+
+
+//    @Query(
+//            nativeQuery = true,
+//            value = "select * from orders"
+//    )
+//    List<OrderEntity> findOrderCalendarByDayAndCustomerId(
+//            @Param("day") Long day,
+//            @Param("customerId") Long customerId
+//    );
 }

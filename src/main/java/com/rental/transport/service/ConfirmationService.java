@@ -66,18 +66,19 @@ public class ConfirmationService {
 
                     try {
                         ConfirmationEntity entity = new ConfirmationEntity(customer, order);
+                        System.out.println("bbb try " + calendar.toString());
                         calendarService.checkCustomerBusy(
                                 customer,
                                 calendar.getDayNum(),
                                 calendar.getStartAt().getTime(),
                                 calendar.getStopAt().getTime()
                         );
-                        customer.addCalendar(calendar);
+                        System.out.println("bbb ok");
                         confirmationRepository.save(entity);
                         result.incrementAndGet();
                     }
                     catch (IllegalArgumentException e) {
-                        customer.deleteCalendarEntity(calendar);
+                        System.out.println("Ou may got");
                     }
                 });
 

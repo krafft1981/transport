@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DistService {
 
-    private Map<String, Long> score = new HashMap<>();
+    private Map<String, AtomicLong> score = new HashMap<>();
 
     @Value("${spring.dist.path}")
     private String distPath;
@@ -45,17 +47,15 @@ public class DistService {
     }
 
     private void appendScore(String name) {
-        synchronized (score) {
-            score.computeIfPresent(name, (key, value) -> value++);
-            score.computeIfAbsent(name, key -> 1L);
-            score.notify();
+        if (Objects.isNull(score.get(name)))
+            score.put(name, new AtomicLong(1));
+        else {
+            score.get(name).incrementAndGet();
         }
     }
 
-    public Map<String, Long> readScore(String name) throws InterruptedException {
-        synchronized (score) {
-            score.wait();
-            return score;
-        }
+    public Map<String, AtomicLong> readScore() {
+
+        return score;
     }
 }

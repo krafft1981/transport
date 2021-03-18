@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Calendar;
+import com.rental.transport.dto.Event;
 import com.rental.transport.service.CalendarService;
 import java.security.Principal;
 import java.util.List;
@@ -29,11 +30,11 @@ public class CalendarController {
     }
 
     @GetMapping(value = "/customer")
-    public List<Calendar> doGetCustomerCalendarRequest(
+    public List<Event> doGetCustomerCalendarRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
-        return service.getCustomerCalendar(principal.getName(), day);
+        return service.getCustomerCalendarWithOrders(principal.getName(), day);
     }
 
     @PutMapping

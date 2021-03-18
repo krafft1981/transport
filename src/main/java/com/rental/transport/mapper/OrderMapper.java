@@ -44,7 +44,6 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         mapper.createTypeMap(Order.class, OrderEntity.class)
                 .addMappings(m -> m.skip(OrderEntity::setId))
-                .addMappings(m -> m.skip(OrderEntity::setProperty))
                 .setPostConverter(toEntityConverter());
     }
 
@@ -57,21 +56,21 @@ public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
 
         destination.setId(source.getId());
 
-        OrderEntity order = orderRepository.findById(source.getId()).orElse(null);
-        if (Objects.nonNull(order)) {
-            order.getProperty().stream()
-                    .forEach( entity -> {
-                        Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (Objects.nonNull(property)) {
-                            entity.setValue(property.getValue());
-                        }
-
-                        destination.addProperty(entity);
-                    });
-        }
+//        OrderEntity order = orderRepository.findById(source.getId()).orElse(null);
+//        if (Objects.nonNull(order)) {
+//            order.getProperty().stream()
+//                    .forEach( entity -> {
+//                        Property property = source.getProperty().stream()
+//                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
+//                                .findFirst()
+//                                .orElse(null);
+//
+//                        if (Objects.nonNull(property)) {
+//                            entity.setValue(property.getValue());
+//                        }
+//
+//                        destination.addProperty(entity);
+//                    });
+//        }
     }
 }

@@ -16,6 +16,8 @@ import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.utils.validator.BooleanYesValidator;
+import com.rental.transport.utils.validator.IStringValidator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +57,8 @@ public class OrderService {
     @Autowired
     private PropertyTypeRepository propertyTypeRepository;
 
+    private IStringValidator yesValidator = new BooleanYesValidator();
+
     public void sendMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException {
 
@@ -77,6 +81,14 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
+        TransportEntity transport = order.getTransport();
+        CalendarEntity calendar = order.getCalendar().iterator().next();
+        transport.addCalendar(calendar);
+
+        String useDriver = propertyService.getValue(transport.getProperty(), "transport_use_driver");
+        if (yesValidator.validate(useDriver))
+            driver.addCalendar(calendar);
+
         confirmationService.interaction(driver, order);
         confirmationService.deleteByOrderId(order.getId());
 
@@ -86,6 +98,7 @@ public class OrderService {
                 copyProperty("order_driver_phone", driver.getProperty(), "customer_phone")
         );
 
+        // TODO rejectOrder все заказы с пересекающимся временем
         order.setStatus(OrderStatusEnum.Confirmed);
     }
 
@@ -102,9 +115,11 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
+        CalendarEntity calendar = order.getCalendar().iterator().next();
+        order.getCustomer().deleteCalendarEntity(calendar);
+
         confirmationService.interaction(driver, order);
         order.setStatus(OrderStatusEnum.Rejected);
-        //free people and transport time
     }
 
     public PropertyEntity copyProperty(String newType, Set<PropertyEntity> entryes, String oldType)
@@ -149,7 +164,6 @@ public class OrderService {
         if (interval < Integer.parseInt(minTime) * 3600)
             throw new IllegalArgumentException("Wrong time interval");
 
-        // calculate cost
         double cost = Math.ceil(interval / 3600) * Double.parseDouble(price);
 
         order.addProperty(
@@ -177,7 +191,6 @@ public class OrderService {
         calendarService.checkTransportBusy(transport, day, start, stop);
 
         customer.addCalendar(calendar);
-        transport.addCalendar(calendar);
 
         return orderRepository.save(order).getId();
     }
@@ -188,9 +201,7 @@ public class OrderService {
         return confirmationService
                 .getByCustomer(customer, pageable)
                 .stream()
-                .map(entity -> {
-                    return orderMapper.toDto(entity);
-                })
+                .map(entity -> orderMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
@@ -201,9 +212,7 @@ public class OrderService {
         return orderRepository
                 .findByCustomer(customer, pageable)
                 .stream()
-                .map(order -> {
-                    return orderMapper.toDto(order);
-                })
+                .map(order -> orderMapper.toDto(order))
                 .collect(Collectors.toList());
     }
 

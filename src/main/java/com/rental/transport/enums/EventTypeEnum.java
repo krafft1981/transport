@@ -2,7 +2,7 @@ package com.rental.transport.enums;
 
 import lombok.Getter;
 
-public enum CalendarEventTypeEnum {
+public enum EventTypeEnum {
 
     GENERATED(1L, "Generated"),
     UNAVAILABLE(2L, "Unavailable"),
@@ -13,7 +13,7 @@ public enum CalendarEventTypeEnum {
     @Getter
     private String name;
 
-    CalendarEventTypeEnum(Long id, String name) {
+    EventTypeEnum(Long id, String name) {
         this.id = id;
         this.name = name;
     }

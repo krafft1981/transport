@@ -165,4 +165,20 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
         calendar.remove(entity);
     }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("CustomerEntity{");
+        sb.append("account='").append(account).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", confirmed=").append(confirmed);
+        sb.append(", sendEmail=").append(sendEmail);
+        sb.append(", image=").append(image);
+        sb.append(", transport=").append(transport);
+        sb.append(", parking=").append(parking);
+        sb.append(", property=").append(property);
+        sb.append(", calendar=").append(calendar);
+        sb.append('}');
+        return sb.toString();
+    }
 }

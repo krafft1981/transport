@@ -4,6 +4,7 @@ import com.rental.transport.service.DistService;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,10 +38,8 @@ public class DistController {
     }
 
     @GetMapping(value = "/score")
-    public Map<String, Long> getDistScore(
-            @RequestParam(value = "name", required = true) String name
-    ) throws IOException, InterruptedException {
+    public Map<String, AtomicLong> getDistScore() {
 
-        return distService.readScore(name);
+        return distService.readScore();
     }
 }
