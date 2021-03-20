@@ -30,8 +30,7 @@ public class TypeService {
     public List<Type> getPage(Pageable pageable) {
 
         return repository
-                .findAll(pageable)
-                .getContent()
+                .findAllByEnableTrue(pageable)
                 .stream()
                 .filter(entity -> entity.getEnable())
                 .map(entity -> {
