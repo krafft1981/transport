@@ -61,10 +61,4 @@ public class ParkingController {
 
         service.update(principal.getName(), parking);
     }
-
-    @GetMapping(value = "/count")
-    public Long doGetCountRequest() {
-
-        return service.count();
-    }
 }

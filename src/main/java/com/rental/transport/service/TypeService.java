@@ -22,20 +22,13 @@ public class TypeService {
     @Autowired
     private TypeMapper typeMapper;
 
-    public Long count() {
-
-        return repository.count();
-    }
-
     public List<Type> getPage(Pageable pageable) {
 
         return repository
                 .findAllByEnableTrue(pageable)
                 .stream()
                 .filter(entity -> entity.getEnable())
-                .map(entity -> {
-                    return typeMapper.toDto(entity);
-                })
+                .map(entity -> typeMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
@@ -50,9 +43,8 @@ public class TypeService {
     public TransportTypeEntity getEntity(String name) throws ObjectNotFoundException {
 
         TransportTypeEntity entity = repository.findByEnableTrueAndName(name);
-        if (Objects.nonNull(entity)) {
+        if (Objects.nonNull(entity))
             return entity;
-        }
 
         throw new ObjectNotFoundException("Type", name);
     }

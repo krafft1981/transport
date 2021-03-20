@@ -85,9 +85,7 @@ public class ParkingService {
         CustomerEntity customer = customerService.getEntity(account);
         return parkingRepository.findAllByCustomerId(customer.getId())
                 .stream()
-                .map(entity -> {
-                    return parkingMapper.toDto(entity);
-                })
+                .map(entity -> parkingMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
@@ -96,15 +94,8 @@ public class ParkingService {
         return parkingRepository
                 .findAllByEnableTrue(pageable)
                 .stream()
-                .map(entity -> {
-                    return parkingMapper.toDto(entity);
-                })
+                .map(entity -> parkingMapper.toDto(entity))
                 .collect(Collectors.toList());
-    }
-
-    public Long count() {
-
-        return parkingRepository.count();
     }
 
     public ParkingEntity getEntity(Long id) throws ObjectNotFoundException {

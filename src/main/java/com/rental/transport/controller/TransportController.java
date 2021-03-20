@@ -67,11 +67,6 @@ public class TransportController {
         service.update(principal.getName(), transport);
     }
 
-    @GetMapping(value = "/count")
-    public Long doGetCountRequest() {
-        return service.count();
-    }
-
     @GetMapping(value = "/my")
     public List<Transport> doGetMyTransportRequest(Principal principal) {
 

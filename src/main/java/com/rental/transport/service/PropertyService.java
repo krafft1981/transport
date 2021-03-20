@@ -50,28 +50,21 @@ public class PropertyService {
         repository.save(entity);
     }
 
-    public Long count() {
-        return repository.count();
-    }
-
     public List<Property> getPage(Pageable pageable) {
 
         return repository
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> {
-                    return propertyMapper.toDto(entity);
-                })
+                .map(entity -> propertyMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
     public PropertyEntity create(String name, String value) throws ObjectNotFoundException {
 
         PropertyTypeEntity type = propertyTypeRepository.findByLogicName(name);
-        if (Objects.isNull(type)) {
+        if (Objects.isNull(type))
             throw new ObjectNotFoundException("Property Type", name);
-        }
 
         PropertyEntity entity = new PropertyEntity(type, value);
         return entity;

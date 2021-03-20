@@ -67,10 +67,4 @@ public class ImageController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getPage(pageable);
     }
-
-    @GetMapping(value = "/count")
-    public Long doGetCountRequest() {
-
-        return service.count();
-    }
 }

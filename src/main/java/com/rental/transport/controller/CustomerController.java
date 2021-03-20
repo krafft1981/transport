@@ -23,12 +23,6 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
-    @GetMapping(value = "/count")
-    public Long doGetCountCustomerRequest() {
-
-        return service.count();
-    }
-
     @PutMapping
     public void doPutUpdateCustomerRequest(
             Principal principal,

@@ -89,9 +89,7 @@ public class TransportService {
                 .stream()
                 .filter(entity -> entity.getEnable())
                 .filter(entity -> entity.getType().getEnable())
-                .map(entity -> {
-                    return transportMapper.toDto(entity);
-                })
+                .map(entity -> transportMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
@@ -101,15 +99,8 @@ public class TransportService {
                 .findAllByEnableTrueAndTypeId(pageable, type)
                 .stream()
                 .filter(entity -> entity.getType().getEnable())
-                .map(entity -> {
-                    return transportMapper.toDto(entity);
-                })
+                .map(entity -> transportMapper.toDto(entity))
                 .collect(Collectors.toList());
-    }
-
-    public Long count() {
-
-        return transportRepository.count();
     }
 
     public List<Transport> getMyTransport(String account) throws ObjectNotFoundException {
@@ -117,9 +108,7 @@ public class TransportService {
         CustomerEntity customer = customerService.getEntity(account);
         return transportRepository.findAllByCustomerIdAndEnableTrue(customer.getId())
                 .stream()
-                .map(entity -> {
-                    return transportMapper.toDto(entity);
-                })
+                .map(entity -> transportMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
 
@@ -144,9 +133,7 @@ public class TransportService {
                 .stream()
                 .filter(entity -> entity.getEnable())
                 .filter(entity -> entity.getType().getEnable())
-                .map(transport -> {
-                    return transportMapper.toDto(transport);
-                })
+                .map(transport -> transportMapper.toDto(transport))
                 .collect(Collectors.toList());
     }
 

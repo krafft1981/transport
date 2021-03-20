@@ -21,7 +21,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +79,7 @@ public class CalendarService {
         }
     }
 
-    public Long putAbsentEntry(String account, Long day, Long start, Long stop)
+    public Long putAbsentCustomerEntry(String account, Long day, Long start, Long stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
@@ -90,7 +89,7 @@ public class CalendarService {
         return entity.getId();
     }
 
-    public void deleteAbsentEntry(String account, Long day, Long start, Long stop)
+    public void deleteAbsentCustomerEntry(String account, Long day, Long start, Long stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);

@@ -109,9 +109,7 @@ public class CustomerService implements UserDetailsService {
         return customerRepository
                 .findAllByEnableTrueAndConfirmedTrue(pageable)
                 .stream()
-                .map(customer -> {
-                    return customerMapper.toDto(customer);
-                })
+                .map(customer -> customerMapper.toDto(customer))
                 .collect(Collectors.toList());
     }
 
@@ -132,11 +130,6 @@ public class CustomerService implements UserDetailsService {
 
         CustomerEntity entity = getEntity(account);
         return customerMapper.toDto(entity);
-    }
-
-    public Long count() {
-
-        return customerRepository.count();
     }
 
     public void check(String account) throws ObjectNotFoundException {

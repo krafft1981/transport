@@ -28,8 +28,7 @@ public class ImageService {
     public Long create(@NonNull String image) {
 
         ImageEntity entity = new ImageEntity(image);
-        Long id = imageRepository.save(entity).getId();
-        return id;
+        return imageRepository.save(entity).getId();
     }
 
     public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
@@ -42,9 +41,7 @@ public class ImageService {
 
     public void delete(List<Long> ids) {
 
-        ids.stream().forEach(id -> {
-            imageRepository.deleteById(id);
-        });
+        ids.stream().forEach(id -> { imageRepository.deleteById(id); });
     }
 
     public Image getImage(Long id) throws ObjectNotFoundException {
@@ -59,17 +56,10 @@ public class ImageService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> {
-                    return entity.getId();
-                })
+                .map(entity -> entity.getId())
                 .collect(Collectors.toList());
 
         return result;
-    }
-
-    public Long count() {
-
-        return imageRepository.count();
     }
 
     public byte[] Base64DecodeImage(Image image) {

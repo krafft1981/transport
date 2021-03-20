@@ -27,13 +27,6 @@ public class TypeController {
         return service.create(name);
     }
 
-    @GetMapping(value = "/count")
-    public Long doGetCountTypeRequest() {
-
-        Long count = service.count();
-        return count;
-    }
-
     @GetMapping(value = "/list")
     public List<Type> doGetListTypeRequest(
             @RequestParam(value = "page", required = true) Integer page,

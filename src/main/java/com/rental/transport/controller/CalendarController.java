@@ -38,22 +38,22 @@ public class CalendarController {
     }
 
     @PutMapping
-    public Long doPutOutRequest(
+    public Long doPutAbsentCustomerRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        return service.putAbsentEntry(principal.getName(), day, start, stop);
+        return service.putAbsentCustomerEntry(principal.getName(), day, start, stop);
     }
 
     @DeleteMapping
-    public void doDeleteOutRequest(
+    public void doDeleteAbsentCustomerRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        service.deleteAbsentEntry(principal.getName(), day, start, stop);
+        service.deleteAbsentCustomerEntry(principal.getName(), day, start, stop);
     }
 }

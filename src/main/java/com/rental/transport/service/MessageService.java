@@ -17,17 +17,12 @@ public class MessageService {
     @Autowired
     private MessageMapper messageMapper;
 
-    public Long count() {
-        return messageRepository.count();
-    }
-
     public MessageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return messageRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Message", id));
     }
-
 
     public Message getDto(Long id) throws ObjectNotFoundException {
 
