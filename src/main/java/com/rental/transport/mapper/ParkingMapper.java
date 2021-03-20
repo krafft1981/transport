@@ -6,7 +6,6 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
-import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
@@ -66,10 +65,14 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
         source.getCustomer().stream()
-                .forEach(customer -> { destination.addCustomer(customer.getId()); });
+                .forEach(customer -> {
+                    destination.addCustomer(customer.getId());
+                });
 
         source.getTransport().stream()
-                .forEach(transport -> { destination.addTransport(transport.getId()); });
+                .forEach(transport -> {
+                    destination.addTransport(transport.getId());
+                });
 
         source.getImage().stream()
                 .forEach(image -> destination.addImage(image.getId()));
@@ -106,9 +109,9 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
         ParkingEntity parking = parkingRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(parking)) {
             parking.getProperty().stream()
-                    .forEach( entity -> {
+                    .forEach(entity -> {
                         Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getLogicName()))
+                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                 .findFirst()
                                 .orElse(null);
 

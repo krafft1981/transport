@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -16,12 +17,15 @@ import lombok.Setter;
 @Table(
         name = "parking",
         schema = "public",
-        catalog = "relationship"
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "enable", name = "parking_enable_idx")
+        }
 )
 
 @Setter
 @NoArgsConstructor
-public class ParkingEntity extends AbstractEntity {
+public class ParkingEntity extends AbstractEnabledEntity {
 
     private Set<PropertyEntity> property = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
@@ -30,20 +34,13 @@ public class ParkingEntity extends AbstractEntity {
 
     public ParkingEntity(CustomerEntity entity) {
         addCustomer(entity);
-        addPropertyList();
-    }
-
-    public void addPropertyList() {
-        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
-        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
-        addProperty(new PropertyEntity("Адрес", "address", "Адрес не указан", "String"));
-        addProperty(new PropertyEntity("Ближайший населённый пункт", "locality", "Тольятти", "String"));
-        addProperty(new PropertyEntity("Район", "region", "Регион", "String"));
-        addProperty(new PropertyEntity("Описание", "description", "Чертовски клёвое место", "String"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "parking_property",
+            joinColumns = @JoinColumn(name = "parking_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "property_id", nullable = false)
+    )
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -67,6 +64,10 @@ public class ParkingEntity extends AbstractEntity {
     }
 
     @OneToMany
+    @JoinTable(name = "parking_image",
+            joinColumns = @JoinColumn(name = "parking_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
     }
@@ -85,13 +86,18 @@ public class ParkingEntity extends AbstractEntity {
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
+        property.add(
+                property.stream()
+                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                        .findFirst()
+                        .orElse(entity)
+        );
+    }
 
-        entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+    public void addProperty(PropertyEntity... entryes) {
 
-        property.add(entity);
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
     }
 }

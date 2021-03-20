@@ -1,8 +1,8 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,20 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Order extends AbstractDto {
 
+    @JsonProperty("created_at")
+    private Long createdAt;
+    @JsonProperty("confirmed_at")
+    private Long confirmedAt;
     @JsonProperty("status")
     private String status;
-    @JsonProperty("customer")
-    private Customer customer;
-    @JsonProperty("transport")
-    private Transport transport;
     @JsonProperty("property")
-    private List<Property> property;
-    @JsonProperty("driver")
-    private List<Customer> driver;
-    @JsonProperty("calendar")
-    private List<Calendar> calendar;
-    @JsonProperty("message")
-    private List<Message> message;
-    @JsonProperty("created_at")
-    private Date createdAt;
+    private Set<Property> property = new HashSet<>();
 }

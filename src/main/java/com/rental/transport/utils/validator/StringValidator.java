@@ -1,4 +1,4 @@
-package com.rental.transport.validator;
+package com.rental.transport.utils.validator;
 
 public class StringValidator implements IStringValidator {
 

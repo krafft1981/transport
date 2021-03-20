@@ -8,13 +8,10 @@ import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
-import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.entity.PropertyRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Objects;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +68,15 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getTransport().stream().forEach(transport -> { destination.addTransport(transport.getId()); });
-        source.getParking().stream().forEach(parking -> { destination.addParking(parking.getId()); });
-        source.getImage().stream().forEach(image -> { destination.addImage(image.getId()); });
+        source.getTransport().stream().forEach(transport -> {
+            destination.addTransport(transport.getId());
+        });
+        source.getParking().stream().forEach(parking -> {
+            destination.addParking(parking.getId());
+        });
+        source.getImage().stream().forEach(image -> {
+            destination.addImage(image.getId());
+        });
     }
 
     public void mapSpecificFields(Customer source, CustomerEntity destination) {
@@ -83,35 +86,43 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         source.getTransport().stream()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(transport)) { destination.addTransport(transport); }
+                    if (Objects.nonNull(transport)) {
+                        destination.addTransport(transport);
+                    }
                 });
 
         source.getParking().stream()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(parking)) { destination.addParking(parking); }
+                    if (Objects.nonNull(parking)) {
+                        destination.addParking(parking);
+                    }
                 });
 
         source.getImage().stream()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(image)) { destination.addImage(image); }
+                    if (Objects.nonNull(image)) {
+                        destination.addImage(image);
+                    }
                 });
 
         CustomerEntity customer = customerRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(customer)) {
-            customer.getProperty().stream()
-                    .forEach( entity -> {
-                            Property property = source.getProperty().stream()
-                                    .filter(it -> it.getLogicName().equals(entity.getLogicName()))
-                                    .findFirst()
-                                    .orElse(null);
+            customer
+                    .getProperty()
+                    .stream()
+                    .forEach(entity -> {
+                        Property property = source.getProperty().stream()
+                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
+                                .findFirst()
+                                .orElse(null);
 
-                            if (Objects.nonNull(property)) {
-                                entity.setValue(property.getValue());
-                            }
+                        if (Objects.nonNull(property)) {
+                            entity.setValue(property.getValue());
+                        }
 
-                            destination.addProperty(entity);
+                        destination.addProperty(entity);
                     });
         }
     }

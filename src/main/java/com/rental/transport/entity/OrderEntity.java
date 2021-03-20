@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.enums.OrderStatusEnum;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,6 +8,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -17,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "orders")
@@ -31,10 +35,11 @@ import lombok.Setter;
 )
 
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class OrderEntity extends AbstractEntity {
 
-    private String status = "New";
+    private OrderStatusEnum status = OrderStatusEnum.New;
 
     private CustomerEntity customer;
     private TransportEntity transport;
@@ -45,21 +50,12 @@ public class OrderEntity extends AbstractEntity {
     private Set<MessageEntity> message = new HashSet<>();
 
     private Date createdAt = new Date();
-
-    public OrderEntity() {
-        addProperty(new PropertyEntity("фИО Заказчика", "fio", "Не указано", "String"));
-        addProperty(new PropertyEntity("Телефон Заказчика", "phone", "", "Phone"));
-        addProperty(new PropertyEntity("Широта", "latitude", "0", "Double"));
-        addProperty(new PropertyEntity("Долгота", "longitude", "0", "Double"));
-        addProperty(new PropertyEntity("Стоимость", "cost", "0", "Double"));
-        addProperty(new PropertyEntity("Цена", "price", "0", "Double"));
-        addProperty(new PropertyEntity("Продолжительность", "duration", "0", "Integer"));
-        addProperty(new PropertyEntity("Комментарии", "comment", "Не указано", "String"));
-    }
+    private Date confirmedAt = new Date();
 
     @Basic
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, insertable = true, updatable = true)
-    public String getStatus() {
+    public OrderStatusEnum getStatus() {
         return status;
     }
 
@@ -91,12 +87,19 @@ public class OrderEntity extends AbstractEntity {
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "orders_calendar",
+            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
     public Set<CalendarEntity> getCalendar() {
         return calendar;
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
-    public Set<MessageEntity> getMessage() {
+    @JoinTable(name = "orders_message",
+            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
+    )    public Set<MessageEntity> getMessage() {
         return message;
     }
 
@@ -107,27 +110,45 @@ public class OrderEntity extends AbstractEntity {
         return createdAt;
     }
 
+    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "confirmed_at", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
+    public Date getConfirmedAt() {
+        return confirmedAt;
+    }
+
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
 
         entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElse(entity);
 
         property.add(entity);
     }
 
+    public void addProperty(PropertyEntity... entryes) {
+
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
+    }
+
     public void addDriver(CustomerEntity entity) {
         driver.add(entity);
+    }
+
+    public void addMessage(MessageEntity entity) {
+        message.add(entity);
     }
 
     public void addCalendar(CalendarEntity entity) {
         calendar.add(entity);
     }
 
-    public void addMessage(MessageEntity entity) {
-        message.add(entity);
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

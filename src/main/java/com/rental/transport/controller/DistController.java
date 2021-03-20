@@ -2,7 +2,9 @@ package com.rental.transport.controller;
 
 import com.rental.transport.service.DistService;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,5 +35,11 @@ public class DistController {
         header.set("Content-type", "application/octet-stream");
         header.set("Content-Disposition", "attachment; filename=" + name);
         return new HttpEntity<byte[]>(distService.getFile(name), header);
+    }
+
+    @GetMapping(value = "/score")
+    public Map<String, AtomicLong> getDistScore() {
+
+        return distService.readScore();
     }
 }

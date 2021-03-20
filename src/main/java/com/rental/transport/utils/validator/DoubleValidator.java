@@ -1,11 +1,11 @@
-package com.rental.transport.validator;
+package com.rental.transport.utils.validator;
 
 import java.util.regex.Pattern;
 
-public class IntegerValidator implements IStringValidator {
+public class DoubleValidator implements IStringValidator {
 
     StringValidator validator = new StringValidator();
-    private Pattern pattern = Pattern.compile("[0-9]+");
+    private Pattern pattern = Pattern.compile("[0-9]+.[0-9]+|[0-9]+");
 
     @Override
     public Boolean validate(String value) {

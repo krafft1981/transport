@@ -1,18 +1,19 @@
 package com.rental.transport.entity;
 
-import com.rental.transport.dto.Property;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -24,14 +25,17 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "account", name = "account_idx")
+                @Index(columnList = "account", name = "account_idx"),
+                @Index(columnList = "enable", name = "account_enabled_idx")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"account"})
         }
 )
-
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerEntity extends AbstractEntity {
+public class CustomerEntity extends AbstractEnabledEntity {
 
     private String account;
     private String password;
@@ -41,31 +45,11 @@ public class CustomerEntity extends AbstractEntity {
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<PropertyEntity> property = new HashSet<>();
+    private Set<CalendarEntity> calendar = new HashSet<>();
 
-    public CustomerEntity(String account, String password, String phone, String fio) {
+    public CustomerEntity(String account, String password) {
         setAccount(account);
         setPassword(password);
-        addPropertyList();
-        property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals("phone"))
-                .findFirst()
-                .orElse(new PropertyEntity())
-                .setValue(phone);
-
-        property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals("fio"))
-                .findFirst()
-                .orElse(new PropertyEntity())
-                .setValue(fio);
-    }
-
-    public void addPropertyList() {
-        addProperty(new PropertyEntity("ФИО", "fio", "", "String"));
-        addProperty(new PropertyEntity("Телефон", "phone", "", "Phone"));
-        addProperty(new PropertyEntity("Время начала работы", "startWorkTime", "8", "Hour"));
-        addProperty(new PropertyEntity("Время окончания работы", "stopWorkTime", "18", "Hour"));
-        addProperty(new PropertyEntity("Работает в субб./воскр.", "workAtWeekEnd", "1", "Boolean"));
-        addProperty(new PropertyEntity("Описание", "description", "", "String"));
     }
 
     @Basic
@@ -99,8 +83,21 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     @OneToMany
+    @JoinTable(name = "customer_image",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
+    }
+
+    @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "customer_calendar",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
+    public Set<CalendarEntity> getCalendar() {
+        return calendar;
     }
 
     @ManyToMany
@@ -121,6 +118,10 @@ public class CustomerEntity extends AbstractEntity {
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "customer_property",
+            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "property_id", nullable = false)
+    )
     public Set<PropertyEntity> getProperty() {
         return property;
     }
@@ -139,13 +140,29 @@ public class CustomerEntity extends AbstractEntity {
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
+        property.add(
+                property.stream()
+                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                        .findFirst()
+                        .orElse(entity)
+        );
+    }
 
-        entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+    public void addProperty(PropertyEntity... entryes) {
 
-        property.add(entity);
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
+    }
+
+    public void addCalendar(CalendarEntity entity) {
+
+        System.out.println("Append entity to customer: " + this.getId());
+        calendar.add(entity);
+    }
+
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

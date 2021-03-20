@@ -1,10 +1,7 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.BaseTest;
-import com.rental.transport.dto.Type;
-import com.rental.transport.entity.TypeEntity;
 import com.rental.transport.utils.RandomPrimitives;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

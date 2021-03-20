@@ -9,14 +9,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CalendarRepository extends IRepository<CalendarEntity> {
 
-    @Query("select c from calendar c where day_num = :day and (" +
-            "(:start <= start_at and :stop >= stop_at) or " +
-            "(:start > start_at and :stop < stop_at) or " +
-            "(:start >= start_at and :start < stop_at) or " +
-            "(:stop >= start_at and :stop < stop_at))")
-    List<CalendarEntity> findByDayAndStartAndStop(
-            @Param("day") Long day,
-            @Param("start") Date start,
-            @Param("stop") Date stop
+    @Query(
+            nativeQuery = true,
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join customer_calendar l on c.id = l.calendar_id where c.day_num = :day and l.customer_id = :customerId"
+    )
+    List<CalendarEntity> findCustomerCalendarByDay(
+            @Param("customerId") Long customerId,
+            @Param("day") Long day
     );
+
+    @Query(
+            nativeQuery = true,
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join transport_calendar l on c.id = l.calendar_id where c.day_num = :day and l.transport_id = :transportId"
+    )
+    List<CalendarEntity> findTransportCalendarByDay(
+            @Param("transportId") Long transportId,
+            @Param("day") Long day
+    );
+
+    CalendarEntity findByDayNumAndStartAtAndStopAt(Long day, Date start, Date stop);
+
+    List<CalendarEntity> findByDayNum(Long day);
 }

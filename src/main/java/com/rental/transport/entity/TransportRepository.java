@@ -7,7 +7,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransportRepository extends IRepository<TransportEntity> {
 
-    List<TransportEntity> findAllByTypeId(Pageable pageable, Long type);
+    List<TransportEntity> findAllByEnableTrueAndTypeId(Pageable pageable, Long type);
 
-    List<TransportEntity> findAllByCustomerId(Long id);
+    List<TransportEntity> findAllByCustomerIdAndEnableTrue(Long id);
+
+    List<TransportEntity> findAllByEnableTrue(Pageable pageable);
+
+    List<TransportEntity> findByIdAndEnableTrue(Long id);
+
 }

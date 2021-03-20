@@ -3,6 +3,9 @@ package com.rental.transport.entity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,10 @@ import lombok.Setter;
 @Table(
         name = "property",
         schema = "public",
-        catalog = "relationship"
+        catalog = "relationship",
+        indexes = {
+                @Index(columnList = "property_type_id", name = "property_type_id_idx")
+        }
 )
 
 @Setter
@@ -20,32 +26,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PropertyEntity extends AbstractEntity {
 
-    private String humanName = "";
-    private String logicName = "";
+    private PropertyTypeEntity type;
     private String value = "";
-    private String type = "String";
 
-    @Basic
-    @Column(name = "human_name", nullable = false, insertable = true, updatable = true)
-    public String getHumanName() {
-        return humanName;
-    }
-
-    @Basic
-    @Column(name = "logic_name", nullable = false, insertable = true, updatable = true)
-    public String getLogicName() {
-        return logicName;
+    @ManyToOne
+    @JoinColumn(name = "property_type_id", referencedColumnName = "id")
+    public PropertyTypeEntity getType() {
+        return type;
     }
 
     @Basic
     @Column(name = "value", nullable = false, insertable = true, updatable = true)
     public String getValue() {
         return value;
-    }
-
-    @Basic
-    @Column(name = "type", nullable = false, insertable = true, updatable = true)
-    public String getType() {
-        return type;
     }
 }

@@ -1,47 +1,53 @@
 package com.rental.transport.service;
 
+import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.ConfirmationEntity;
 import com.rental.transport.entity.ConfirmationRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
-import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConfirmationService {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    @Autowired
+    private CalendarService calendarService;
 
     @Autowired
     private ConfirmationRepository confirmationRepository;
 
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    public List<Long> getByCustomer(CustomerEntity customer) {
+    public List<OrderEntity> getByCustomer(CustomerEntity customer) {
 
         return confirmationRepository
-                .getByCustomer(customer.getId())
+                .getByCustomerId(customer.getId())
                 .stream()
-                .map(entity -> entity.getOrder().getId())
+                .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
     }
 
-    public List<Long> getByOrder(Long id) {
+    public List<OrderEntity> getByCustomer(CustomerEntity customer, Pageable pageable) {
 
         return confirmationRepository
-                .getByOrder(id)
+                .getByCustomerId(customer.getId(), pageable)
                 .stream()
-                .map(entity -> entity.getOrder().getId())
+                .map(entity -> entity.getOrder())
+                .collect(Collectors.toList());
+    }
+
+    public List<OrderEntity> getByOrder(OrderEntity order, Pageable pageable) {
+
+        return confirmationRepository
+                .getByOrderId(order.getId(), pageable)
+                .stream()
+                .map(entity -> entity.getOrder())
                 .collect(Collectors.toList());
     }
 
@@ -50,21 +56,39 @@ public class ConfirmationService {
         confirmationRepository.deleteByOrderId(id);
     }
 
-    public void interactionCustomerWithOrder(CustomerEntity customer, OrderEntity order) {
+    public void interaction(CustomerEntity customer, OrderEntity order) {
 
-        confirmationRepository.deleteByCustomerIdAndOrderId(customer, order);
+        confirmationRepository.deleteByCustomerIdAndOrderId(customer.getId(), order.getId());
     }
 
     @Transactional
-    public void putOrder(OrderEntity order) {
+    public void putOrder(OrderEntity order) throws IllegalArgumentException {
+
+        AtomicLong result = new AtomicLong(0L);
 
         order
-                .getDriver()
+                .getTransport()
+                .getCustomer()
                 .stream()
                 .forEach(customer -> {
-                    ConfirmationEntity entity = new ConfirmationEntity(customer, order);
-                    confirmationRepository.save(entity);
+                    CalendarEntity calendar = order.getCalendar().iterator().next();
+                    try {
+                        ConfirmationEntity entity = new ConfirmationEntity(customer, order);
+                        calendarService.checkCustomerBusy(
+                                customer,
+                                calendar.getDayNum(),
+                                calendar.getStartAt().getTime(),
+                                calendar.getStopAt().getTime()
+                        );
+                        confirmationRepository.save(entity);
+                        result.incrementAndGet();
+                    }
+                    catch (IllegalArgumentException e) {
+                    }
                 });
+
+        if (result.longValue() == 0)
+            throw new java.lang.IllegalArgumentException("Transport has't free driver");
     }
 
     public ConfirmationEntity get(Long id) throws ObjectNotFoundException {

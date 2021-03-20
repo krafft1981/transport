@@ -1,19 +1,27 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
+import com.rental.transport.dto.Event;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
+import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import com.rental.transport.validator.BooleanYesValidator;
-import com.rental.transport.validator.IStringValidator;
+import com.rental.transport.utils.validator.BooleanYesValidator;
+import com.rental.transport.utils.validator.IStringValidator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,66 +34,84 @@ public class CalendarService {
     private CalendarMapper calendarMapper;
 
     @Autowired
-    private CustomerMapper customerMapper;
+    private OrderMapper orderMapper;
 
     @Autowired
-    private TransportService transportService;
+    private CustomerMapper customerMapper;
 
     @Autowired
     private PropertyService propertyService;
 
     @Autowired
-    private CalendarRepository calendarRepository;
+    private TransportService transportService;
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private CalendarRepository calendarRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Getter
     public class Diapazon {
 
         private Date start;
         private Date stop;
-        private Long dayNum;
-
-        private static final String message = "Wrong time diapazone";
+        private Long day;
 
         public Diapazon(Long day) throws IllegalArgumentException {
 
-            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            gregorianCalendar.setTimeInMillis(day);
-            gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
-            gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-            gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-            gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            calendar.setTimeInMillis(day);
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            calendar.set(java.util.Calendar.MINUTE, 0);
+            calendar.set(java.util.Calendar.SECOND, 0);
+            calendar.set(java.util.Calendar.MILLISECOND, 0);
 
-            this.start = gregorianCalendar.getTime();
-            this.dayNum = start.getTime();
+            this.start = calendar.getTime();
+            this.day = start.getTime();
 
-            gregorianCalendar.add(java.util.Calendar.DAY_OF_MONTH, 1);
-            this.stop = gregorianCalendar.getTime();
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, 1);
+            calendar.add(java.util.Calendar.MILLISECOND, -1);
+
+            this.stop = calendar.getTime();
         }
     }
 
-    public Long putBusy(String account, Long day, Date start, Date stop)
+    public Long putAbsentEntry(String account, Long day, Long start, Long stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         checkCustomerBusy(customer, day, start, stop);
-        CalendarEntity entity = new CalendarEntity(start, stop, day, customer);
-        return calendarRepository.save(entity).getId();
+        CalendarEntity entity = getEntity(day, start, stop, true);
+        customer.addCalendar(entity);
+        return entity.getId();
     }
 
-    public void deleteBusy(String account, Long day, Date start, Date stop)
+    public void deleteAbsentEntry(String account, Long day, Long start, Long stop)
             throws IllegalArgumentException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        calendarRepository
-                .findByDayAndStartAndStop(day, start, stop)
-                .stream()
-                .filter(entity -> entity.getCustomer().getId().equals(customer.getId()))
-                .forEach(entity -> {
-                    calendarRepository.deleteById(entity.getId());
-                });
+        CalendarEntity entity = getEntity(day, start, stop, false);
+        customer.deleteCalendarEntity(entity);
+    }
+
+    public CalendarEntity getEntity(Long day, Long start, Long stop, Boolean create)
+            throws ObjectNotFoundException {
+
+        CalendarEntity entity = calendarRepository.findByDayNumAndStartAtAndStopAt(day, new Date(start), new Date(stop));
+        if (Objects.isNull(entity)) {
+            if (create)
+                entity = new CalendarEntity(day, start, stop);
+            else {
+                String calendarName = String.format("day(%s) start(%s) stop(%s)", day, start, stop);
+                throw new ObjectNotFoundException("Calendar", calendarName);
+            }
+        }
+
+        return entity;
     }
 
     private void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
@@ -106,54 +132,83 @@ public class CalendarService {
             throw new IllegalArgumentException(message);
     }
 
-    private void checkCustomerBusy(CustomerEntity customer, Long day, Date start, Date stop)
+    public void checkTransportBusy(TransportEntity transport, Long day, Long start, Long stop)
             throws IllegalArgumentException {
 
-        getCustomerCalendar(customer, day)
+        calendarRepository
+                .findTransportCalendarByDay(transport.getId(), day)
                 .stream()
-                .forEach(
-                        entity -> checkTimeDiapazon(
-                                entity.getStartAt(),
-                                entity.getStopAt(),
-                                start.getTime(),
-                                stop.getTime()
+                .forEach(entity -> {
+                            System.out.println("Check transport busy");
+                            checkTimeDiapazon(
+                                    entity.getStartAt().getTime(),
+                                    entity.getStopAt().getTime(),
+                                    start,
+                                    stop
+                            );
+                            System.out.println("transport not busy");
+                        }
+                );
+    }
+
+    public void checkCustomerBusy(CustomerEntity customer, Long day, Long start, Long stop)
+            throws IllegalArgumentException {
+
+        calendarRepository
+                .findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .forEach(entity ->
+                        checkTimeDiapazon(
+                                entity.getStartAt().getTime(),
+                                entity.getStopAt().getTime(),
+                                start,
+                                stop
                         )
                 );
     }
 
-    public List<Calendar> getTransportCalendar(Long id, Long day) {
+    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)
+            throws ObjectNotFoundException, IllegalArgumentException {
 
-        return transportService
-                .getEntity(id)
-                .getCustomer()
-                .stream()
-                .map(customer -> {
-                    return getCustomerCalendar(customer, day);
-                })
-                .flatMap(customer -> customer.stream())
-                .collect(Collectors.toList());
+        String startWorkAt = propertyService.getValue(customer.getProperty(), "customer_startWorkTime");
+        String stopWorkAt = propertyService.getValue(customer.getProperty(), "customer_stopWorkTime");
+
+        java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        calendar.setTime(diapazon.getStart());
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(startWorkAt));
+        calendar.set(java.util.Calendar.MINUTE, 0);
+        calendar.set(java.util.Calendar.SECOND, 0);
+        calendar.set(java.util.Calendar.MILLISECOND, 0);
+
+        List<Calendar> events = new ArrayList<>();
+
+        events.add(new Calendar(
+                diapazon.getDay(),
+                diapazon.getStart().getTime(),
+                calendar.getTimeInMillis()
+        ));
+
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(stopWorkAt));
+
+        events.add(new Calendar(
+                diapazon.getDay(),
+                calendar.getTimeInMillis(),
+                diapazon.getStop().getTime()
+        ));
+
+        return events;
     }
 
-    public List<Calendar> getCustomerCalendar(CustomerEntity customer, Long day) {
+    private List<Calendar> getCustomerWeekTime(Long day, CustomerEntity customer)
+            throws ObjectNotFoundException, IllegalArgumentException {
 
         Diapazon diapazon = new Diapazon(day);
 
-        List<Calendar> res = calendarRepository
-                .findByDayAndStartAndStop(
-                        day,
-                        diapazon.getStart(),
-                        diapazon.getStop()
-                )
-                .stream()
-                .map(entity -> {
-                    return calendarMapper.toDto(entity);
-                })
-                .collect(Collectors.toList());
+        java.util.Calendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(diapazon.day);
 
-        GregorianCalendar gregorianCalendar = new GregorianCalendar();
-        gregorianCalendar.setTimeInMillis(day);
-
-        switch (gregorianCalendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+        List<Calendar> res = new ArrayList();
+        switch (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
             case java.util.Calendar.MONDAY:
             case java.util.Calendar.TUESDAY:
             case java.util.Calendar.WEDNESDAY:
@@ -172,82 +227,27 @@ public class CalendarService {
         return res;
     }
 
-    public List<Calendar> getCustomerCalendar(String account, Long[] day)
+    public List<Calendar> getCustomerCalendar(String account, Long day)
             throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        return getCustomerCalendar(customer, day);
-    }
-
-    public List<Calendar> getTransportCalendar(String account, Long id, Long[] days)
-            throws ObjectNotFoundException {
-
-        List<Calendar> res = new ArrayList<>();
-        for (Long day : days)
-            res.addAll(getTransportCalendar(id, day));
-        return res;
-    }
-
-    private List<Calendar> getCustomerWorkTime(CustomerEntity customer, Diapazon diapazon)
-            throws ObjectNotFoundException, IllegalArgumentException, NumberFormatException {
-
-        String startWorkAt = propertyService.getValue(customer.getProperty(), "startWorkTime");
-        String stopWorkAt = propertyService.getValue(customer.getProperty(), "stopWorkTime");
-
-        GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        gregorianCalendar.setTime(diapazon.getStart());
-        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(startWorkAt));
-        gregorianCalendar.set(java.util.Calendar.MINUTE, 0);
-        gregorianCalendar.set(java.util.Calendar.SECOND, 0);
-        gregorianCalendar.set(java.util.Calendar.MILLISECOND, 0);
-
-        List<Calendar> events = new ArrayList<>();
-
-        events.add(new Calendar(
-                diapazon.getStart().getTime(),
-                gregorianCalendar.getTimeInMillis(),
-                diapazon.getDayNum(),
-                customerMapper.toDto(customer)
-        ));
-
-        gregorianCalendar.set(java.util.Calendar.HOUR_OF_DAY, Integer.parseInt(stopWorkAt));
-
-        events.add(new Calendar(
-                gregorianCalendar.getTimeInMillis(),
-                diapazon.getStop().getTime(),
-                diapazon.getDayNum(),
-                customerMapper.toDto(customer)
-        ));
-
-        return events;
-    }
-
-    private List<Calendar> getCustomerCalendar(CustomerEntity customer, Long[] days)
-            throws IllegalArgumentException {
-
-        List<Calendar> res = new ArrayList<>();
-        for (Long day : days)
-            res.addAll(getCustomerCalendar(customer, day));
-
-        return res;
+        return getCustomerCalendar(day, customer);
     }
 
     private List<Calendar> getCustomerHolidayTime(CustomerEntity customer, Diapazon diapazon)
             throws ObjectNotFoundException {
 
-        String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "workAtWeekEnd");
+        String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd");
 
         IStringValidator validator = new BooleanYesValidator();
         if (validator.validate(workAtWeekEnd))
             return getCustomerWorkTime(customer, diapazon);
 
         List<Calendar> events = new ArrayList<>();
-
         events.add(new Calendar(
+                diapazon.getDay(),
                 diapazon.getStart().getTime(),
-                diapazon.getStop().getTime(),
-                diapazon.getDayNum(),
-                customerMapper.toDto(customer)
+                diapazon.getStop().getTime()
         ));
 
         return events;
@@ -265,7 +265,141 @@ public class CalendarService {
         return calendarMapper.toDto(getEntity(id));
     }
 
-    public Long count() {
-        return calendarRepository.count();
+    public List<Calendar> getTransportCalendar(Long day, TransportEntity transport) {
+
+        return calendarRepository
+                .findTransportCalendarByDay(transport.getId(), day)
+                .stream()
+                .map(entity ->
+                        new Calendar(
+                                entity.getId(),
+                                entity.getDayNum(),
+                                entity.getStartAt(),
+                                entity.getStopAt()
+                        )
+                )
+                .collect(Collectors.toList());
+    }
+
+    public List<Event> getCustomerCalendarWithOrders(String account, Long day)
+            throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return getCustomerCalendarWithOrders(day, customer);
+    }
+
+    public List<Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
+
+        // достаём все календари
+        List<Event> events = calendarRepository
+                .findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .map(entity -> {
+                    OrderEntity order = orderRepository.findByCustomerAndCalendar(customer, entity);
+                    if (Objects.nonNull(order)) {
+                        return new Event(orderMapper.toDto(order), calendarMapper.toDto(entity));
+                    }
+                    else {
+                        return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE.getId());
+                    }
+                })
+        .collect(Collectors.toList());
+
+        getCustomerWeekTime(day, customer)
+                .stream()
+                .forEach(calendar -> {
+                    events.add(new Event(calendar, EventTypeEnum.GENERATED.getId()));
+                });
+
+        return events;
+    }
+
+    public List<Calendar> getCustomerCalendar(Long day, CustomerEntity customer) {
+
+        List<Calendar> res = getCustomerWeekTime(day, customer);
+        res.addAll(calendarRepository.findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .map(entity ->
+                        new Calendar(
+                                entity.getId(),
+                                entity.getDayNum(),
+                                entity.getStartAt(),
+                                entity.getStopAt()
+                        )
+                )
+                .collect(Collectors.toList())
+        );
+
+        return res;
+    }
+
+    private List<Calendar> getDriversCalendar(Long day, TransportEntity transport) {
+
+        List<Calendar> result = new ArrayList();
+        calendarRepository
+                .findByDayNum(day)
+                .stream()
+                .forEach(entity -> {
+                    Calendar calendar = new Calendar(
+                            entity.getId(),
+                            entity.getDayNum(),
+                            entity.getStartAt(),
+                            entity.getStopAt()
+                    );
+
+                    Boolean busy = true;
+
+                    for(CustomerEntity customer: transport.getCustomer()) {
+                        if (!getCustomerCalendar(day, customer).contains(calendar)) {
+                            busy = false;
+                            break;
+                        }
+                    }
+
+                    if (busy)
+                        result.add(calendar);
+                });
+
+        return result;
+    }
+
+    public List<Calendar> getTransportCalendar(String account, Long day, Long transportId) {
+
+        List<Calendar> result = new ArrayList();
+
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = transportService.getEntity(transportId);
+
+        List<Calendar> customerCalendar = calendarRepository
+                .findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .map(entity ->
+                        new Calendar(
+                                entity.getId(),
+                                entity.getDayNum(),
+                                entity.getStartAt(),
+                                entity.getStopAt()
+                        )
+                )
+                .collect(Collectors.toList());
+
+        List<Calendar> transportCalendar = getTransportCalendar(day, transport);
+        List<Calendar> driverCalendar = getDriversCalendar(day, transport);
+
+        calendarRepository
+                .findByDayNum(day)
+                .stream()
+                .forEach(entity -> {
+                    Calendar calendar = new Calendar(
+                            entity.getId(),
+                            entity.getDayNum(),
+                            entity.getStartAt(),
+                            entity.getStopAt()
+                    );
+                    if (customerCalendar.contains(calendar) || transportCalendar.contains(calendar) || driverCalendar.contains(calendar))
+                        result.add(calendar);
+                });
+
+        return result;
     }
 }

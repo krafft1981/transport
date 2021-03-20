@@ -2,15 +2,16 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
-import com.rental.transport.entity.TypeEntity;
+import com.rental.transport.entity.TransportTypeEntity;
+import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,9 @@ public class TransportService {
     private ParkingService parkingService;
 
     @Autowired
+    private PropertyService propertyService;
+
+    @Autowired
     private TransportMapper transportMapper;
 
     public void delete(@NonNull String account, @NonNull Long id)
@@ -50,23 +54,30 @@ public class TransportService {
     public Long create(@NonNull String account, @NonNull String type)
             throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
-        TypeEntity typeEntity = typeService.getEntity(type);
-        TransportEntity entity = new TransportEntity(customer, typeEntity);
-        return transportRepository.save(entity).getId();
+        CustomerEntity customerEntity = customerService.getEntity(account);
+        TransportTypeEntity transportTypeEntity = typeService.getEntity(type);
+        TransportEntity transport = new TransportEntity(customerEntity, transportTypeEntity);
+        transport.addProperty(
+                propertyService.create("transport_name", "Не указано"),
+                propertyService.create("transport_capacity", "1"),
+                propertyService.create("transport_price", "1000"),
+                propertyService.create("transport_min_rent_time", "1"),
+                propertyService.create("transport_use_driver", "Да"),
+                propertyService.create("transport_description", "Не указано")
+        );
+
+        return transportRepository.save(transport).getId();
     }
 
     public void update(@NonNull String account, @NonNull Transport dto)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        TransportEntity entity = getEntity(dto.getId());
-        entity = transportMapper.toEntity(dto);
+        TransportEntity entity = transportMapper.toEntity(dto);
         CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
 
-        entity.addPropertyList();
         transportRepository.save(entity);
     }
 
@@ -76,6 +87,8 @@ public class TransportService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .map(entity -> {
                     return transportMapper.toDto(entity);
                 })
@@ -85,8 +98,9 @@ public class TransportService {
     public List<Transport> getPageTyped(Pageable pageable, Long type) {
 
         return transportRepository
-                .findAllByTypeId(pageable, type)
+                .findAllByEnableTrueAndTypeId(pageable, type)
                 .stream()
+                .filter(entity -> entity.getType().getEnable())
                 .map(entity -> {
                     return transportMapper.toDto(entity);
                 })
@@ -98,10 +112,10 @@ public class TransportService {
         return transportRepository.count();
     }
 
-    public List<Transport> getMyTransport(String account) {
+    public List<Transport> getMyTransport(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        return transportRepository.findAllByCustomerId(customer.getId())
+        return transportRepository.findAllByCustomerIdAndEnableTrue(customer.getId())
                 .stream()
                 .map(entity -> {
                     return transportMapper.toDto(entity);
@@ -113,6 +127,8 @@ public class TransportService {
 
         return transportRepository
                 .findById(id)
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 
@@ -126,9 +142,22 @@ public class TransportService {
         return parkingService.getEntity(parkingId)
                 .getTransport()
                 .stream()
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
                 .map(transport -> {
                     return transportMapper.toDto(transport);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+        propertyService.createType("transport_name", "Название", PropertyTypeEnum.String);
+        propertyService.createType("transport_capacity", "Максимальное количество гостей", PropertyTypeEnum.Integer);
+        propertyService.createType("transport_price", "Цена за час", PropertyTypeEnum.Double);
+        propertyService.createType("transport_min_rent_time", "Минимальное время аренды", PropertyTypeEnum.Hour);
+        propertyService.createType("transport_use_driver", "Используется с водителем", PropertyTypeEnum.Boolean);
+        propertyService.createType("transport_description", "Описание", PropertyTypeEnum.String);
     }
 }

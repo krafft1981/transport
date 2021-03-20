@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -21,22 +22,24 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "transport_type_id", name = "transport_type_id_idx")
+                @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
+                @Index(columnList = "enable", name = "transport_enable_idx")
         }
 )
 
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransportEntity extends AbstractEntity {
+public class TransportEntity extends AbstractEnabledEntity {
 
-    private TypeEntity type;
+    private TransportTypeEntity type;
     private Set<PropertyEntity> property = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
+    private Set<CalendarEntity> calendar = new HashSet<>();
 
-    public TransportEntity(CustomerEntity customer, TypeEntity type) {
+    public TransportEntity(CustomerEntity customer, TransportTypeEntity type) {
 
         addCustomer(customer);
         setType(type);
@@ -45,16 +48,6 @@ public class TransportEntity extends AbstractEntity {
                 .forEach(parking -> {
                     addParking(parking);
                 });
-
-        addPropertyList();
-    }
-
-    public void addPropertyList() {
-        addProperty(new PropertyEntity("Название", "name", "Название не указано", "String"));
-        addProperty(new PropertyEntity("Вместимость", "capacity", "1", "Integer"));
-        addProperty(new PropertyEntity("Описание", "description", "Описания нет", "String"));
-        addProperty(new PropertyEntity("Цена", "cost", "0", "Double"));
-        addProperty(new PropertyEntity("Минимальное время аренды", "minTime", "7200", "Integer"));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -64,11 +57,15 @@ public class TransportEntity extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "transport_type_id", referencedColumnName = "id")
-    public TypeEntity getType() {
+    public TransportTypeEntity getType() {
         return type;
     }
 
     @OneToMany
+    @JoinTable(name = "transport_image",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+    )
     public Set<ImageEntity> getImage() {
         return image;
     }
@@ -80,6 +77,15 @@ public class TransportEntity extends AbstractEntity {
     )
     public Set<ParkingEntity> getParking() {
         return parking;
+    }
+
+    @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "transport_calendar",
+            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
+    )
+    public Set<CalendarEntity> getCalendar() {
+        return calendar;
     }
 
     @ManyToMany
@@ -103,22 +109,37 @@ public class TransportEntity extends AbstractEntity {
 
     public void addParking(ParkingEntity entity) {
 
-        if (!getParking().isEmpty()) {
+        if (!getParking().isEmpty())
             parking.clear();
-        }
 
         parking.add(entity);
     }
 
     public void addProperty(PropertyEntity entity) {
 
-        String name = entity.getLogicName();
+        String name = entity.getType().getLogicName();
+        property.add(
+                property
+                        .stream()
+                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                        .findFirst()
+                        .orElse(entity)
+        );
+    }
 
-        entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+    public void addProperty(PropertyEntity... entryes) {
 
-        property.add(entity);
+        for (int id = 0; id < entryes.length; id++)
+            addProperty(entryes[id]);
+    }
+
+    public void addCalendar(CalendarEntity entity) {
+
+        calendar.add(entity);
+    }
+
+    public void deleteCalendarEntity(CalendarEntity entity) {
+
+        calendar.remove(entity);
     }
 }

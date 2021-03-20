@@ -1,13 +1,14 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Type;
-import com.rental.transport.entity.TypeEntity;
-import com.rental.transport.entity.TypeRepository;
+import com.rental.transport.entity.TransportTypeEntity;
+import com.rental.transport.entity.TransportTypeRepository;
 import com.rental.transport.mapper.TypeMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,16 +17,10 @@ import org.springframework.stereotype.Service;
 public class TypeService {
 
     @Autowired
-    private TypeRepository repository;
+    private TransportTypeRepository repository;
 
     @Autowired
     private TypeMapper typeMapper;
-
-    public Long create(String name) throws IllegalArgumentException {
-
-        TypeEntity entity = new TypeEntity(name);
-        return repository.save(entity).getId();
-    }
 
     public Long count() {
 
@@ -38,22 +33,24 @@ public class TypeService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
+                .filter(entity -> entity.getEnable())
                 .map(entity -> {
                     return typeMapper.toDto(entity);
                 })
                 .collect(Collectors.toList());
     }
 
-    public TypeEntity getEntity(Long id) throws ObjectNotFoundException {
+    public TransportTypeEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return repository
                 .findById(id)
+                .filter(entity -> entity.getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Type", id));
     }
 
-    public TypeEntity getEntity(String name) throws ObjectNotFoundException {
+    public TransportTypeEntity getEntity(String name) throws ObjectNotFoundException {
 
-        TypeEntity entity = repository.findByName(name);
+        TransportTypeEntity entity = repository.findByEnableTrueAndName(name);
         if (Objects.nonNull(entity)) {
             return entity;
         }
@@ -64,5 +61,23 @@ public class TypeService {
     public Type getDto(Long id) throws ObjectNotFoundException {
 
         return typeMapper.toDto(getEntity(id));
+    }
+
+    public Long create(String name) {
+
+        try {
+            return getEntity(name).getId();
+        } catch (ObjectNotFoundException e) {
+            TransportTypeEntity entity = new TransportTypeEntity(name);
+            return repository.save(entity).getId();
+        }
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+        create("Яхта");
+        create("Катамаран");
+        create("Байдарка");
     }
 }

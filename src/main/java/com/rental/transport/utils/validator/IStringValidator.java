@@ -1,4 +1,4 @@
-package com.rental.transport.validator;
+package com.rental.transport.utils.validator;
 
 public interface IStringValidator {
 

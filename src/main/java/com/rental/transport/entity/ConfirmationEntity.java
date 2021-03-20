@@ -1,11 +1,13 @@
 package com.rental.transport.entity;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +20,9 @@ import lombok.Setter;
         indexes = {
                 @Index(columnList = "customer_id", name = "customer_id_idx"),
                 @Index(columnList = "order_id", name = "order_id_idx")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"customer_id", "order_id"})
         }
 )
 
@@ -30,14 +35,14 @@ public class ConfirmationEntity extends AbstractEntity {
     private OrderEntity order;
 
     @Basic
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     public CustomerEntity getCustomer() {
         return customer;
     }
 
     @Basic
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     public OrderEntity getOrder() {
         return order;
