@@ -10,7 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -87,7 +86,7 @@ public class OrderEntity extends AbstractEntity {
         return driver;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "orders_calendar",
             joinColumns = @JoinColumn(name = "orders_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)

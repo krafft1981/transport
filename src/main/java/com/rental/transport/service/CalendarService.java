@@ -2,10 +2,10 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.dto.Order;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.EventTypeEnum;
@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,7 +59,6 @@ public class CalendarService {
 
         private Date start;
         private Date stop;
-
         private Long day;
 
         public Diapazon(Long day) throws IllegalArgumentException {
@@ -156,26 +154,16 @@ public class CalendarService {
     public void checkCustomerBusy(CustomerEntity customer, Long day, Long start, Long stop)
             throws IllegalArgumentException {
 
-        System.out.println(customer.toString());
-        System.out.println("mini HER");
-
-        System.out.println(calendarRepository.findCustomerCalendarByDay(customer.getId(), day).toString());
-
-        System.out.println("mini HER 2");
-
         calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .forEach(entity -> {
-                            System.out.println("Check customer busy");
-                            checkTimeDiapazon(
-                                    entity.getStartAt().getTime(),
-                                    entity.getStopAt().getTime(),
-                                    start,
-                                    stop
-                            );
-                            System.out.println("customer not busy");
-                        }
+                .forEach(entity ->
+                        checkTimeDiapazon(
+                                entity.getStartAt().getTime(),
+                                entity.getStopAt().getTime(),
+                                start,
+                                stop
+                        )
                 );
     }
 
@@ -256,7 +244,6 @@ public class CalendarService {
             return getCustomerWorkTime(customer, diapazon);
 
         List<Calendar> events = new ArrayList<>();
-
         events.add(new Calendar(
                 diapazon.getDay(),
                 diapazon.getStart().getTime(),
@@ -280,7 +267,8 @@ public class CalendarService {
 
     public List<Calendar> getTransportCalendar(Long day, TransportEntity transport) {
 
-        return calendarRepository.findTransportCalendarByDay(transport.getId(), day)
+        return calendarRepository
+                .findTransportCalendarByDay(transport.getId(), day)
                 .stream()
                 .map(entity ->
                         new Calendar(
@@ -302,16 +290,28 @@ public class CalendarService {
 
     public List<Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
-        List<Event> res = getCustomerWeekTime(day, customer)
+        // достаём все календари
+        List<Event> events = calendarRepository
+                .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .map(calendar -> new Event(calendar, EventTypeEnum.GENERATED.getId()))
-                .collect(Collectors.toList());
+                .map(entity -> {
+                    OrderEntity order = orderRepository.findByCustomerAndCalendar(customer, entity);
+                    if (Objects.nonNull(order)) {
+                        return new Event(orderMapper.toDto(order), calendarMapper.toDto(entity));
+                    }
+                    else {
+                        return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE.getId());
+                    }
+                })
+        .collect(Collectors.toList());
 
-        res.addAll(StreamSupport.stream(orderRepository.findAll().spliterator(), false)
-                .map(order -> new Event(orderMapper.toDto(order)))
-                .collect(Collectors.toList()));
+        getCustomerWeekTime(day, customer)
+                .stream()
+                .forEach(calendar -> {
+                    events.add(new Event(calendar, EventTypeEnum.GENERATED.getId()));
+                });
 
-        return res;
+        return events;
     }
 
     public List<Calendar> getCustomerCalendar(Long day, CustomerEntity customer) {
@@ -347,16 +347,16 @@ public class CalendarService {
                             entity.getStopAt()
                     );
 
-                    AtomicBoolean busy = new AtomicBoolean(true);
-                    transport
-                            .getCustomer()
-                            .stream()
-                            .forEach(customer -> {
-                                if (!getCustomerCalendar(day, customer).contains(calendar))
-                                    busy.set(false);
-                            });
+                    Boolean busy = true;
 
-                    if (busy.get())
+                    for(CustomerEntity customer: transport.getCustomer()) {
+                        if (!getCustomerCalendar(day, customer).contains(calendar)) {
+                            busy = false;
+                            break;
+                        }
+                    }
+
+                    if (busy)
                         result.add(calendar);
                 });
 

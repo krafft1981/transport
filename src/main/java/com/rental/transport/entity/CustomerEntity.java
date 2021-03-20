@@ -91,7 +91,7 @@ public class CustomerEntity extends AbstractEnabledEntity {
         return image;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "customer_calendar",
             joinColumns = @JoinColumn(name = "customer_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
@@ -164,21 +164,5 @@ public class CustomerEntity extends AbstractEnabledEntity {
     public void deleteCalendarEntity(CalendarEntity entity) {
 
         calendar.remove(entity);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("CustomerEntity{");
-        sb.append("account='").append(account).append('\'');
-        sb.append(", password='").append(password).append('\'');
-        sb.append(", confirmed=").append(confirmed);
-        sb.append(", sendEmail=").append(sendEmail);
-        sb.append(", image=").append(image);
-        sb.append(", transport=").append(transport);
-        sb.append(", parking=").append(parking);
-        sb.append(", property=").append(property);
-        sb.append(", calendar=").append(calendar);
-        sb.append('}');
-        return sb.toString();
     }
 }

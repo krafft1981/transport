@@ -24,9 +24,10 @@ public class Event {
         setType(type);
     }
 
-    public Event(Order order) {
+    public Event(Order order, Calendar calendar) {
 
         setOrder(order);
+        setCalendar(calendar);
         setType(EventTypeEnum.ORDER.getId());
     }
 }

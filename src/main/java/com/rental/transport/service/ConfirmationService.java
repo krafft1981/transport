@@ -24,6 +24,15 @@ public class ConfirmationService {
     @Autowired
     private ConfirmationRepository confirmationRepository;
 
+    public List<OrderEntity> getByCustomer(CustomerEntity customer) {
+
+        return confirmationRepository
+                .getByCustomerId(customer.getId())
+                .stream()
+                .map(entity -> entity.getOrder())
+                .collect(Collectors.toList());
+    }
+
     public List<OrderEntity> getByCustomer(CustomerEntity customer, Pageable pageable) {
 
         return confirmationRepository
@@ -49,7 +58,7 @@ public class ConfirmationService {
 
     public void interaction(CustomerEntity customer, OrderEntity order) {
 
-        confirmationRepository.deleteByCustomerIdAndOrderId(customer, order);
+        confirmationRepository.deleteByCustomerIdAndOrderId(customer.getId(), order.getId());
     }
 
     @Transactional
@@ -63,22 +72,18 @@ public class ConfirmationService {
                 .stream()
                 .forEach(customer -> {
                     CalendarEntity calendar = order.getCalendar().iterator().next();
-
                     try {
                         ConfirmationEntity entity = new ConfirmationEntity(customer, order);
-                        System.out.println("bbb try " + calendar.toString());
                         calendarService.checkCustomerBusy(
                                 customer,
                                 calendar.getDayNum(),
                                 calendar.getStartAt().getTime(),
                                 calendar.getStopAt().getTime()
                         );
-                        System.out.println("bbb ok");
                         confirmationRepository.save(entity);
                         result.incrementAndGet();
                     }
                     catch (IllegalArgumentException e) {
-                        System.out.println("Ou may got");
                     }
                 });
 

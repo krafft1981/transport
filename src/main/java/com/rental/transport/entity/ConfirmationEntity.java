@@ -35,7 +35,7 @@ public class ConfirmationEntity extends AbstractEntity {
     private OrderEntity order;
 
     @Basic
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     public CustomerEntity getCustomer() {
         return customer;

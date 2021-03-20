@@ -19,6 +19,7 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -57,8 +58,6 @@ public class OrderService {
     @Autowired
     private PropertyTypeRepository propertyTypeRepository;
 
-    private IStringValidator yesValidator = new BooleanYesValidator();
-
     public void sendMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException {
 
@@ -81,11 +80,13 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
+        order.setConfirmedAt(new Date());
         TransportEntity transport = order.getTransport();
         CalendarEntity calendar = order.getCalendar().iterator().next();
         transport.addCalendar(calendar);
 
         String useDriver = propertyService.getValue(transport.getProperty(), "transport_use_driver");
+        IStringValidator yesValidator = new BooleanYesValidator();
         if (yesValidator.validate(useDriver))
             driver.addCalendar(calendar);
 
@@ -99,6 +100,14 @@ public class OrderService {
         );
 
         // TODO rejectOrder все заказы с пересекающимся временем
+        // TODO Нужно поискать за этот день все пересекающиеся деапазоны для этого транспорта и отменить их
+
+//        confirmationService
+//                .getByCustomer(customer)
+//                .stream()
+//                .map(entity -> orderMapper.toDto(entity))
+//                .collect(Collectors.toList());
+
         order.setStatus(OrderStatusEnum.Confirmed);
     }
 
@@ -159,6 +168,11 @@ public class OrderService {
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
         String minTime = propertyService.getValue(transport.getProperty(), "transport_min_rent_time");
 
+        // validate future
+        Date now = new Date();
+        if (start < now.getTime())
+            throw new IllegalArgumentException("Allow orders only in the future");
+
         // validate duration
         Long interval = calendar.getStopAt().getTime() - calendar.getStartAt().getTime();
         if (interval < Integer.parseInt(minTime) * 3600)
@@ -185,12 +199,17 @@ public class OrderService {
                 copyProperty("order_customer_phone", customer.getProperty(), "customer_phone")
         );
 
+        System.out.println("H1");
         confirmationService.putOrder(order);
+        System.out.println("H2");
 
         calendarService.checkCustomerBusy(customer, day, start, stop);
+        System.out.println("H3");
         calendarService.checkTransportBusy(transport, day, start, stop);
+        System.out.println("H4");
 
         customer.addCalendar(calendar);
+        System.out.println("H5");
 
         return orderRepository.save(order).getId();
     }
