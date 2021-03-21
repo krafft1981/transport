@@ -156,7 +156,6 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
     public void addCalendar(CalendarEntity entity) {
 
-        System.out.println("Append entity to customer: " + this.getId());
         calendar.add(entity);
     }
 

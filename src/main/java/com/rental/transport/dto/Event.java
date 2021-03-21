@@ -18,10 +18,10 @@ public class Event {
     @JsonProperty("type")
     private Long type;
 
-    public Event(Calendar calendar, Long type) {
+    public Event(Calendar calendar, EventTypeEnum type) {
 
         setCalendar(calendar);
-        setType(type);
+        setType(type.getId());
     }
 
     public Event(Order order, Calendar calendar) {

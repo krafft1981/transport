@@ -78,4 +78,20 @@ public class PropertyService {
             propertyTypeRepository.save(type);
         }
     }
+
+
+    public PropertyEntity copy(String newType, Set<PropertyEntity> entryes, String oldType)
+            throws ObjectNotFoundException {
+
+        PropertyTypeEntity pNew = propertyTypeRepository.findByLogicName(newType);
+        if (Objects.isNull(pNew))
+            throw new ObjectNotFoundException("PropertyType", newType);
+
+        PropertyTypeEntity pOld = propertyTypeRepository.findByLogicName(oldType);
+        if (Objects.isNull(pOld))
+            throw new ObjectNotFoundException("PropertyType", oldType);
+
+        PropertyEntity entity = searchProperty(entryes, oldType);
+        return create(newType, entity.getValue());
+    }
 }

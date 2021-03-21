@@ -2,6 +2,7 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Order;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
@@ -24,6 +25,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -52,6 +54,9 @@ public class CalendarService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ConfirmationService confirmationService;
 
     @Getter
     public class Diapazon {
@@ -299,7 +304,7 @@ public class CalendarService {
                         return new Event(orderMapper.toDto(order), calendarMapper.toDto(entity));
                     }
                     else {
-                        return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE.getId());
+                        return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE);
                     }
                 })
         .collect(Collectors.toList());
@@ -307,7 +312,7 @@ public class CalendarService {
         getCustomerWeekTime(day, customer)
                 .stream()
                 .forEach(calendar -> {
-                    events.add(new Event(calendar, EventTypeEnum.GENERATED.getId()));
+                    events.add(new Event(calendar, EventTypeEnum.GENERATED));
                 });
 
         return events;
@@ -400,5 +405,44 @@ public class CalendarService {
                 });
 
         return result;
+    }
+
+    public List<Order> getOrderListByConfirmation(String account, Pageable pageable) {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return confirmationService
+                .getByCustomer(customer, pageable)
+                .stream()
+                .map(entity -> orderMapper.toDto(entity))
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByCustomer(String account, Pageable pageable)
+            throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return orderRepository
+                .findByCustomer(customer, pageable)
+                .stream()
+                .map(order -> orderMapper.toDto(order))
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByTransport(String account, Pageable pageable) {
+
+        List<Order> orderList = new ArrayList();
+        customerService
+                .getEntity(account)
+                .getTransport()
+                .stream()
+                .forEach(transport -> {
+                    orderRepository
+                            .findByTransport(transport, pageable)
+                            .stream()
+                            .forEach(order -> {
+                                orderList.add(orderMapper.toDto(order));
+                            });
+                });
+        return orderList;
     }
 }
