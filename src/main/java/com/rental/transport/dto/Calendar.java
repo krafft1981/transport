@@ -18,7 +18,6 @@ public class Calendar extends AbstractDto {
     @JsonProperty("stop_at")
     private Long stopAt;
 
-
     public Calendar(Long id, Long dayNum, Date startAt, Date stopAt) {
 
         setId(id);
