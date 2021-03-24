@@ -1,5 +1,6 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Order;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
@@ -8,19 +9,19 @@ import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.OrderStatusEnum;
 import com.rental.transport.enums.PropertyTypeEnum;
-import com.rental.transport.order.ConfirmationService;
-import com.rental.transport.service.CalendarService;
-import com.rental.transport.service.CustomerService;
-import com.rental.transport.service.PropertyService;
-import com.rental.transport.service.TransportService;
+import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,10 +41,10 @@ public class OrderService {
     private PropertyService propertyService;
 
     @Autowired
-    private ConfirmationService confirmationService;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderMapper orderMapper;
 
     @Transactional
     public void confirmOrder(@NonNull String account, Long orderId)
@@ -58,43 +59,42 @@ public class OrderService {
         if (order.getTransport().getCustomer().contains(driver) == false)
             throw new AccessDeniedException("Confirmation");
 
-        try {
-            order.setConfirmedAt(new Date());
-            TransportEntity transport = order.getTransport();
-            CalendarEntity calendar = order.getCalendar().iterator().next();
+        order.setConfirmedAt(new Date());
+        TransportEntity transport = order.getTransport();
+        CalendarEntity calendar = order.getCalendar().iterator().next();
 
-            calendarService.checkCustomerBusy(
-                    driver,
-                    calendar.getDayNum(),
-                    calendar.getStartAt().getTime(),
-                    calendar.getStopAt().getTime()
-            );
+        calendarService.checkCustomerBusy(
+                driver,
+                calendar.getDayNum(),
+                calendar.getStartAt().getTime(),
+                calendar.getStopAt().getTime()
+        );
 
-            calendarService.checkTransportBusy(
-                    order.getTransport(),
-                    calendar.getDayNum(),
-                    calendar.getStartAt().getTime(),
-                    calendar.getStopAt().getTime()
-            );
+        calendarService.checkTransportBusy(
+                order.getTransport(),
+                calendar.getDayNum(),
+                calendar.getStartAt().getTime(),
+                calendar.getStopAt().getTime()
+        );
 
-            String useDriver = propertyService.getValue(transport.getProperty(), "transport_use_driver");
-            IStringValidator yesValidator = new BooleanYesValidator();
-            if (yesValidator.validate(useDriver))
-                driver.addCalendar(calendar);
+        String useDriver = propertyService.getValue(transport.getProperty(), "transport_use_driver");
+        IStringValidator yesValidator = new BooleanYesValidator();
+        if (yesValidator.validate(useDriver))
+            driver.addCalendar(calendar);
 
-            confirmationService.interaction(driver, order);
-            confirmationService.deleteByOrderId(order.getId());
+//            confirmationService.interaction(driver, order);
+//            confirmationService.deleteByOrderId(order.getId());
 
-            transport.addCalendar(calendar);
+        transport.addCalendar(calendar);
 
-            order.addDriver(driver);
-            order.addProperty(
-                    propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
-                    propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone")
-            );
+        order.addDriver(driver);
+        order.addProperty(
+                propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
+                propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone")
+        );
 
-            // TODO rejectOrder все заказы с пересекающимся временем
-            // TODO Нужно поискать за этот день все пересекающиеся деапазоны для этого транспорта и отменить их
+        // TODO rejectOrder все заказы с пересекающимся временем
+        // TODO Нужно поискать за этот день все пересекающиеся деапазоны для этого транспорта и отменить их
 
 //        confirmationService
 //                .getByCustomer(customer)
@@ -102,11 +102,7 @@ public class OrderService {
 //                .map(entity -> orderMapper.toDto(entity))
 //                .collect(Collectors.toList());
 
-            order.setStatus(OrderStatusEnum.Confirmed);
-        } catch (Exception e) {
-
-            rejectOrder(account, orderId);
-        }
+        order.setStatus(OrderStatusEnum.Confirmed);
     }
 
     @Transactional
@@ -125,7 +121,7 @@ public class OrderService {
         CalendarEntity calendar = order.getCalendar().iterator().next();
         order.getCustomer().deleteCalendarEntity(calendar);
 
-        confirmationService.interaction(driver, order);
+//        confirmationService.interaction(driver, order);
         order.setStatus(OrderStatusEnum.Rejected);
     }
 
@@ -182,13 +178,54 @@ public class OrderService {
                 propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone")
         );
 
-        confirmationService.putOrder(order);
+//        confirmationService.putOrder(order);
+
         calendarService.checkCustomerBusy(customer, day, start, stop);
         calendarService.checkTransportBusy(transport, day, start, stop);
 
         customer.addCalendar(calendar);
+        order.setStatus(OrderStatusEnum.Confirmed);
 
         return orderRepository.save(order).getId();
+    }
+
+    public List<Order> getOrderListByConfirmation(String account, Pageable pageable) {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return confirmationService
+                .getByCustomer(customer, pageable)
+                .stream()
+                .map(entity -> orderMapper.toDto(entity))
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByCustomer(String account, Pageable pageable)
+            throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return orderRepository
+                .findByCustomer(customer, pageable)
+                .stream()
+                .map(order -> orderMapper.toDto(order))
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderListByTransport(String account, Pageable pageable) {
+
+        List<Order> orderList = new ArrayList();
+        customerService
+                .getEntity(account)
+                .getTransport()
+                .stream()
+                .forEach(transport -> {
+                    orderRepository
+                            .findByTransport(transport, pageable)
+                            .stream()
+                            .forEach(order -> {
+                                orderList.add(orderMapper.toDto(order));
+                            });
+                });
+        return orderList;
     }
 
     public OrderEntity getEntity(Long id) throws ObjectNotFoundException {

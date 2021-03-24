@@ -1,4 +1,4 @@
-package com.rental.transport.order;
+package com.rental.transport.confirmation;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -13,3 +13,5 @@ public class Event extends ApplicationEvent {
         return message;
     }
 }
+
+//https://www.baeldubg.com/spring-events

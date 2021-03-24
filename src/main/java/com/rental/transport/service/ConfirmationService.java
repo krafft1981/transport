@@ -1,7 +1,5 @@
-package com.rental.transport.order;
+package com.rental.transport.service;
 
-import com.rental.transport.entity.CalendarEntity;
-import com.rental.transport.entity.ConfirmationEntity;
 import com.rental.transport.entity.ConfirmationRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;

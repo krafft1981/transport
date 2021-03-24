@@ -1,4 +1,4 @@
-package com.rental.transport.order;
+package com.rental.transport.confirmation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
