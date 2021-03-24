@@ -48,26 +48,25 @@ public class OrderController {
         return service.create(principal.getName(), transport_id, day, start, stop);
     }
 
+    @GetMapping(value = "/transport")
+    public List<Order> doGetOrderByTransport(
+            Principal principal,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
 
-//    @GetMapping(value = "/transport")
-//    public List<Order> doGetOrderByTransport(
-//            Principal principal,
-//            @RequestParam(value = "page", required = true) Integer page,
-//            @RequestParam(value = "size", required = true) Integer size) {
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-//        return service.getOrderListByTransport(principal.getName(), pageable);
-//    }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getOrderByTransport(principal.getName(), pageable);
+    }
 
-//    @GetMapping(value = "/customer")
-//    public List<Order> doGetOrderByCustomer(
-//            Principal principal,
-//            @RequestParam(value = "page", required = true) Integer page,
-//            @RequestParam(value = "size", required = true) Integer size) {
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-//        return service.getOrderListByCustomer(principal.getName(), pageable);
-//    }
+    @GetMapping(value = "/customer")
+    public List<Order> doGetOrderByCustomer(
+            Principal principal,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getOrderByCustomer(principal.getName(), pageable);
+    }
 
     @GetMapping(value = "/confirmation")
     public List<Order> doGetForConfirmation(
@@ -76,6 +75,6 @@ public class OrderController {
             @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getOrderListByConfirmation(principal.getName(), pageable);
+        return service.getOrderByConfirmation(principal.getName(), pageable);
     }
 }

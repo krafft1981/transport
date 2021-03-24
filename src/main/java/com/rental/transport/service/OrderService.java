@@ -41,6 +41,9 @@ public class OrderService {
     private PropertyService propertyService;
 
     @Autowired
+    private ConfirmationService confirmationService;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
@@ -189,7 +192,7 @@ public class OrderService {
         return orderRepository.save(order).getId();
     }
 
-    public List<Order> getOrderListByConfirmation(String account, Pageable pageable) {
+    public List<Order> getOrderByConfirmation(String account, Pageable pageable) {
 
         CustomerEntity customer = customerService.getEntity(account);
         return confirmationService
@@ -199,7 +202,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public List<Order> getOrderListByCustomer(String account, Pageable pageable)
+    public List<Order> getOrderByCustomer(String account, Pageable pageable)
             throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
@@ -210,7 +213,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public List<Order> getOrderListByTransport(String account, Pageable pageable) {
+    public List<Order> getOrderByTransport(String account, Pageable pageable) {
 
         List<Order> orderList = new ArrayList();
         customerService

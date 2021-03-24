@@ -50,7 +50,7 @@ public class OrderEntity extends AbstractEntity {
     private Set<MessageEntity> message = new HashSet<>();
 
     private Date createdAt = new Date();
-    private Date confirmedAt = new Date();
+    private Date confirmedAt = null;
 
     @Basic
     @Enumerated(EnumType.STRING)
@@ -112,7 +112,7 @@ public class OrderEntity extends AbstractEntity {
 
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "confirmed_at", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
+    @Column(name = "confirmed_at", nullable = false, columnDefinition = "timestamp with time zone")
     public Date getConfirmedAt() {
         return confirmedAt;
     }

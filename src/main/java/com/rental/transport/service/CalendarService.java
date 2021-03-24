@@ -140,16 +140,13 @@ public class CalendarService {
         calendarRepository
                 .findTransportCalendarByDay(transport.getId(), day)
                 .stream()
-                .forEach(entity -> {
-                            System.out.println("Check transport busy");
-                            checkTimeDiapazon(
-                                    entity.getStartAt().getTime(),
-                                    entity.getStopAt().getTime(),
-                                    start,
-                                    stop
-                            );
-                            System.out.println("transport not busy");
-                        }
+                .forEach(entity ->
+                        checkTimeDiapazon(
+                                entity.getStartAt().getTime(),
+                                entity.getStopAt().getTime(),
+                                start,
+                                stop
+                        )
                 );
     }
 
@@ -269,16 +266,13 @@ public class CalendarService {
 
     public List<Calendar> getTransportCalendar(Long day, TransportEntity transport) {
 
-        return calendarRepository
-                .findTransportCalendarByDay(transport.getId(), day)
+        return calendarRepository.findTransportCalendarByDay(transport.getId(), day)
                 .stream()
-                .map(entity ->
-                        new Calendar(
-                                entity.getId(),
-                                entity.getDayNum(),
-                                entity.getStartAt(),
-                                entity.getStopAt()
-                        )
+                .map(entity -> new Calendar(
+                        entity.getId(),
+                        entity.getDayNum(),
+                        entity.getStartAt(),
+                        entity.getStopAt())
                 )
                 .collect(Collectors.toList());
     }
@@ -292,7 +286,6 @@ public class CalendarService {
 
     public List<Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
-        // достаём все календари
         List<Event> events = calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
@@ -300,18 +293,15 @@ public class CalendarService {
                     OrderEntity order = orderRepository.findByCustomerAndCalendar(customer, entity);
                     if (Objects.nonNull(order)) {
                         return new Event(orderMapper.toDto(order), calendarMapper.toDto(entity));
-                    }
-                    else {
+                    } else {
                         return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE);
                     }
                 })
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         getCustomerWeekTime(day, customer)
                 .stream()
-                .forEach(calendar -> {
-                    events.add(new Event(calendar, EventTypeEnum.GENERATED));
-                });
+                .forEach(calendar -> events.add(new Event(calendar, EventTypeEnum.GENERATED)));
 
         return events;
     }
@@ -321,13 +311,11 @@ public class CalendarService {
         List<Calendar> res = getCustomerWeekTime(day, customer);
         res.addAll(calendarRepository.findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .map(entity ->
-                        new Calendar(
-                                entity.getId(),
-                                entity.getDayNum(),
-                                entity.getStartAt(),
-                                entity.getStopAt()
-                        )
+                .map(entity -> new Calendar(
+                        entity.getId(),
+                        entity.getDayNum(),
+                        entity.getStartAt(),
+                        entity.getStopAt())
                 )
                 .collect(Collectors.toList())
         );
@@ -351,7 +339,7 @@ public class CalendarService {
 
                     Boolean busy = true;
 
-                    for(CustomerEntity customer: transport.getCustomer()) {
+                    for (CustomerEntity customer : transport.getCustomer()) {
                         if (!getCustomerCalendar(day, customer).contains(calendar)) {
                             busy = false;
                             break;
@@ -375,13 +363,11 @@ public class CalendarService {
         List<Calendar> customerCalendar = calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .map(entity ->
-                        new Calendar(
-                                entity.getId(),
-                                entity.getDayNum(),
-                                entity.getStartAt(),
-                                entity.getStopAt()
-                        )
+                .map(entity -> new Calendar(
+                        entity.getId(),
+                        entity.getDayNum(),
+                        entity.getStartAt(),
+                        entity.getStopAt())
                 )
                 .collect(Collectors.toList());
 
@@ -398,11 +384,11 @@ public class CalendarService {
                             entity.getStartAt(),
                             entity.getStopAt()
                     );
+
                     if (customerCalendar.contains(calendar) || transportCalendar.contains(calendar) || driverCalendar.contains(calendar))
                         result.add(calendar);
                 });
 
         return result;
     }
-
 }
