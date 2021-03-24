@@ -6,9 +6,7 @@ import com.rental.transport.service.CalendarService;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,25 +33,5 @@ public class CalendarController {
             @RequestParam(value = "day", required = true) Long day) {
 
         return service.getCustomerCalendarWithOrders(principal.getName(), day);
-    }
-
-    @PutMapping
-    public Long doPutAbsentCustomerRequest(
-            Principal principal,
-            @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "start", required = true) Long start,
-            @RequestParam(value = "stop", required = true) Long stop) {
-
-        return service.putAbsentCustomerEntry(principal.getName(), day, start, stop);
-    }
-
-    @DeleteMapping
-    public void doDeleteAbsentCustomerRequest(
-            Principal principal,
-            @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "start", required = true) Long start,
-            @RequestParam(value = "stop", required = true) Long stop) {
-
-        service.deleteAbsentCustomerEntry(principal.getName(), day, start, stop);
     }
 }

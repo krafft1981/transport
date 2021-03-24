@@ -112,7 +112,7 @@ public class OrderEntity extends AbstractEntity {
 
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "confirmed_at", nullable = false, columnDefinition = "timestamp with time zone")
+    @Column(name = "confirmed_at", nullable = true, columnDefinition = "timestamp with time zone")
     public Date getConfirmedAt() {
         return confirmedAt;
     }

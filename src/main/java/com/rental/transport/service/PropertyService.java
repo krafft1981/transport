@@ -79,7 +79,6 @@ public class PropertyService {
         }
     }
 
-
     public PropertyEntity copy(String newType, Set<PropertyEntity> entryes, String oldType)
             throws ObjectNotFoundException {
 

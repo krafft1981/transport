@@ -82,24 +82,6 @@ public class CalendarService {
         }
     }
 
-    public Long putAbsentCustomerEntry(String account, Long day, Long start, Long stop)
-            throws IllegalArgumentException, ObjectNotFoundException {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        checkCustomerBusy(customer, day, start, stop);
-        CalendarEntity entity = getEntity(day, start, stop, true);
-        customer.addCalendar(entity);
-        return entity.getId();
-    }
-
-    public void deleteAbsentCustomerEntry(String account, Long day, Long start, Long stop)
-            throws IllegalArgumentException, ObjectNotFoundException {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        CalendarEntity entity = getEntity(day, start, stop, false);
-        customer.deleteCalendarEntity(entity);
-    }
-
     public CalendarEntity getEntity(Long day, Long start, Long stop, Boolean create)
             throws ObjectNotFoundException {
 
@@ -116,7 +98,7 @@ public class CalendarService {
         return entity;
     }
 
-    private void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
+    public void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
             throws IllegalArgumentException {
 
         final String message = "Time is busy";
@@ -156,13 +138,14 @@ public class CalendarService {
         calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .forEach(entity ->
-                        checkTimeDiapazon(
-                                entity.getStartAt().getTime(),
-                                entity.getStopAt().getTime(),
-                                start,
-                                stop
-                        )
+                .forEach(entity -> {
+                            checkTimeDiapazon(
+                                    entity.getStartAt().getTime(),
+                                    entity.getStopAt().getTime(),
+                                    start,
+                                    stop
+                            );
+                        }
                 );
     }
 

@@ -3,10 +3,8 @@ package com.rental.transport.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class Calendar extends AbstractDto {

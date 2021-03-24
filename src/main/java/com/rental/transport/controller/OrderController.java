@@ -1,5 +1,6 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
@@ -8,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,7 +52,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/transport")
-    public List<Order> doGetOrderByTransport(
+    public List<Event> doGetOrderByTransport(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -59,7 +62,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/customer")
-    public List<Order> doGetOrderByCustomer(
+    public List<Event> doGetOrderByCustomer(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -69,12 +72,32 @@ public class OrderController {
     }
 
     @GetMapping(value = "/confirmation")
-    public List<Order> doGetForConfirmation(
+    public List<Event> doGetForConfirmation(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getOrderByConfirmation(principal.getName(), pageable);
+    }
+
+    @PutMapping
+    public Long doPutAbsentCustomerRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "start", required = true) Long start,
+            @RequestParam(value = "stop", required = true) Long stop) {
+
+        return service.putAbsentCustomerEntry(principal.getName(), day, start, stop);
+    }
+
+    @DeleteMapping
+    public void doDeleteAbsentCustomerRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "start", required = true) Long start,
+            @RequestParam(value = "stop", required = true) Long stop) {
+
+        service.deleteAbsentCustomerEntry(principal.getName(), day, start, stop);
     }
 }

@@ -11,7 +11,7 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join customer_calendar l on c.id = l.calendar_id where c.day_num = :day and l.customer_id = :customerId"
+            value = "select distinct c.id, c.day_num, c.start_at, c.stop_at from calendar c join customer_calendar l on c.id = l.calendar_id where c.day_num = :day and l.customer_id = :customerId"
     )
     List<CalendarEntity> findCustomerCalendarByDay(
             @Param("customerId") Long customerId,

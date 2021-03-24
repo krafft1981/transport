@@ -1,11 +1,11 @@
 package com.rental.transport.service;
 
+import com.rental.transport.entity.ConfirmationEntity;
 import com.rental.transport.entity.ConfirmationRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -58,30 +58,13 @@ public class ConfirmationService {
     @Transactional
     public void putOrder(OrderEntity order) throws IllegalArgumentException {
 
-        AtomicLong result = new AtomicLong(0L);
-
-//        order
-//                .getTransport()
-//                .getCustomer()
-//                .stream()
-//                .forEach(customer -> {
-//                    CalendarEntity calendar = order.getCalendar().iterator().next();
-//                    try {
-//                        ConfirmationEntity entity = new ConfirmationEntity(customer, order);
-//                        calendarService.checkCustomerBusy(
-//                                customer,
-//                                calendar.getDayNum(),
-//                                calendar.getStartAt().getTime(),
-//                                calendar.getStopAt().getTime()
-//                        );
-//                        confirmationRepository.save(entity);
-//                        result.incrementAndGet();
-//                    }
-//                    catch (IllegalArgumentException e) {
-//                    }
-//                });
-
-        if (result.longValue() == 0)
-            throw new java.lang.IllegalArgumentException("Transport has't free driver");
+        order
+                .getTransport()
+                .getCustomer()
+                .stream()
+                .forEach(customer -> {
+                    ConfirmationEntity entity = new ConfirmationEntity(customer, order);
+                    confirmationRepository.save(entity);
+                });
     }
 }
