@@ -6,7 +6,8 @@ public enum EventTypeEnum {
 
     GENERATED(1L, "Generated"),
     UNAVAILABLE(2L, "Unavailable"),
-    ORDER(3L, "Order");
+    REQUEST(3L, "Request"),
+    ORDER(4L, "Order");
 
     @Getter
     private Long id;

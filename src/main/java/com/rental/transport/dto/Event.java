@@ -15,6 +15,8 @@ public class Event {
     private Calendar calendar;
     @JsonProperty("order")
     private Order order;
+    @JsonProperty("request")
+    private Request request;
     @JsonProperty("type")
     private Long type;
 
@@ -29,5 +31,11 @@ public class Event {
         setOrder(order);
         setCalendar(calendar);
         setType(EventTypeEnum.ORDER.getId());
+    }
+
+    public Event(Request request) {
+
+        setRequest(request);
+        setType(EventTypeEnum.REQUEST.getId());
     }
 }
