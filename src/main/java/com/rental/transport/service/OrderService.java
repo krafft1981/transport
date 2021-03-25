@@ -97,7 +97,7 @@ public class OrderService {
         if (yesValidator.validate(useDriver))
             driver.addCalendar(calendar);
 
-//        confirmationService.deleteByOrderId(order.getId());
+        confirmationService.deleteByOrderId(order.getId());
         
         transport.addCalendar(calendar);
 
@@ -108,32 +108,7 @@ public class OrderService {
         );
 
         order.setStatus(OrderStatusEnum.Confirmed);
-//        autoRejectOrders(driver, calendar);
-
         orderRepository.save(order);
-    }
-
-    public void autoRejectOrders(CustomerEntity customer, CalendarEntity calendar) {
-
-//        confirmationService
-//                .getByCustomer(customer)
-//                .stream()
-//                .forEach(order -> {
-//                    try {
-//                        CalendarEntity orderCalendar = order.getCalendar().iterator().next();
-//                        calendarService.checkTimeDiapazon(
-//                                orderCalendar.getStartAt().getTime(),
-//                                orderCalendar.getStopAt().getTime(),
-//                                calendar.getStartAt().getTime(),
-//                                calendar.getStopAt().getTime()
-//                        );
-//                    }
-//                    catch (IllegalArgumentException e) {
-//                        customer.deleteCalendarEntity(calendar);
-//                        confirmationService.deleteByOrderId(order.getId());
-//                        order.setStatus(OrderStatusEnum.Rejected);
-//                    }
-//                });
     }
 
     @Transactional
@@ -164,7 +139,6 @@ public class OrderService {
         calendarService.checkCustomerBusy(customer, day, start, stop);
         CalendarEntity calendar = calendarService.getEntity(day, start, stop, true);
         customer.addCalendar(calendar);
-        autoRejectOrders(customer, calendar);
         return calendar.getId();
     }
 
