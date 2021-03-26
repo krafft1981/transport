@@ -1,15 +1,10 @@
 package com.rental.transport.entity;
 
-import com.rental.transport.enums.OrderStatusEnum;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -17,8 +12,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,8 +32,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderEntity extends AbstractEntity {
 
-    private OrderStatusEnum status = OrderStatusEnum.New;
-
     private CustomerEntity customer;
     private TransportEntity transport;
 
@@ -48,16 +39,6 @@ public class OrderEntity extends AbstractEntity {
     private Set<CustomerEntity> driver = new HashSet<>();
     private Set<CalendarEntity> calendar = new HashSet<>();
     private Set<MessageEntity> message = new HashSet<>();
-
-    private Date createdAt = new Date();
-    private Date confirmedAt = null;
-
-    @Basic
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, insertable = true, updatable = true)
-    public OrderStatusEnum getStatus() {
-        return status;
-    }
 
     @Basic
     @ManyToOne
@@ -101,20 +82,6 @@ public class OrderEntity extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
     )    public Set<MessageEntity> getMessage() {
         return message;
-    }
-
-    @Basic
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    @Basic
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "confirmed_at", nullable = true, columnDefinition = "timestamp with time zone")
-    public Date getConfirmedAt() {
-        return confirmedAt;
     }
 
     public void addProperty(PropertyEntity entity) {

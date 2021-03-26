@@ -27,6 +27,15 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
             @Param("day") Long day
     );
 
+    @Query(
+            nativeQuery = true,
+            value = "select c.id, c.day_num, c.start_at, c.stop_at from calendar c join request_calendar l on c.id = l.calendar_id where c.day_num = :day and l.transport_id = :transportId"
+    )
+    List<CalendarEntity> findRequestByCustomerAndDay(
+            @Param("transportId") Long transportId,
+            @Param("day") Long day
+    );
+
     CalendarEntity findByDayNumAndStartAtAndStopAt(Long day, Date start, Date stop);
 
     List<CalendarEntity> findByDayNum(Long day);

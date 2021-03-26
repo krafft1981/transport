@@ -1,7 +1,8 @@
 package com.rental.transport.controller;
 
+import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.dto.Order;
+import com.rental.transport.service.CalendarService;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
 import java.util.List;
@@ -24,31 +25,31 @@ public class OrderController {
     @Autowired
     private OrderService service;
 
-    @PostMapping(value = "/confirm")
+    @PostMapping(value = "/request/confirm")
     public void doPostConfirmOrderRequest(
             Principal principal,
-            @RequestParam(value = "order_id", required = true) Long orderId) {
+            @RequestParam(value = "request_id", required = true) Long requestId) {
 
-        service.confirmOrder(principal.getName(), orderId);
+        service.confirmRequest(principal.getName(), requestId);
     }
 
-    @PostMapping(value = "/reject")
+    @PostMapping(value = "/request/reject")
     public void doPostRejectOrderRequest(
             Principal principal,
-            @RequestParam(value = "order_id", required = true) Long orderId) {
+            @RequestParam(value = "request_id", required = true) Long requestId) {
 
-        service.rejectOrder(principal.getName(), orderId);
+        service.rejectRequest(principal.getName(), requestId);
     }
 
     @PostMapping
-    public Long doPostOrderRequest(
+    public void doPostRequest(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "start", required = true) Long start,
             @RequestParam(value = "stop", required = true) Long stop) {
 
-        return service.create(principal.getName(), transport_id, day, start, stop);
+        service.createRequest(principal.getName(), transport_id, day, start, stop);
     }
 
     @GetMapping(value = "/transport")
@@ -71,17 +72,27 @@ public class OrderController {
         return service.getOrderByCustomer(principal.getName(), pageable);
     }
 
-    @GetMapping(value = "/confirmation")
-    public List<Event> doGetForConfirmation(
+    @GetMapping(value = "/request/customer")
+    public List<Event> doGetRequestAsCustomer(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getOrderByConfirmation(principal.getName(), pageable);
+        return service.getRequestAsCustomer(principal.getName(), pageable);
     }
 
-    @PutMapping
+    @GetMapping(value = "/request/driver")
+    public List<Event> doGetRequestAsDriver(
+            Principal principal,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getRequestAsDriver(principal.getName(), pageable);
+    }
+
+    @PutMapping(value = "/absent")
     public Long doPutAbsentCustomerRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
@@ -91,13 +102,27 @@ public class OrderController {
         return service.putAbsentCustomerEntry(principal.getName(), day, start, stop);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/absent")
     public void doDeleteAbsentCustomerRequest(
             Principal principal,
-            @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "start", required = true) Long start,
-            @RequestParam(value = "stop", required = true) Long stop) {
+            @RequestParam(value = "id", required = true) Long id) {
+        service.deleteAbsentCustomerEntry(principal.getName(), id);
+    }
 
-        service.deleteAbsentCustomerEntry(principal.getName(), day, start, stop);
+    @GetMapping(value = "/calendar/transport")
+    public List<Calendar> doGetTransportCalendarRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day,
+            @RequestParam(value = "transport_id", required = true) Long transportId) {
+
+        return service.getTransportCalendar(principal.getName(), day, transportId);
+    }
+
+    @GetMapping(value = "/calendar/customer")
+    public List<Event> doGetCustomerCalendarRequest(
+            Principal principal,
+            @RequestParam(value = "day", required = true) Long day) {
+
+        return service.getCustomerCalendarWithOrders(principal.getName(), day);
     }
 }

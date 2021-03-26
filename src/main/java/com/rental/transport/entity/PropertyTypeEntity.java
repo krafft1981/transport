@@ -19,7 +19,7 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "logic_name", name = "logic_name_idx")
+                @Index(columnList = "logic_name", name = "property_type_logic_name_idx")
         },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"logic_name"})

@@ -33,9 +33,10 @@ public class Event {
         setType(EventTypeEnum.ORDER.getId());
     }
 
-    public Event(Request request) {
+    public Event(Request request, Calendar calendar) {
 
         setRequest(request);
+        setCalendar(calendar);
         setType(EventTypeEnum.REQUEST.getId());
     }
 }

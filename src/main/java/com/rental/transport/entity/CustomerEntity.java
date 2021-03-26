@@ -24,8 +24,8 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "account", name = "account_idx"),
-                @Index(columnList = "enable", name = "account_enabled_idx")
+                @Index(columnList = "account", name = "customer_account_idx"),
+                @Index(columnList = "enable", name = "customer_account_enabled_idx")
         },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"account"})
@@ -90,7 +90,7 @@ public class CustomerEntity extends AbstractEnabledEntity {
         return image;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "customer_calendar",
             joinColumns = @JoinColumn(name = "customer_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)

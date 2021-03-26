@@ -53,9 +53,6 @@ public class CalendarService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private ConfirmationService confirmationService;
-
     @Getter
     public class Diapazon {
 
@@ -87,8 +84,10 @@ public class CalendarService {
 
         CalendarEntity entity = calendarRepository.findByDayNumAndStartAtAndStopAt(day, new Date(start), new Date(stop));
         if (Objects.isNull(entity)) {
-            if (create)
+            if (create) {
                 entity = new CalendarEntity(day, start, stop);
+                calendarRepository.save(entity);
+            }
             else {
                 String calendarName = String.format("day(%s) start(%s) stop(%s)", day, start, stop);
                 throw new ObjectNotFoundException("Calendar", calendarName);
@@ -96,6 +95,32 @@ public class CalendarService {
         }
 
         return entity;
+    }
+
+    public void checkTimeDiapazon(CalendarEntity c1, CalendarEntity c2) throws IllegalArgumentException {
+
+        if (c1.getDayNum() != c2.getDayNum())
+            return;
+
+        checkTimeDiapazon(
+                c1.getStartAt().getTime(),
+                c1.getStopAt().getTime(),
+                c2.getStartAt().getTime(),
+                c2.getStopAt().getTime()
+        );
+    }
+
+    public void checkTimeDiapazon(Calendar c1, Calendar c2) throws IllegalArgumentException {
+
+        if (c1.getDayNum() != c2.getDayNum())
+            return;
+
+        checkTimeDiapazon(
+                c1.getStartAt(),
+                c1.getStopAt(),
+                c2.getStartAt(),
+                c2.getStopAt()
+        );
     }
 
     public void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
@@ -138,14 +163,13 @@ public class CalendarService {
         calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
-                .forEach(entity -> {
-                            checkTimeDiapazon(
-                                    entity.getStartAt().getTime(),
-                                    entity.getStopAt().getTime(),
-                                    start,
-                                    stop
-                            );
-                        }
+                .forEach(entity ->
+                        checkTimeDiapazon(
+                                entity.getStartAt().getTime(),
+                                entity.getStopAt().getTime(),
+                                start,
+                                stop
+                        )
                 );
     }
 
@@ -267,6 +291,7 @@ public class CalendarService {
         return getCustomerCalendarWithOrders(day, customer);
     }
 
+    //TODO ошибка в отображении заказов мне
     public List<Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
         List<Event> events = calendarRepository
@@ -274,6 +299,7 @@ public class CalendarService {
                 .stream()
                 .map(entity -> {
                     OrderEntity order = orderRepository.findByCustomerAndCalendar(customer, entity);
+                    System.out.println(order + " " + customer.getId());
                     if (Objects.nonNull(order)) {
                         return new Event(orderMapper.toDto(order), calendarMapper.toDto(entity));
                     } else {

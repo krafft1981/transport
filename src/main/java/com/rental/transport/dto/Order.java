@@ -14,12 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Order extends AbstractDto {
 
-    @JsonProperty("created_at")
-    private Long createdAt;
-    @JsonProperty("confirmed_at")
-    private Long confirmedAt;
-    @JsonProperty("status")
-    private String status;
     @JsonProperty("property")
     private Set<Property> property = new HashSet<>();
 }

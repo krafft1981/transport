@@ -15,7 +15,7 @@ import lombok.Setter;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "day_num", name = "day_num_id_idx")
+                @Index(columnList = "day_num", name = "calendar_day_num_id_idx")
         }
 )
 
@@ -49,15 +49,5 @@ public class CalendarEntity extends AbstractEntity {
     @Column(name = "day_num", nullable = false, insertable = true, updatable = true)
     public Long getDayNum() {
         return dayNum;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("CalendarEntity{");
-        sb.append("startAt=").append(startAt);
-        sb.append(", stopAt=").append(stopAt);
-        sb.append(", dayNum=").append(dayNum);
-        sb.append('}');
-        return sb.toString();
     }
 }

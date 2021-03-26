@@ -19,7 +19,7 @@ import org.hibernate.annotations.Type;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "customer_id", name = "customer_id_idx")
+                @Index(columnList = "customer_id", name = "message_customer_id_idx")
         }
 )
 
