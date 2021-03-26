@@ -87,8 +87,7 @@ public class CalendarService {
             if (create) {
                 entity = new CalendarEntity(day, start, stop);
                 calendarRepository.save(entity);
-            }
-            else {
+            } else {
                 String calendarName = String.format("day(%s) start(%s) stop(%s)", day, start, stop);
                 throw new ObjectNotFoundException("Calendar", calendarName);
             }
@@ -99,28 +98,24 @@ public class CalendarService {
 
     public void checkTimeDiapazon(CalendarEntity c1, CalendarEntity c2) throws IllegalArgumentException {
 
-        if (c1.getDayNum() != c2.getDayNum())
-            return;
-
-        checkTimeDiapazon(
-                c1.getStartAt().getTime(),
-                c1.getStopAt().getTime(),
-                c2.getStartAt().getTime(),
-                c2.getStopAt().getTime()
-        );
+        if (c1.getDayNum().equals(c2.getDayNum()))
+            checkTimeDiapazon(
+                    c1.getStartAt().getTime(),
+                    c1.getStopAt().getTime(),
+                    c2.getStartAt().getTime(),
+                    c2.getStopAt().getTime()
+            );
     }
 
     public void checkTimeDiapazon(Calendar c1, Calendar c2) throws IllegalArgumentException {
 
-        if (c1.getDayNum() != c2.getDayNum())
-            return;
-
-        checkTimeDiapazon(
-                c1.getStartAt(),
-                c1.getStopAt(),
-                c2.getStartAt(),
-                c2.getStopAt()
-        );
+        if (c1.getDayNum().equals(c2.getDayNum()))
+            checkTimeDiapazon(
+                    c1.getStartAt(),
+                    c1.getStopAt(),
+                    c2.getStartAt(),
+                    c2.getStopAt()
+            );
     }
 
     public void checkTimeDiapazon(Long calendarStart, Long calendarStop, Long tryStart, Long tryStop)
