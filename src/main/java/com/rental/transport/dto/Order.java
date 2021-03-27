@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order extends AbstractDto {
+public class Order extends AbstractIdDto {
 
     @JsonProperty("property")
     private Set<Property> property = new HashSet<>();

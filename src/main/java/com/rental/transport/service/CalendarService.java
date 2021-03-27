@@ -12,6 +12,7 @@ import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.mapper.OrderMapper;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
@@ -271,7 +272,6 @@ public class CalendarService {
         return calendarRepository.findTransportCalendarByDay(transport.getId(), day)
                 .stream()
                 .map(entity -> new Calendar(
-                        entity.getId(),
                         entity.getDayNum(),
                         entity.getStartAt(),
                         entity.getStopAt())
@@ -316,7 +316,6 @@ public class CalendarService {
         res.addAll(calendarRepository.findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
                 .map(entity -> new Calendar(
-                        entity.getId(),
                         entity.getDayNum(),
                         entity.getStartAt(),
                         entity.getStopAt())
@@ -335,7 +334,6 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(
-                            entity.getId(),
                             entity.getDayNum(),
                             entity.getStartAt(),
                             entity.getStopAt()
@@ -368,7 +366,6 @@ public class CalendarService {
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
                 .map(entity -> new Calendar(
-                        entity.getId(),
                         entity.getDayNum(),
                         entity.getStartAt(),
                         entity.getStopAt())
@@ -383,7 +380,6 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(
-                            entity.getId(),
                             entity.getDayNum(),
                             entity.getStartAt(),
                             entity.getStopAt()

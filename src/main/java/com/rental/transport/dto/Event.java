@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Event {
+public class Event extends AbstractDto {
 
     @JsonProperty("calendar")
     private Calendar calendar;
@@ -18,7 +18,7 @@ public class Event {
     @JsonProperty("request")
     private Request request;
     @JsonProperty("type")
-    private Long type;
+    private long type = 0;
 
     public Event(Calendar calendar, EventTypeEnum type) {
 

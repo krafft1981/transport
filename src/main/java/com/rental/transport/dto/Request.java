@@ -12,8 +12,14 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Request extends AbstractDto {
+public class Request extends AbstractIdDto {
 
+    @JsonProperty("created_at")
+    private Long createdAt;
+    @JsonProperty("interact_at")
+    private Long interactAt;
+    @JsonProperty("order")
+    private Long order;
     @JsonProperty("customer")
     private CustomerEntity customer;
     @JsonProperty("driver")

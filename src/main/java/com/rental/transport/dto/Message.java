@@ -1,7 +1,6 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message extends AbstractDto {
+public class Message extends AbstractIdDto {
 
     @JsonProperty("text")
     private String text;
     @JsonProperty("customer_id")
     private Long customerId;
     @JsonProperty("date")
-    private Date date;
+    private Long date;
 }

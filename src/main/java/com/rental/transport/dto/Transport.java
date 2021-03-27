@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transport extends AbstractDto {
+public class Transport extends AbstractIdDto {
 
     @JsonProperty("type")
     private Type type;
@@ -28,11 +28,9 @@ public class Transport extends AbstractDto {
     public void addCustomer(Long id) {
         customer.add(id);
     }
-
     public void addImage(Long id) {
         image.add(id);
     }
-
     public void addParking(Long id) {
         parking.add(id);
     }

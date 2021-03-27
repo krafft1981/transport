@@ -26,7 +26,7 @@ import lombok.Setter;
                 @Index(columnList = "transport_id", name = "request_transport_id_idx")
         },
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"customer_id", "transport_id", "calendar_id"})
+                @UniqueConstraint(columnNames = {"customer_id", "transport_id", "driver_id", "calendar_id"})
         }
 )
 

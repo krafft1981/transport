@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Parking extends AbstractDto {
+public class Parking extends AbstractIdDto {
 
     @JsonProperty("image")
     private Set<Long> image = new HashSet<>();
@@ -26,11 +26,9 @@ public class Parking extends AbstractDto {
     public void addImage(Long id) {
         image.add(id);
     }
-
     public void addCustomer(Long id) {
         customer.add(id);
     }
-
     public void addTransport(Long id) {
         transport.add(id);
     }

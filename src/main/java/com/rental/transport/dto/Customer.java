@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Customer extends AbstractDto {
+public class Customer extends AbstractIdDto {
 
     @JsonProperty("account")
     private String account;
@@ -30,11 +30,9 @@ public class Customer extends AbstractDto {
     public void addImage(Long value) {
         image.add(value);
     }
-
     public void addTransport(Long value) {
         transport.add(value);
     }
-
     public void addParking(Long value) {
         parking.add(value);
     }

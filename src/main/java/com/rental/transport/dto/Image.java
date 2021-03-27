@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Image extends AbstractDto {
+public class Image extends AbstractIdDto {
 
     @JsonProperty("data")
     private String data;

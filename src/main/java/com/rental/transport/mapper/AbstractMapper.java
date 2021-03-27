@@ -7,6 +7,7 @@ import org.modelmapper.Converter;
 public interface AbstractMapper<E extends AbstractEntity, D extends AbstractDto> {
 
     E toEntity(D dto);
+
     D toDto(E entity);
 
     default Converter<E, D> toDtoConverter() {

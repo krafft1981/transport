@@ -16,22 +16,20 @@ public class Calendar extends AbstractDto {
     @JsonProperty("stop_at")
     private Long stopAt;
 
-    public Calendar(Long id, Long dayNum, Date startAt, Date stopAt) {
+    public Calendar(Long dayNum, Date startAt, Date stopAt) {
 
-        setId(id);
+        setDayNum(dayNum);
         setStartAt(startAt.getTime());
         setStopAt(stopAt.getTime());
-        setDayNum(dayNum);
     }
 
     public Calendar(Long dayNum, Long startAt, Long stopAt) {
 
+        setDayNum(dayNum);
         setStartAt(startAt);
         setStopAt(stopAt);
-        setDayNum(dayNum);
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

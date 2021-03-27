@@ -7,6 +7,7 @@ import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,34 +20,28 @@ public class RequestService {
 
     public List<RequestEntity> getByCustomer(CustomerEntity customer, Pageable pageable) {
 
-        return requestRepository.getByCustomerId(customer.getId(), pageable);
+        return requestRepository.findByCustomer(customer, pageable);
     }
 
     public List<RequestEntity> getByCustomer(CustomerEntity customer) {
 
-        return requestRepository.getByCustomerId(customer.getId());
+        return requestRepository.findByCustomerAndInteractAtNull(customer);
     }
 
     public List<RequestEntity> getByDriver(CustomerEntity driver, Pageable pageable) {
 
-        return requestRepository.getByDriverId(driver.getId(), pageable);
+        return requestRepository.findByDriver(driver, pageable);
     }
 
-    public List<RequestEntity> getByDriver(CustomerEntity driver) {
+    public List<RequestEntity> getByTransport(TransportEntity transport) {
 
-        return requestRepository.getByDriverId(driver.getId());
-    }
-
-    public void deleteByCalendarId(Long calendarid) {
-
-        requestRepository.deleteByCalendarId(calendarid);
+        return requestRepository.findByTransportAndInteractAtNull(transport);
     }
 
     public void putRequest(CustomerEntity customer, CustomerEntity driver, TransportEntity transport, CalendarEntity calendar) {
 
-        RequestEntity entity = requestRepository.getByCustomerAndDriverAndTransportAndCalendar(customer, driver, transport, calendar);
-        if (entity == null) {
-            entity = new RequestEntity(customer, driver, transport, calendar);
+        if (requestRepository.findByCustomerAndTransportAndDriverAndCalendarAndInteractAtNull(customer, transport, driver, calendar).isEmpty()) {
+            RequestEntity entity = new RequestEntity(customer, driver, transport, calendar);
             requestRepository.save(entity);
         }
     }
@@ -58,11 +53,15 @@ public class RequestService {
                 .orElseThrow(() -> new ObjectNotFoundException("Request", id));
     }
 
-    public void setInteract(RequestEntity request) {
+    public void setInteract(RequestEntity request, CustomerEntity driver, Long orderId) {
 
         requestRepository
-                .getByCustomerAndTransportAndCalendar(request.getCustomer(), request.getTransport(), request.getCalendar())
+                .findByCustomerAndTransportAndCalendarAndInteractAtNull(request.getCustomer(), request.getTransport(), request.getCalendar())
                 .stream()
-                .forEach(entity -> entity.setInteract());
+                .forEach(entity -> {
+                    entity.setInteract();
+                    if (Objects.nonNull(driver) && entity.getDriver().equals(driver))
+                        entity.setOrder(orderId);
+                });
     }
 }

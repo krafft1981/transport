@@ -7,24 +7,22 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RequestRepository extends IRepository<RequestEntity> {
 
-    List<RequestEntity> getByCustomerId(Long customerId);
-    List<RequestEntity> getByCustomerId(Long customerId, Pageable pageable);
+    List<RequestEntity> findByCustomerAndInteractAtNull(CustomerEntity customer);
+    List<RequestEntity> findByCustomer(CustomerEntity customer, Pageable pageable);
+    List<RequestEntity> findByDriver(CustomerEntity driver, Pageable pageable);
 
-    List<RequestEntity> getByDriverId(Long driverId);
-    List<RequestEntity> getByDriverId(Long driverId, Pageable pageable);
-
-    void deleteByCalendarId(Long calendarId);
-
-    RequestEntity getByCustomerAndDriverAndTransportAndCalendar(
+    List<RequestEntity> findByCustomerAndTransportAndCalendarAndInteractAtNull(
             CustomerEntity customer,
-            CustomerEntity driver,
             TransportEntity transport,
             CalendarEntity calendar
     );
 
-    List<RequestEntity> getByCustomerAndTransportAndCalendar(
+    List<RequestEntity> findByTransportAndInteractAtNull(TransportEntity transport);
+
+    List<RequestEntity> findByCustomerAndTransportAndDriverAndCalendarAndInteractAtNull(
             CustomerEntity customer,
             TransportEntity transport,
+            CustomerEntity driver,
             CalendarEntity calendar
     );
 }

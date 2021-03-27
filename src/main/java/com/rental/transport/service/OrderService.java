@@ -14,6 +14,7 @@ import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
@@ -134,6 +135,21 @@ public class OrderService {
         calendarService.checkCustomerBusy(customer, day, start, stop);
         CalendarEntity calendar = calendarService.getEntity(day, start, stop, true);
         customer.addCalendar(calendar);
+
+        // Отменяем все запросы по данному транспорту в это время
+        requestService
+                .getByCustomer(customer)
+                .stream()
+                .forEach(entity -> {
+                    if (entity.getCalendar().getDayNum().equals(calendar.getDayNum())) {
+                        try {
+                            calendarService.checkTimeDiapazon(entity.getCalendar(), calendar);
+                        } catch (IllegalArgumentException e) {
+                            entity.setInteract();
+                        }
+                    }
+                });
+
         return calendar.getId();
     }
 
@@ -167,7 +183,7 @@ public class OrderService {
 
         // validate future
         Date now = new Date();
-        if (calendar.getStartAt().getTime() < now.getTime())
+        if (now.after(calendar.getStartAt()))
             throw new IllegalArgumentException("Allow request only in the future");
 
         calendarService.checkCustomerBusy(customer, day, start, stop);
@@ -188,14 +204,8 @@ public class OrderService {
             }
         }
 
-        if (requestLost) {
-            throw new IllegalArgumentException(
-                    "No free drivers for: transport " + transportId +
-                            " day: " + calendar.getDayNum() +
-                            " start: " + calendar.getStartAt() +
-                            " stop: " + calendar.getStopAt()
-            );
-        }
+        if (requestLost)
+            throw new IllegalArgumentException("No free drivers for create request");
     }
 
     public List<Calendar> getTransportCalendar(String account, Long day, Long transportId) {
@@ -228,8 +238,10 @@ public class OrderService {
 
         // validate future
         Date now = new Date();
-        if (calendar.getStartAt().getTime() < now.getTime())
+        if (now.after(calendar.getStartAt())) {
+            requestService.setInteract(request, null,null);
             throw new IllegalArgumentException("Allow orders only in the future");
+        }
 
         calendarService.checkCustomerBusy(
                 driver,
@@ -253,9 +265,6 @@ public class OrderService {
         );
 
         OrderEntity order = new OrderEntity();
-
-        request.setOrder(order.getId());
-        request.setInteract();
 
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
@@ -296,6 +305,23 @@ public class OrderService {
             driver.addCalendar(calendar);
 
         orderRepository.save(order);
+
+        // Водитель нашёлся
+        requestService.setInteract(request, driver, order.getId());
+
+        // Отменяем все запросы по данному транспорту в это время
+        requestService
+                .getByTransport(transport)
+                .stream()
+                .forEach(entity -> {
+                    if (entity.getCalendar().getDayNum().equals(calendar.getDayNum())) {
+                        try {
+                            calendarService.checkTimeDiapazon(entity.getCalendar(), calendar);
+                        } catch (IllegalArgumentException e) {
+                            entity.setInteract();
+                        }
+                    }
+                });
     }
 
     @Transactional
@@ -311,16 +337,7 @@ public class OrderService {
         if (request.getInteractAt() != null)
             throw new IllegalArgumentException("Reject with interacted");
 
-        customer = request.getCustomer();
-        CustomerEntity driver = request.getDriver();
-        CalendarEntity calendar = request.getCalendar();
-        TransportEntity transport = request.getTransport();
-
-        requestService.setInteract(request);
-
-        driver.deleteCalendarEntity(calendar);
-        customer.deleteCalendarEntity(calendar);
-        transport.deleteCalendarEntity(calendar);
+        requestService.setInteract(request, null,null);
     }
 
     @PostConstruct

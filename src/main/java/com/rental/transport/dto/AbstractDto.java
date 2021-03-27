@@ -1,9 +1,5 @@
 package com.rental.transport.dto;
 
-import lombok.Data;
+public class AbstractDto{
 
-@Data
-public class AbstractDto {
-
-    private Long id;
 }
