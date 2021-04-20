@@ -3,6 +3,7 @@ package com.rental.transport.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.enums.RequestStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,4 +27,6 @@ public class Request extends AbstractIdDto {
     private CustomerEntity driver;
     @JsonProperty("transport")
     private TransportEntity transport;
+    @JsonProperty("status")
+    private RequestStatusEnum status;
 }

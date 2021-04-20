@@ -1,11 +1,9 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.service.CalendarService;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
-import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,24 +44,23 @@ public class OrderController {
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "start", required = true) Long start,
-            @RequestParam(value = "stop", required = true) Long stop) {
+            @RequestParam(value = "hour", required = true) Integer[] hour) {
 
-        service.createRequest(principal.getName(), transport_id, day, start, stop);
+        service.createRequest(principal.getName(), transport_id, day, hour);
     }
 
     @GetMapping(value = "/transport")
-    public List<Event> doGetOrderByTransport(
+    public Map<Integer, Event> doGetOrderByTransport(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getOrderByTransport(principal.getName(), pageable);
+        return service.getOrderByMyTransport(principal.getName(), pageable);
     }
 
     @GetMapping(value = "/customer")
-    public List<Event> doGetOrderByCustomer(
+    public Map<Integer, Event> doGetOrderByCustomer(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -73,7 +70,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/request/customer")
-    public List<Event> doGetRequestAsCustomer(
+    public Map<Integer, Event> doGetRequestAsCustomer(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -83,7 +80,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/request/driver")
-    public List<Event> doGetRequestAsDriver(
+    public Map<Integer, Event> doGetRequestAsDriver(
             Principal principal,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -96,21 +93,20 @@ public class OrderController {
     public Long doPutAbsentCustomerRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "start", required = true) Long start,
-            @RequestParam(value = "stop", required = true) Long stop) {
+            @RequestParam(value = "hour", required = true) Integer[] hours) {
 
-        return service.putAbsentCustomerEntry(principal.getName(), day, start, stop);
+        return service.putAbsentCustomerEntry(principal.getName(), day, hours);
     }
 
     @DeleteMapping(value = "/absent")
     public void doDeleteAbsentCustomerRequest(
             Principal principal,
-            @RequestParam(value = "id", required = true) Long id) {
-        service.deleteAbsentCustomerEntry(principal.getName(), id);
+            @RequestParam(value = "id", required = true) Long[] ids) {
+        service.deleteAbsentCustomerEntry(principal.getName(), ids);
     }
 
     @GetMapping(value = "/calendar/transport")
-    public List<Calendar> doGetTransportCalendarRequest(
+    public Map<Integer, Event> doGetTransportCalendarRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "transport_id", required = true) Long transportId) {
@@ -119,7 +115,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/calendar/customer")
-    public List<Event> doGetCustomerCalendarRequest(
+    public Map<Integer, Event> doGetCustomerCalendarRequest(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 

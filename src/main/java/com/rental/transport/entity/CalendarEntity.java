@@ -1,6 +1,5 @@
 package com.rental.transport.entity;
 
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,26 +22,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CalendarEntity extends AbstractEntity {
 
-    private Date startAt;
-    private Date stopAt;
     private Long dayNum;
+    private Integer hour;
 
-    public CalendarEntity(Long dayNum, Long startAt, Long stopAt) {
-        setStartAt(new Date(startAt));
-        setStopAt(new Date(stopAt));
+    public CalendarEntity(Long dayNum, Integer hour) {
+        setHour(hour);
         setDayNum(dayNum);
     }
 
     @Basic
-    @Column(name = "start_at", nullable = false, columnDefinition = "timestamp with time zone not null")
-    public Date getStartAt() {
-        return startAt;
-    }
-
-    @Basic
-    @Column(name = "stop_at", nullable = false, columnDefinition = "timestamp with time zone not null")
-    public Date getStopAt() {
-        return stopAt;
+    @Column(name = "hour", nullable = false, insertable = true, updatable = true)
+    public Integer getHour() {
+        return hour;
     }
 
     @Basic

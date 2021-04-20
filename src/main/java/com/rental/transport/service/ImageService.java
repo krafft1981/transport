@@ -41,7 +41,7 @@ public class ImageService {
 
     public void delete(List<Long> ids) {
 
-        ids.stream().forEach(id -> { imageRepository.deleteById(id); });
+        ids.stream().forEach(id -> imageRepository.deleteById(id));
     }
 
     public Image getImage(Long id) throws ObjectNotFoundException {

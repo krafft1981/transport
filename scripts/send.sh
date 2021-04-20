@@ -5,14 +5,13 @@ pass=b
 #url="http://127.0.0.1:8080"
 url="http://138.124.187.10:8080"
 
-for file in $(ls images)
+find images -type f | while read file
 do
+	temp=$(mktemp)
+	base64 "$file" > $temp
 
-	$(cat images/$file | base64 > /tmp/$file)
+	curl -X POST "$url/image" --digest --user "$user:$pass" -H "Content-Type: application/json" --data-binary "@$temp"
 
-	curl -X POST "$url/image" --digest --user "$user:$pass" -H "Content-Type: application/json" --data-binary "@/tmp/$file"
-	echo
-
-	rm images/$file
-	rm /tmp/$file
+	rm "$file"
+	rm $temp
 done

@@ -58,7 +58,8 @@ public class TypeService {
 
         try {
             return getEntity(name).getId();
-        } catch (ObjectNotFoundException e) {
+        }
+        catch (ObjectNotFoundException e) {
             TransportTypeEntity entity = new TransportTypeEntity(name);
             return repository.save(entity).getId();
         }

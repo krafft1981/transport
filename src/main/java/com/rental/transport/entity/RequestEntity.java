@@ -1,10 +1,13 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.enums.RequestStatusEnum;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,7 +18,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+@Entity(name = "request")
 @Table(
         name = "request",
         schema = "public",
@@ -38,6 +41,7 @@ public class RequestEntity extends AbstractEntity {
     private Date interactAt = null;
 
     private Long order;
+    private RequestStatusEnum status = RequestStatusEnum.NEW;
 
     private CustomerEntity driver;
     private TransportEntity transport;
@@ -64,6 +68,13 @@ public class RequestEntity extends AbstractEntity {
     @Column(name = "interact_at", nullable = true, columnDefinition = "timestamp with time zone")
     public Date getInteractAt() {
         return interactAt;
+    }
+
+    @Basic
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, insertable = true, updatable = true)
+    public RequestStatusEnum getStatus() {
+        return status;
     }
 
     @Basic
@@ -100,7 +111,8 @@ public class RequestEntity extends AbstractEntity {
         return order;
     }
 
-    public void setInteract() {
+    public void setInteract(RequestStatusEnum status) {
         setInteractAt(new Date());
+        setStatus(status);
     }
 }

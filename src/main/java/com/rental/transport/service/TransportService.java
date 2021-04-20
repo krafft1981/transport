@@ -62,7 +62,6 @@ public class TransportService {
                 propertyService.create("transport_capacity", "1"),
                 propertyService.create("transport_price", "1000"),
                 propertyService.create("transport_min_rent_time", "1"),
-                propertyService.create("transport_use_driver", "Да"),
                 propertyService.create("transport_description", "Не указано")
         );
 
@@ -144,7 +143,6 @@ public class TransportService {
         propertyService.createType("transport_capacity", "Максимальное количество гостей", PropertyTypeEnum.Integer);
         propertyService.createType("transport_price", "Цена за час", PropertyTypeEnum.Double);
         propertyService.createType("transport_min_rent_time", "Минимальное время аренды", PropertyTypeEnum.Hour);
-        propertyService.createType("transport_use_driver", "Используется с водителем", PropertyTypeEnum.Boolean);
         propertyService.createType("transport_description", "Описание", PropertyTypeEnum.String);
     }
 }

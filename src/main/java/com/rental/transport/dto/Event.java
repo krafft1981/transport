@@ -4,39 +4,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rental.transport.enums.EventTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event extends AbstractDto {
 
-    @JsonProperty("calendar")
-    private Calendar calendar;
     @JsonProperty("order")
-    private Order order;
+    private Order order = null;
     @JsonProperty("request")
-    private Request request;
+    private Request request = null;
     @JsonProperty("type")
-    private long type = 0;
+    private Integer type = 0;
 
-    public Event(Calendar calendar, EventTypeEnum type) {
+    public Event(Integer type) {
 
-        setCalendar(calendar);
+        setType(type);
+    }
+
+    public Event(EventTypeEnum type) {
+
         setType(type.getId());
     }
 
-    public Event(Order order, Calendar calendar) {
+    public Event(Order order) {
 
         setOrder(order);
-        setCalendar(calendar);
         setType(EventTypeEnum.ORDER.getId());
     }
 
-    public Event(Request request, Calendar calendar) {
+    public Event(Request request) {
 
         setRequest(request);
-        setCalendar(calendar);
         setType(EventTypeEnum.REQUEST.getId());
     }
 }
