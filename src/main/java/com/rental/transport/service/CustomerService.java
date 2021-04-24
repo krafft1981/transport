@@ -66,9 +66,9 @@ public class CustomerService implements UserDetailsService {
         customer.addProperty(
                 propertyService.create("customer_fio", fio),
                 propertyService.create("customer_phone", phone),
-                propertyService.create("customer_startWorkTime", "10"),
-                propertyService.create("customer_stopWorkTime", "18"),
-                propertyService.create("customer_workAtWeekEnd", "No"),
+                propertyService.create("customer_startWorkTime", "9"),
+                propertyService.create("customer_stopWorkTime", "20"),
+                propertyService.create("customer_workAtWeekEnd", "Да"),
                 propertyService.create("customer_description", "Не указано")
         );
 

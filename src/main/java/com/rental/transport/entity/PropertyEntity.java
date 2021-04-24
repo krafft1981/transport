@@ -28,6 +28,7 @@ public class PropertyEntity extends AbstractEntity {
 
     private PropertyTypeEntity type;
     private String value = "";
+    private Integer order;
 
     @ManyToOne
     @JoinColumn(name = "property_type_id", referencedColumnName = "id")
@@ -39,5 +40,11 @@ public class PropertyEntity extends AbstractEntity {
     @Column(name = "value", nullable = false, insertable = true, updatable = true)
     public String getValue() {
         return value;
+    }
+
+    @Basic
+    @Column(name = "order_by", nullable = false, insertable = true, updatable = true)
+    public Integer getOrder() {
+        return order;
     }
 }

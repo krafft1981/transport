@@ -17,11 +17,13 @@ import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +53,15 @@ public class OrderService {
 
     @Autowired
     private RequestMapper requestMapper;
+
+    @Scheduled(cron = "0 0 * * * ?")
+    public void setRequestExpired() {
+
+        Date now = new Date();
+        Integer hour = calendarService.getHour(now);
+        Long day = calendarService.getDayId(now.getTime());
+        requestRepository.setExpired(day, hour);
+    }
 
     private void setInteracted(RequestEntity request, CustomerEntity driver, Long orderId) {
 
@@ -156,7 +167,7 @@ public class OrderService {
 //        calendarService.checkCustomerBusy(customer, day, start, stop);
 //        CalendarEntity calendar = calendarService.getEntity(day, start, stop, true);
 //        customer.addCalendar(calendar);
-//
+
 //        // Отменяем все запросы на это время если все остальные водители заняты
 //        customer
 //                .getTransport()
@@ -166,7 +177,7 @@ public class OrderService {
 //                    for (CustomerEntity driver : transport.getCustomer()) {
 //                        if (driver.equals(customer))
 //                            continue;
-//
+
 //                        try {
 //                            calendarService.checkCustomerBusy(
 //                                    driver,
@@ -174,19 +185,19 @@ public class OrderService {
 //                                    calendar.getStartAt().getTime(),
 //                                    calendar.getStopAt().getTime()
 //                            );
-//
+
 //                            delete = false;
 //                        }
 //                        catch (IllegalArgumentException e) {
 //                            System.out.println(e);
 //                        }
 //                    }
-//
+
 //                    if (delete) {
 //                        //удаляем все запросы с пересекающимся временем
 //                    }
 //                });
-//
+
 //        return calendar.getId();
     }
 
@@ -202,51 +213,57 @@ public class OrderService {
     }
 
     @Transactional
-    public void createRequest(String account, Long transportId, Long day, Integer[] hours)
+    public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        TransportEntity transport = transportService.getEntity(transportId);
         CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = transportService.getEntity(transportId);
+
+        Date now = new Date();
+        day = calendarService.getDayId(day);
+
+        if (day < calendarService.getDayId(now.getTime()))
+            throw new IllegalArgumentException("Нельзя редактировать прошлое");
 
         requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
 
         if (transport.getParking().isEmpty())
-            throw new IllegalArgumentException("Transport has't parking");
+            throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
 
-        Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
-        if (hours.length < minTime)
-            throw new IllegalArgumentException("Wrong transport rent time");
+        if (Objects.nonNull(hours)) {
+            Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            if (hours.length < minTime)
+                throw new IllegalArgumentException("Заказ должен состоять из не менее чем " + minTime + " часов последовательно");
 
-        Integer followCnt = hours.length;
-        Arrays.sort(hours);
-        Integer current = null;
-        for (Integer hour : hours) {
-            if (current == null) {
+            Arrays.sort(hours);
+            Integer current = null;
+            for (Integer hour : hours) {
+                if (current == null) {
+                    current = hour;
+                    continue;
+                }
+
+                if ((current + 1) != hour)
+                    throw new IllegalArgumentException("Выберите часы последовательно");
+
                 current = hour;
-                continue;
             }
 
-            if ((current + 1) != hour)
-                followCnt--;
+            for (Integer hour : hours) {
+                CalendarEntity calendar = calendarService.getEntity(day, hour, true);
 
-            current = hour;
-        }
-
-        if (followCnt < minTime)
-            throw new IllegalArgumentException("Wrong time sequence");
-
-        for (Integer hour : hours) {
-            CalendarEntity calendar = calendarService.getEntity(day, hour, true);
-
-            // TODO проверки на занятость
+                // TODO проверки на занятость
 //        calendarService.checkCustomerBusy(customer, day, start, stop);
 //        calendarService.checkTransportBusy(transport, day, start, stop);
 
-            for (CustomerEntity driver : transport.getCustomer()) {
-                RequestEntity entity = new RequestEntity(customer, driver, transport, calendar);
-                requestRepository.save(entity);
+                for (CustomerEntity driver : transport.getCustomer()) {
+                    RequestEntity entity = new RequestEntity(customer, driver, transport, calendar);
+                    requestRepository.save(entity);
+                }
             }
         }
+
+        return getTransportCalendar(account, day, transportId);
     }
 
     public Map<Integer, Event> getTransportCalendar(String account, Long day, Long transportId) {
@@ -283,12 +300,13 @@ public class OrderService {
         ParkingEntity parking = transport.getParking().iterator().next();
 
 //        // validate future
-//        Date now = new Date();
-//        if (now.after(calendar.getStartAt())) {
-//            setInteracted(request, null, null);
-//            throw new IllegalArgumentException("Allow orders only in the future");
-//        }
-//
+        Date now = new Date();
+        Long day = calendarService.getDayId(now.getTime());
+        Integer hour = calendarService.getHour(now);
+
+        if ((calendar.getDayNum() < day || ((calendar.getDayNum() == day) && (calendar.getHour() < hour))))
+            throw new IllegalArgumentException("Allow orders only in the future");
+
 //        calendarService.checkCustomerBusy(
 //                driver,
 //                calendar.getDayNum(),
@@ -388,22 +406,23 @@ public class OrderService {
     @PostConstruct
     public void postConstruct() {
 
-        propertyService.createType("order_parking_name", "Название", PropertyTypeEnum.String);
+        propertyService.createType("order_parking_name", "Название стоянки", PropertyTypeEnum.String);
         propertyService.createType("order_parking_latitude", "Широта", PropertyTypeEnum.Double);
         propertyService.createType("order_parking_longitude", "Долгота", PropertyTypeEnum.Double);
-        propertyService.createType("order_parking_address", "Адрес", PropertyTypeEnum.String);
+        propertyService.createType("order_parking_address", "Адрес стоянки", PropertyTypeEnum.String);
         propertyService.createType("order_parking_locality", "Местонахождение", PropertyTypeEnum.String);
         propertyService.createType("order_parking_region", "Район", PropertyTypeEnum.String);
 
         propertyService.createType("order_transport_name", "Название транспорта", PropertyTypeEnum.String);
         propertyService.createType("order_transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
+
         propertyService.createType("order_transport_cost", "Стоимость заказа", PropertyTypeEnum.Double);
         propertyService.createType("order_transport_price", "Стоимость за час", PropertyTypeEnum.Double);
 
-        propertyService.createType("order_customer_fio", "Имя", PropertyTypeEnum.String);
-        propertyService.createType("order_customer_phone", "Сотовый", PropertyTypeEnum.Phone);
+        propertyService.createType("order_customer_fio", "Имя заказчика", PropertyTypeEnum.String);
+        propertyService.createType("order_customer_phone", "Сотовый заказчика", PropertyTypeEnum.Phone);
 
-        propertyService.createType("order_driver_fio", "Имя", PropertyTypeEnum.String);
-        propertyService.createType("order_driver_phone", "Сотовый", PropertyTypeEnum.Phone);
+        propertyService.createType("order_driver_fio", "Имя капитана", PropertyTypeEnum.String);
+        propertyService.createType("order_driver_phone", "Сотовый капитана", PropertyTypeEnum.Phone);
     }
 }

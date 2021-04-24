@@ -4,10 +4,10 @@ import lombok.Getter;
 
 public enum RequestStatusEnum {
 
-    NEW(1, "New"),
-    ACCEPTED(2, "Accepted"),
-    REJECTED(3, "Rejected"),
-    EXPIRED(4, "Expired");
+    NEW(1, "NEW"),
+    ACCEPTED(2, "ACCEPTED"),
+    REJECTED(3, "REJECTED"),
+    EXPIRED(4, "EXPIRED");
 
     @Getter
     private int id = 0;

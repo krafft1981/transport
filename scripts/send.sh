@@ -11,7 +11,10 @@ do
 	base64 "$file" > $temp
 
 	curl -X POST "$url/image" --digest --user "$user:$pass" -H "Content-Type: application/json" --data-binary "@$temp"
+	if [ $? -eq 0 ]
+	then
+		rm "$file"
+	fi
 
-	rm "$file"
 	rm $temp
 done

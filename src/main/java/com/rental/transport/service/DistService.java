@@ -12,27 +12,35 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DistService {
 
+    @Getter
     private Map<String, AtomicLong> score = new HashMap<>();
 
     @Value("${spring.dist.path}")
     private String distPath;
 
     private String buildName(String name) {
-        StringBuilder builder = new StringBuilder(1024);
+        StringBuilder builder = new StringBuilder(4096);
         builder.append(distPath).append("/").append(name);
         return builder.toString();
     }
 
     public Set<String> listFiles() {
-        return Stream.of(new File(distPath).listFiles())
+
+        return Stream
+                .of(new File(distPath).listFiles())
                 .filter(file -> !file.isDirectory())
-                .map(File::getName)
+                .map(file -> {
+                    String name = file.getName();
+                    appendScore(name, 0);
+                    return name;
+                })
                 .collect(Collectors.toSet());
     }
 
@@ -40,22 +48,17 @@ public class DistService {
         File file = new File(buildName(name));
         Integer len = Long.valueOf(file.length()).intValue();
         byte[] data = new byte[len];
-        InputStream is = new FileInputStream(file);
-        ByteStreams.read(is, data, 0, len);
-        appendScore(name);
+        InputStream fis = new FileInputStream(file);
+        ByteStreams.read(fis, data, 0, len);
+        appendScore(name, 0);
         return data;
     }
 
-    private void appendScore(String name) {
+    private void appendScore(String name, Integer start) {
         if (Objects.isNull(score.get(name)))
-            score.put(name, new AtomicLong(1));
+            score.put(name, new AtomicLong(start));
         else {
             score.get(name).incrementAndGet();
         }
-    }
-
-    public Map<String, AtomicLong> readScore() {
-
-        return score;
     }
 }

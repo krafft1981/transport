@@ -20,4 +20,6 @@ public class Property extends AbstractIdDto {
     private String value;
     @JsonProperty("type")
     private String type;
+    @JsonProperty("order")
+    private Integer order;
 }

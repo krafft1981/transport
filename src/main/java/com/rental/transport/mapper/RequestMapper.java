@@ -1,10 +1,7 @@
 package com.rental.transport.mapper;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rental.transport.dto.Request;
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.RequestEntity;
-import com.rental.transport.entity.TransportEntity;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;

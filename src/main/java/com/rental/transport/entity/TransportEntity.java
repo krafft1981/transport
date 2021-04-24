@@ -118,18 +118,29 @@ public class TransportEntity extends AbstractEnabledEntity {
 
         String name = entity.getType().getLogicName();
         property.add(
-                property
-                        .stream()
+                property.stream()
                         .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
                         .findFirst()
                         .orElse(entity)
         );
     }
 
+    public void addProperty(PropertyEntity entity, Integer order) {
+
+        String name = entity.getType().getLogicName();
+        PropertyEntity prop = property
+                .stream()
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity);
+        prop.setOrder(order);
+        property.add(prop);
+    }
+
     public void addProperty(PropertyEntity... entryes) {
 
-        for (int id = 0; id < entryes.length; id++)
-            addProperty(entryes[id]);
+        for (Integer id = 0; id < entryes.length; id++)
+            addProperty(entryes[id], id);
     }
 
     public void addCalendar(CalendarEntity entity) {

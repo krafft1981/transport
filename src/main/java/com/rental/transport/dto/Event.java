@@ -36,9 +36,9 @@ public class Event extends AbstractDto {
         setType(EventTypeEnum.ORDER.getId());
     }
 
-    public Event(Request request) {
+    public Event(Request request, EventTypeEnum type) {
 
         setRequest(request);
-        setType(EventTypeEnum.REQUEST.getId());
+        setType(type.getId());
     }
 }

@@ -39,7 +39,6 @@ public class DistController {
 
     @GetMapping(value = "/score")
     public Map<String, AtomicLong> getDistScore() {
-
-        return distService.readScore();
+        return distService.getScore();
     }
 }

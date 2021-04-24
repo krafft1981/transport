@@ -27,40 +27,31 @@ public class ImageController {
     private ImageService service;
 
     @PostMapping
-    public Long doPutImageRequest(
-            @RequestBody String image) {
+    public Long doPostImage(@RequestBody String image) {
 
         return service.create(image);
     }
 
     @GetMapping
-    public Image doGetImageRequest(
-            @RequestParam(value = "id", required = true) Long id)
-            throws ObjectNotFoundException {
+    public Image doGetImage(@RequestParam(value = "id", required = true) Long id) throws ObjectNotFoundException {
 
         return service.getImage(id);
     }
 
-    @GetMapping(
-            value = "/{id}",
-            produces = MediaType.IMAGE_JPEG_VALUE
-    )
-    public byte[] doGetImageByPathRequest(
-            @PathVariable(value = "id") Long id) throws ObjectNotFoundException {
-
+    @GetMapping(value = "/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] doGetImageByPath(@PathVariable(value = "id") Long id) throws ObjectNotFoundException {
         Image image = service.getImage(id);
         return service.Base64DecodeImage(image);
     }
 
     @DeleteMapping
-    public void doDeleteImageRequest(
-            @RequestParam(value = "id", required = true) Long[] ids) {
+    public void doDeleteImage(@RequestParam(value = "id", required = true) Long[] ids) {
 
         service.delete(Arrays.asList(ids));
     }
 
     @GetMapping(value = "/list")
-    public List<Long> goGetPagesImageRequest(
+    public List<Long> goGetPagesImage(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 

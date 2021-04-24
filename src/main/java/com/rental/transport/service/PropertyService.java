@@ -66,8 +66,7 @@ public class PropertyService {
         if (Objects.isNull(type))
             throw new ObjectNotFoundException("Property Type", name);
 
-        PropertyEntity entity = new PropertyEntity(type, value);
-        return entity;
+        return new PropertyEntity(type, value, 0);
     }
 
     public void createType(String logic, String name, PropertyTypeEnum valueType) {

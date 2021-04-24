@@ -1,15 +1,16 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.EventTypeEnum;
-import com.rental.transport.enums.RequestStatusEnum;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.mapper.RequestMapper;
@@ -17,6 +18,7 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +67,12 @@ public class CalendarService {
         calendar.set(java.util.Calendar.MILLISECOND, 0);
 
         return calendar.getTime().getTime();
+    }
+
+    public Integer getHour(Date date) {
+
+        Integer hour = date.getHours();
+        return hour + 4;
     }
 
     public CalendarEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -134,6 +142,7 @@ public class CalendarService {
             throws ObjectNotFoundException, IllegalArgumentException {
 
         day = getDayId(day);
+
         Map<Integer, Event> result = new HashMap();
         java.util.Calendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(day);
@@ -160,6 +169,7 @@ public class CalendarService {
     public Map<Integer, Event> getTransportCalendar(Long day, TransportEntity transport) {
 
         day = getDayId(day);
+
         Map<Integer, Event> result = new HashMap();
         calendarRepository
                 .findTransportCalendarByDay(transport.getId(), day)
@@ -172,6 +182,7 @@ public class CalendarService {
     public Map<Integer, Event> getCustomerCalendar(Long day, CustomerEntity customer) {
 
         day = getDayId(day);
+
         Map<Integer, Event> result = new HashMap();
         calendarRepository
                 .findCustomerCalendarByDay(customer.getId(), day)
@@ -183,33 +194,6 @@ public class CalendarService {
 
     private Map<Integer, Event> getDriversCalendar(Long day, TransportEntity transport)
             throws ObjectNotFoundException {
-
-        // hour, count
-//        Map<Integer, Integer> countMap = new HashMap();
-//        Integer count = 0;
-//        for (CustomerEntity customer : transport.getCustomer()) {
-//            getCustomerCalendar(day, customer).forEach((hour, event) -> {
-//                if (countMap.containsKey(hour))
-//                    countMap.put(hour, countMap.get(hour) + 1);
-//                else
-//                    countMap.put(hour, 1);
-//            });
-//
-//            getCustomerWeekTime(day, customer).forEach((hour, event) -> {
-//                if (countMap.containsKey(hour))
-//                    countMap.put(hour, countMap.get(hour) + 1);
-//                else
-//                    countMap.put(hour, 1);
-//            });
-//
-//            count++;
-//        }
-//
-//        for (Integer hour = 0; hour < 24; hour++) {
-//            if (countMap.containsKey(hour) && countMap.get(hour) == count) {
-//                result.put(hour, new Event(EventTypeEnum.GENERATED));
-//            }
-//        }
 
         day = getDayId(day);
 
@@ -252,12 +236,27 @@ public class CalendarService {
         }
 
         requestRepository
-                .findByTransportAndStatus(transport, RequestStatusEnum.NEW)
+                .findByTransportAndDay(transport.getId(), day)
                 .stream()
                 .forEach(entity -> {
                     Request request = requestMapper.toDto(entity);
-                    Event event = new Event(request);
-                    result.put(entity.getCalendar().getHour(), event);
+                    switch (entity.getStatus()) {
+                        case NEW: {
+                            result.put(entity.getCalendar().getHour(), new Event(request, EventTypeEnum.REQUEST));
+                            break;
+                        }
+                        case ACCEPTED: {
+                            OrderEntity orderEntity = orderRepository.findById(entity.getOrder()).orElse(null);
+                            Order order = orderMapper.toDto(orderEntity);
+                            result.put(entity.getCalendar().getHour(), new Event(order));
+                            break;
+                        }
+                        case EXPIRED:
+                        case REJECTED: {
+                            result.put(entity.getCalendar().getHour(), new Event(request, EventTypeEnum.BUSY));
+                            break;
+                        }
+                    }
                 });
 
         return result;

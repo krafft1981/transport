@@ -7,10 +7,14 @@ import com.rental.transport.mapper.ImageMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.NonNull;
+import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.codec.Base64;
@@ -25,18 +29,10 @@ public class ImageService {
     @Autowired
     private ImageMapper imageMapper;
 
-    public Long create(@NonNull String image) {
+    public Long create(String source) {
 
-        ImageEntity entity = new ImageEntity(image);
+        ImageEntity entity = new ImageEntity(source);
         return imageRepository.save(entity).getId();
-    }
-
-    public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
-        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics2D = resizedImage.createGraphics();
-        graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
-        graphics2D.dispose();
-        return resizedImage;
     }
 
     public void delete(List<Long> ids) {
