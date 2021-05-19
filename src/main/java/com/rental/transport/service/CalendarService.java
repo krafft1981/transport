@@ -1,8 +1,8 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
-import com.rental.transport.dto.Request;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
@@ -11,6 +11,7 @@ import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.EventTypeEnum;
+import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.mapper.RequestMapper;
@@ -18,7 +19,6 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +35,9 @@ public class CalendarService {
 
     @Autowired
     private RequestMapper requestMapper;
+
+    @Autowired
+    private CalendarMapper calendarMapper;
 
     @Autowired
     private CustomerMapper customerMapper;
@@ -57,22 +60,15 @@ public class CalendarService {
     @Autowired
     private RequestRepository requestRepository;
 
-    public Long getDayId(Long day) {
+    public Long getDayId(Long time) {
 
         java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        calendar.setTimeInMillis(day);
+        calendar.setTimeInMillis(time);
         calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
         calendar.set(java.util.Calendar.MINUTE, 0);
         calendar.set(java.util.Calendar.SECOND, 0);
         calendar.set(java.util.Calendar.MILLISECOND, 0);
-
         return calendar.getTime().getTime();
-    }
-
-    public Integer getHour(Date date) {
-
-        Integer hour = date.getHours();
-        return hour + 4;
     }
 
     public CalendarEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -82,26 +78,7 @@ public class CalendarService {
                 .orElseThrow(() -> new ObjectNotFoundException("Calendar", id));
     }
 
-    public CalendarEntity getEntity(Long day, Integer hour, Boolean create)
-            throws ObjectNotFoundException {
-
-        day = getDayId(day);
-        CalendarEntity entity = calendarRepository.findByDayNumAndHour(day, hour);
-        if (Objects.isNull(entity)) {
-            if (create) {
-                entity = new CalendarEntity(day, hour);
-                calendarRepository.save(entity);
-            }
-            else {
-                String calendarName = String.format("day(%s) hour(%s)", day, hour);
-                throw new ObjectNotFoundException("Calendar", calendarName);
-            }
-        }
-
-        return entity;
-    }
-
-    private Map<Integer, Event> getCustomerWorkTime(CustomerEntity customer)
+    private Map<Integer, Event> getCustomerWorkTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         Map<Integer, Event> result = new HashMap();
@@ -110,38 +87,33 @@ public class CalendarService {
         Integer stopWorkAt = Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime"));
 
         for (Integer hour = 0; hour < startWorkAt; hour++)
-            result.put(hour, new Event(EventTypeEnum.GENERATED));
-
+            result.put(hour, new Event(EventTypeEnum.GENERATED, day, 0, startWorkAt));
         for (Integer hour = startWorkAt; hour < stopWorkAt; hour++)
-            result.put(hour, new Event(EventTypeEnum.FREE));
-
+            result.put(hour, new Event(EventTypeEnum.FREE, day, startWorkAt, stopWorkAt));
         for (Integer hour = stopWorkAt; hour < 24; hour++)
-            result.put(hour, new Event(EventTypeEnum.GENERATED));
+            result.put(hour, new Event(EventTypeEnum.GENERATED, day, stopWorkAt, 24));
 
         return result;
     }
 
-    private Map<Integer, Event> getCustomerHolidayTime(CustomerEntity customer)
+    private Map<Integer, Event> getCustomerHolidayTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException {
 
         String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd");
 
         IStringValidator validator = new BooleanYesValidator();
         if (validator.validate(workAtWeekEnd))
-            return getCustomerWorkTime(customer);
+            return getCustomerWorkTime(day, customer);
 
         Map<Integer, Event> result = new HashMap();
-
         for (Integer hour = 0; hour < 24; hour++)
-            result.put(hour, new Event(EventTypeEnum.GENERATED));
+            result.put(hour, new Event(EventTypeEnum.GENERATED, day, 0, 24));
 
         return result;
     }
 
     private Map<Integer, Event> getCustomerWeekTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException, IllegalArgumentException {
-
-        day = getDayId(day);
 
         Map<Integer, Event> result = new HashMap();
         java.util.Calendar calendar = new GregorianCalendar();
@@ -153,12 +125,12 @@ public class CalendarService {
             case java.util.Calendar.WEDNESDAY:
             case java.util.Calendar.THURSDAY:
             case java.util.Calendar.FRIDAY: {
-                result.putAll(getCustomerWorkTime(customer));
+                result.putAll(getCustomerWorkTime(getDayId(day), customer));
                 break;
             }
             case java.util.Calendar.SATURDAY:
             case java.util.Calendar.SUNDAY: {
-                result.putAll(getCustomerHolidayTime(customer));
+                result.putAll(getCustomerHolidayTime(getDayId(day), customer));
                 break;
             }
         }
@@ -168,26 +140,29 @@ public class CalendarService {
 
     public Map<Integer, Event> getTransportCalendar(Long day, TransportEntity transport) {
 
-        day = getDayId(day);
-
         Map<Integer, Event> result = new HashMap();
         calendarRepository
-                .findTransportCalendarByDay(transport.getId(), day)
+                .findTransportCalendarByDay(transport.getId(), getDayId(day))
                 .stream()
-                .forEach(entity -> result.put(entity.getHour(), new Event(EventTypeEnum.BUSY)));
-
+                .forEach(entity -> {
+                    Calendar calendar = calendarMapper.toDto(entity);
+                    for (Integer hour : entity.getHours())
+                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                });
         return result;
     }
 
     public Map<Integer, Event> getCustomerCalendar(Long day, CustomerEntity customer) {
 
-        day = getDayId(day);
-
         Map<Integer, Event> result = new HashMap();
         calendarRepository
-                .findCustomerCalendarByDay(customer.getId(), day)
+                .findCustomerCalendarByDay(customer.getId(), getDayId(day))
                 .stream()
-                .forEach(entity -> result.put(entity.getHour(), new Event(EventTypeEnum.BUSY)));
+                .forEach(entity -> {
+                    Calendar calendar = calendarMapper.toDto(entity);
+                    for (Integer hour : entity.getHours())
+                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                });
 
         return result;
     }
@@ -204,19 +179,16 @@ public class CalendarService {
 
         Map<Integer, Event> result = getCustomerWeekTime(day, driver);
         result.putAll(getCustomerCalendar(day, driver));
-
         return result;
     }
 
     public Map<Integer, Event> getTransportCalendar(CustomerEntity customer, TransportEntity transport, Long day) {
 
-        day = getDayId(day);
-
         Map<Integer, Event> result = new HashMap();
 
-        Map<Integer, Event> transportCalendar = getTransportCalendar(day, transport);
-        Map<Integer, Event> driverCalendar = getDriversCalendar(day, transport);
-        Map<Integer, Event> customerCalendar = getCustomerCalendar(day, customer);
+        Map<Integer, Event> transportCalendar = getTransportCalendar(getDayId(day), transport);
+        Map<Integer, Event> driverCalendar = getDriversCalendar(getDayId(day), transport);
+        Map<Integer, Event> customerCalendar = getCustomerCalendar(getDayId(day), customer);
 
         for (Integer hour = 0; hour < 24; hour++) {
             if (customerCalendar.containsKey(hour)) {
@@ -236,24 +208,25 @@ public class CalendarService {
         }
 
         requestRepository
-                .findByTransportAndDay(transport.getId(), day)
+                .findRequestByTransportAndDay(transport.getId(), getDayId(day))
                 .stream()
-                .forEach(entity -> {
-                    Request request = requestMapper.toDto(entity);
-                    switch (entity.getStatus()) {
+                .forEach(requestEntity -> {
+                    switch (requestEntity.getStatus()) {
                         case NEW: {
-                            result.put(entity.getCalendar().getHour(), new Event(request, EventTypeEnum.REQUEST));
+                            for (Integer hour : requestEntity.getHours())
+                                result.put(hour, new Event(EventTypeEnum.REQUEST, day, requestEntity.getHours()));
                             break;
                         }
                         case ACCEPTED: {
-                            OrderEntity orderEntity = orderRepository.findById(entity.getOrder()).orElse(null);
-                            Order order = orderMapper.toDto(orderEntity);
-                            result.put(entity.getCalendar().getHour(), new Event(order));
+                            OrderEntity orderEntity = orderRepository.findById(requestEntity.getOrder()).orElse(null);
+                            for (Integer hour : requestEntity.getHours())
+                                result.put(hour, new Event(orderMapper.toDto(orderEntity)));
                             break;
                         }
                         case EXPIRED:
                         case REJECTED: {
-                            result.put(entity.getCalendar().getHour(), new Event(request, EventTypeEnum.BUSY));
+                            for (Integer hour : requestEntity.getHours())
+                                result.put(hour, new Event(EventTypeEnum.BUSY, requestMapper.toDto(requestEntity)));
                             break;
                         }
                     }
@@ -264,22 +237,34 @@ public class CalendarService {
 
     public Map<Integer, Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
-        Map<Integer, Event> result = new HashMap();
+        Map<Integer, Event> result = getCustomerWeekTime(day, customer);
         calendarRepository
-                .findCustomerCalendarByDay(customer.getId(), day);
-//                .stream()
-//                .map(entity -> {
-//                    OrderEntity order = orderRepository.findByCustomerAndCalendar(customer, entity);
-//                    if (Objects.nonNull(order)) {
-//                        return new Event(orderMapper.toDto(order), order.getCalendar()calendarMapper.toDto(entity));
-//                    } else {
-//                        return new Event(calendarMapper.toDto(entity), EventTypeEnum.UNAVAILABLE);
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//
-        result.putAll(getCustomerWeekTime(day, customer));
+                .findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .forEach(entity -> {
+                    OrderEntity orderEntity = orderRepository.findByCustomerAndCalendar(customer, entity);
+                    if (Objects.nonNull(orderEntity)) {
+                        for (Integer hour : orderEntity.getHours())
+                            result.put(hour, new Event(orderMapper.toDto(orderEntity)));
+                    }
+                    else {
+                        for (Integer hour : orderEntity.getHours())
+                            result.put(hour, new Event(EventTypeEnum.UNAVAILABLE, orderEntity.getDay(),orderEntity.getHours()));
+                    }
+                });
 
         return result;
+    }
+
+    public void checkCustomerBusy(CustomerEntity customer, Long day, Integer[] hours)
+            throws ObjectNotFoundException, IllegalArgumentException {
+
+
+    }
+
+    public void checkTransportBusy(TransportEntity transport, Long day, Integer[] hours)
+            throws ObjectNotFoundException, IllegalArgumentException {
+
+
     }
 }

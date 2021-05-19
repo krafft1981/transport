@@ -25,7 +25,7 @@ public class TransportController {
     private TransportService service;
 
     @DeleteMapping
-    public void doDeleteTransportRequest(
+    public void doDeleteTransport(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
 
@@ -33,7 +33,7 @@ public class TransportController {
     }
 
     @GetMapping(value = "/list")
-    public List<Transport> doGetPagesTransportRequest(
+    public List<Transport> doGetPagesTransport(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
@@ -42,7 +42,7 @@ public class TransportController {
     }
 
     @GetMapping(value = "/list/type")
-    public List<Transport> doGetPagesTransportByTypeRequest(
+    public List<Transport> doGetPagesTransportByType(
             @RequestParam(value = "type", required = true) Long type,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
@@ -52,7 +52,7 @@ public class TransportController {
     }
 
     @PostMapping
-    public Long doPostTransportRequest(
+    public Long doPostTransport(
             Principal principal,
             @RequestParam(value = "type", required = true) String type) {
 
@@ -60,7 +60,7 @@ public class TransportController {
     }
 
     @PutMapping
-    public void doPutTransportRequest(
+    public void doPutTransport(
             Principal principal,
             @RequestBody Transport transport) {
 
@@ -68,13 +68,13 @@ public class TransportController {
     }
 
     @GetMapping(value = "/my")
-    public List<Transport> doGetMyTransportRequest(Principal principal) {
+    public List<Transport> doGetMyTransport(Principal principal) {
 
         return service.getMyTransport(principal.getName());
     }
 
     @GetMapping(value = "/parking")
-    public List<Transport> doGetParkingTransportRequest(
+    public List<Transport> doGetParkingTransport(
             @RequestParam(value = "parking_id", required = true) Long parkingId) {
 
         return service.getParkingTransport(parkingId);

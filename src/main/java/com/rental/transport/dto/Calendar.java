@@ -1,8 +1,6 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +10,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order extends AbstractIdDto {
+public class Calendar extends AbstractDto {
 
-    @JsonProperty("property")
-    private Set<Property> property = new HashSet<>();
     @JsonProperty("day")
     private Long day;
     @JsonProperty("hours")
     private Integer[] hours;
+    @JsonProperty("message")
+    private String message = "";
+
+    public Calendar(Long day, Integer[] hours) {
+        setDay(day);
+        setHours(hours);
+    }
 }

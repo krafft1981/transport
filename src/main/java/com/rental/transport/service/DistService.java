@@ -1,6 +1,8 @@
 package com.rental.transport.service;
 
 import com.google.common.io.ByteStreams;
+import com.rental.transport.entity.DistEntity;
+import com.rental.transport.entity.DistRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,12 +14,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.PostConstruct;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DistService {
+
+    @Autowired
+    private DistRepository distRepository;
 
     @Getter
     private Map<String, AtomicLong> score = new HashMap<>();
@@ -36,29 +43,30 @@ public class DistService {
         return Stream
                 .of(new File(distPath).listFiles())
                 .filter(file -> !file.isDirectory())
-                .map(file -> {
-                    String name = file.getName();
-                    appendScore(name, 0);
-                    return name;
-                })
+                .map(file -> file.getName())
                 .collect(Collectors.toSet());
     }
 
     public byte[] getFile(String name) throws IOException {
         File file = new File(buildName(name));
         Integer len = Long.valueOf(file.length()).intValue();
+        InputStream fis = new FileInputStream(new File(buildName(name)));
         byte[] data = new byte[len];
-        InputStream fis = new FileInputStream(file);
         ByteStreams.read(fis, data, 0, len);
         appendScore(name, 0);
+        distRepository.save(new DistEntity(name));
         return data;
     }
 
     private void appendScore(String name, Integer start) {
         if (Objects.isNull(score.get(name)))
             score.put(name, new AtomicLong(start));
-        else {
+        else
             score.get(name).incrementAndGet();
-        }
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        distRepository.findAll().forEach(entity -> appendScore(entity.getProgram(), 1));
     }
 }

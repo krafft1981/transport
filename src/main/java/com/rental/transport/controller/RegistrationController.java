@@ -18,7 +18,7 @@ public class RegistrationController {
     private CustomerService service;
 
     @PostMapping
-    public Customer doPostRegistrationRequest(
+    public Customer doPostRegistration(
             @RequestParam(value = "account", required = true) String account,
             @RequestParam(value = "password", required = true) String password,
             @RequestParam(value = "phone", required = true) String phone,
@@ -28,14 +28,14 @@ public class RegistrationController {
     }
 
     @PutMapping
-    public void doPostRegistrationConfirmRequest(
+    public void doPostRegistrationConfirm(
             @RequestParam(value = "account", required = true) String account) {
 
         service.confirm(account);
     }
 
     @PostMapping(value = "/email")
-    public void doPostRegistrationEmailCheckRequest(
+    public void doPostRegistrationEmailCheck(
             @RequestParam(value = "account", required = true) String account) {
 
         service.check(account);

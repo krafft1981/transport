@@ -23,7 +23,7 @@ public class CustomerController {
     private CustomerService service;
 
     @PutMapping
-    public void doPutUpdateCustomerRequest(
+    public void doPutUpdateCustomer(
             Principal principal,
             @RequestBody Customer dto) {
 
@@ -31,7 +31,7 @@ public class CustomerController {
     }
 
     @PutMapping(value = "/update/password")
-    public void doPutUpdateCustomerPasswordRequest(
+    public void doPutUpdateCustomerPassword(
             Principal principal,
             @RequestParam(value = "password", required = true) String password) {
 
@@ -39,7 +39,7 @@ public class CustomerController {
     }
 
     @GetMapping(value = "/list")
-    public List<Customer> doGetPagesCustomerRequest(
+    public List<Customer> doGetPagesCustomer(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
@@ -48,7 +48,7 @@ public class CustomerController {
     }
 
     @GetMapping
-    public Customer doGetCustomerRequest(
+    public Customer doGetCustomer(
             Principal principal) {
 
         return service.getDto(principal.getName());

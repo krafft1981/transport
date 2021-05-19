@@ -25,7 +25,7 @@ public class ParkingController {
     private ParkingService service;
 
     @DeleteMapping
-    public void doDeleteParkingRequest(
+    public void doDeleteParking(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id) {
 
@@ -33,7 +33,7 @@ public class ParkingController {
     }
 
     @GetMapping(value = "/list")
-    public List<Parking> goGetPagesParkingRequest(
+    public List<Parking> goGetPagesParking(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 
@@ -42,20 +42,20 @@ public class ParkingController {
     }
 
     @PostMapping
-    public Long goPostParkingRequest(
+    public Long goPostParking(
             Principal principal) {
 
         return service.create(principal.getName());
     }
 
     @GetMapping(value = "/my")
-    public List<Parking> doGetMyParkingRequest(Principal principal) {
+    public List<Parking> doGetMyParking(Principal principal) {
 
         return service.getMyParking(principal.getName());
     }
 
     @PutMapping
-    public void goPutParkingRequest(
+    public void goPutParking(
             Principal principal,
             @RequestBody Parking parking) {
 

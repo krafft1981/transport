@@ -21,14 +21,14 @@ public class TypeController {
     private TypeService service;
 
     @PostMapping
-    public Long doPostTypeRequest(
+    public Long doPostType(
             @RequestParam(value = "name", required = true) String name) {
 
         return service.create(name);
     }
 
     @GetMapping(value = "/list")
-    public List<Type> doGetListTypeRequest(
+    public List<Type> doGetListType(
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size) {
 

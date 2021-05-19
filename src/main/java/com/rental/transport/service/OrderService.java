@@ -1,7 +1,9 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CalendarEntity;
+import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
@@ -11,6 +13,7 @@ import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
+import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
@@ -18,6 +21,7 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
@@ -49,83 +53,81 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
+    private CalendarRepository calendarRepository;
+
+    @Autowired
     private OrderMapper orderMapper;
 
     @Autowired
     private RequestMapper requestMapper;
 
+    @Autowired
+    private CalendarMapper calendarMapper;
+
     @Scheduled(cron = "0 0 * * * ?")
     public void setRequestExpired() {
 
-        Date now = new Date();
-        Integer hour = calendarService.getHour(now);
-        Long day = calendarService.getDayId(now.getTime());
-        requestRepository.setExpired(day, hour);
+//        requestRepository.setExpired();
     }
 
-    private void setInteracted(RequestEntity request, CustomerEntity driver, Long orderId) {
-
-        requestRepository
-                .findByCustomerAndTransportAndCalendarAndStatus(
-                        request.getCustomer(),
-                        request.getTransport(),
-                        request.getCalendar(),
-                        RequestStatusEnum.NEW
-                )
-                .stream()
-                .forEach(entity -> {
-                    if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
-                        entity.setOrder(orderId);
-                        entity.setInteract(RequestStatusEnum.ACCEPTED);
-                    }
-                    else
-                        entity.setInteract(RequestStatusEnum.REJECTED);
-                });
-    }
+//    private void setInteracted(RequestEntity request, CustomerEntity driver, Long orderId) {
+//
+//        requestRepository
+//                .findByCustomerAndTransportAndCalendarAndStatus(
+//                        request.getCustomer(),
+//                        request.getTransport(),
+//                        request.getCalendar(),
+//                        RequestStatusEnum.NEW
+//                )
+//                .stream()
+//                .forEach(entity -> {
+//                    if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
+//                        entity.setOrder(orderId);
+//                        entity.setInteract(RequestStatusEnum.ACCEPTED);
+//                    }
+//                    else
+//                        entity.setInteract(RequestStatusEnum.REJECTED);
+//                });
+//    }
 
     public Map<Integer, Event> getOrderByCustomer(String account, Pageable pageable)
             throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-//        return orderRepository
-//                .findByCustomerOrderByIdDesc(customer, pageable)
-//                .stream()
-//                .map(entity ->
-//                        new Event(
-//                                orderMapper.toDto(entity),
-//                                calendarMapper.toDto(entity.getCalendar().iterator().next())
-//                        )
-//                )
-//                .collect(Collectors.toMap());
-        return null;
+        Map<Integer, Event> result = new HashMap();
+        orderRepository
+                .findByCustomerOrderByIdDesc(customer, pageable)
+                .stream()
+                .forEach(entity -> {
+                    for (Integer hour : entity.getHours())
+                        result.put(hour, new Event(orderMapper.toDto(entity)));
+                });
+
+        return result;
     }
 
     public Map<Integer, Event> getOrderByMyTransport(String account, Pageable pageable) {
 
-        return null;
-//        return customerService
-//                .getEntity(account)
-//                .getTransport()
-//                .stream()
-//                .map(transport -> orderRepository
-//                        .findByTransportOrderByIdDesc(transport, pageable)
-//                        .stream()
-//                        .map(entity ->
-//                                new Event(
-//                                        orderMapper.toDto(entity),
-//                                        calendarMapper.toDto(entity.getCalendar().iterator().next())
-//                                )
-//                        )
-//                        .collect(Collectors.toList())
-//                )
-//                .flatMap(x -> x.stream())
-//                .collect(Collectors.toList());
+        CustomerEntity customer = customerService.getEntity(account);
+        Map<Integer, Event> result = new HashMap();
+        for(TransportEntity transport: customer.getTransport()) {
+            orderRepository
+                    .findByTransportOrderByIdDesc(transport, pageable)
+                    .stream()
+                    .forEach(entity -> {
+                        for (Integer hour : entity.getHours())
+                            result.put(hour, new Event(orderMapper.toDto(entity)));
+                    });
+        }
+
+        return result;
     }
 
     public Map<Integer, Event> getRequestAsCustomer(String account, Pageable pageable) {
 
         CustomerEntity customer = customerService.getEntity(account);
         return null;
+
 //        return requestRepository
 //                .findByCustomer(customer, pageable)
 //                .stream()
@@ -249,17 +251,11 @@ public class OrderService {
                 current = hour;
             }
 
-            for (Integer hour : hours) {
-                CalendarEntity calendar = calendarService.getEntity(day, hour, true);
-
-                // TODO проверки на занятость
-//        calendarService.checkCustomerBusy(customer, day, start, stop);
-//        calendarService.checkTransportBusy(transport, day, start, stop);
-
-                for (CustomerEntity driver : transport.getCustomer()) {
-                    RequestEntity entity = new RequestEntity(customer, driver, transport, calendar);
-                    requestRepository.save(entity);
-                }
+            for (CustomerEntity driver : transport.getCustomer()) {
+                RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
+                calendarService.checkCustomerBusy(customer, day, hours);
+                calendarService.checkTransportBusy(transport, day, hours);
+                requestRepository.save(request);
             }
         }
 
@@ -296,16 +292,15 @@ public class OrderService {
 
         CustomerEntity customer = request.getCustomer();
         TransportEntity transport = request.getTransport();
-        CalendarEntity calendar = request.getCalendar();
         ParkingEntity parking = transport.getParking().iterator().next();
 
-//        // validate future
+        // validate future
         Date now = new Date();
-        Long day = calendarService.getDayId(now.getTime());
-        Integer hour = calendarService.getHour(now);
 
-        if ((calendar.getDayNum() < day || ((calendar.getDayNum() == day) && (calendar.getHour() < hour))))
+        if ((request.getDay() < now.getTime()))
             throw new IllegalArgumentException("Allow orders only in the future");
+
+        OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
 //        calendarService.checkCustomerBusy(
 //                driver,
@@ -388,19 +383,19 @@ public class OrderService {
     public void rejectRequest(String account, Long requestId)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
-        RequestEntity request = requestRepository
-                .findById(requestId)
-                .orElseThrow(() -> new ObjectNotFoundException("Event", requestId));
-
-        CustomerEntity customer = customerService.getEntity(account);
-
-        if (!request.getTransport().getCustomer().contains(customer) && !request.getCustomer().equals(customer))
-            throw new AccessDeniedException("Confirmation");
-
-        if (request.getStatus() != RequestStatusEnum.NEW)
-            throw new IllegalArgumentException("Try update non new request");
-
-        setInteracted(request, null, null);
+//        RequestEntity request = requestRepository
+//                .findById(requestId)
+//                .orElseThrow(() -> new ObjectNotFoundException("Event", requestId));
+//
+//        CustomerEntity customer = customerService.getEntity(account);
+//
+//        if (!request.getTransport().getCustomer().contains(customer) && !request.getCustomer().equals(customer))
+//            throw new AccessDeniedException("Confirmation");
+//
+//        if (request.getStatus() != RequestStatusEnum.NEW)
+//            throw new IllegalArgumentException("Try update non new request");
+//
+//        setInteracted(request, null, null);
     }
 
     @PostConstruct

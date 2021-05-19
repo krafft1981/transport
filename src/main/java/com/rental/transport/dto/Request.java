@@ -26,4 +26,8 @@ public class Request extends AbstractIdDto {
     private CustomerEntity driver;
     @JsonProperty("transport")
     private TransportEntity transport;
+    @JsonProperty("day")
+    private Long day;
+    @JsonProperty("hours")
+    private Integer[] hours;
 }

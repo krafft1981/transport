@@ -2,6 +2,8 @@ package com.rental.transport.entity;
 
 import com.rental.transport.enums.RequestStatusEnum;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,13 +12,16 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 @Entity(name = "request")
 @Table(
@@ -26,34 +31,51 @@ import lombok.Setter;
         indexes = {
                 @Index(columnList = "driver_id", name = "request_driver_id_idx"),
                 @Index(columnList = "customer_id", name = "request_customer_id_idx"),
-                @Index(columnList = "transport_id", name = "request_transport_id_idx")
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"customer_id", "transport_id", "driver_id", "calendar_id"})
+                @Index(columnList = "transport_id", name = "request_transport_id_idx"),
+                @Index(columnList = "status", name = "request_status_idx")
         }
 )
 
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class RequestEntity extends AbstractEntity {
 
     private Date createdAt = new Date();
     private Date interactAt = null;
 
+    private Long day;
+    private Integer[] hours;
+
     private Long order;
     private RequestStatusEnum status = RequestStatusEnum.NEW;
 
     private CustomerEntity driver;
     private TransportEntity transport;
-    private CalendarEntity calendar;
     private CustomerEntity customer;
 
-    public RequestEntity(CustomerEntity customer, CustomerEntity driver, TransportEntity transport, CalendarEntity calendar) {
+    public RequestEntity(CustomerEntity customer, CustomerEntity driver, TransportEntity transport, Long day, Integer[] hours) {
 
         setDriver(driver);
         setCustomer(customer);
-        setCalendar(calendar);
         setTransport(transport);
+        setDay(day);
+        setHours(hours);
+    }
+
+    @Type(type = "int-array")
+    @Column(
+            name = "hours",
+            columnDefinition = "integer[]"
+    )
+    public Integer[] getHours() {
+        return hours;
+    }
+
+    @Basic
+    @Column(name = "day", nullable = false, insertable = true, updatable = true)
+    public Long getDay() {
+        return day;
     }
 
     @Basic
@@ -77,32 +99,22 @@ public class RequestEntity extends AbstractEntity {
         return status;
     }
 
-    @Basic
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     public CustomerEntity getCustomer() {
         return customer;
     }
 
-    @Basic
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "driver_id", referencedColumnName = "id")
     public CustomerEntity getDriver() {
         return driver;
     }
 
-    @Basic
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "transport_id", referencedColumnName = "id")
     public TransportEntity getTransport() {
         return transport;
-    }
-
-    @Basic
-    @ManyToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "calendar_id", referencedColumnName = "id")
-    public CalendarEntity getCalendar() {
-        return calendar;
     }
 
     @Basic

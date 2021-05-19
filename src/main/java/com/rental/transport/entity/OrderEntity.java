@@ -4,17 +4,18 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 @Entity(name = "orders")
 @Table(
@@ -33,12 +34,37 @@ import lombok.Setter;
 public class OrderEntity extends AbstractEntity {
 
     private CustomerEntity customer;
+    private CustomerEntity driver;
     private TransportEntity transport;
 
     private Set<PropertyEntity> property = new HashSet<>();
-    private Set<CustomerEntity> driver = new HashSet<>();
-    private Set<CalendarEntity> calendar = new HashSet<>();
     private Set<MessageEntity> message = new HashSet<>();
+    private Long day;
+    private Integer[] hours;
+
+    public OrderEntity(CustomerEntity customer, TransportEntity transport, CustomerEntity driver, Long day, Integer[] hours) {
+
+        setCustomer(customer);
+        setTransport(transport);
+        setDay(day);
+        setHours(hours);
+        setDriver(driver);
+    }
+
+    @Type(type = "int-array")
+    @Column(
+            name = "hours",
+            columnDefinition = "integer[]"
+    )
+    public Integer[] getHours() {
+        return hours;
+    }
+
+    @Basic
+    @Column(name = "day", nullable = false, insertable = true, updatable = true)
+    public Long getDay() {
+        return day;
+    }
 
     @Basic
     @ManyToOne
@@ -58,29 +84,20 @@ public class OrderEntity extends AbstractEntity {
         return property;
     }
 
-    @ManyToMany
-    @JoinTable(name = "orders_driver",
-            joinColumns = @JoinColumn(name = "order_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
-    )
-    public Set<CustomerEntity> getDriver() {
-        return driver;
-    }
+    @Basic
+    @Column(name = "driver", nullable = false, insertable = true, updatable = true)
 
-    @OneToMany(cascade = {CascadeType.ALL})
-    @JoinTable(name = "orders_calendar",
-            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
-    )
-    public Set<CalendarEntity> getCalendar() {
-        return calendar;
+    @ManyToOne
+    public CustomerEntity getDriver() {
+        return driver;
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "orders_message",
             joinColumns = @JoinColumn(name = "orders_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
-    )    public Set<MessageEntity> getMessage() {
+    )
+    public Set<MessageEntity> getMessage() {
         return message;
     }
 
@@ -102,20 +119,7 @@ public class OrderEntity extends AbstractEntity {
             addProperty(entryes[id]);
     }
 
-    public void addDriver(CustomerEntity entity) {
-        driver.add(entity);
-    }
-
     public void addMessage(MessageEntity entity) {
         message.add(entity);
-    }
-
-    public void addCalendar(CalendarEntity entity) {
-        calendar.add(entity);
-    }
-
-    public void deleteCalendarEntity(CalendarEntity entity) {
-
-        calendar.remove(entity);
     }
 }

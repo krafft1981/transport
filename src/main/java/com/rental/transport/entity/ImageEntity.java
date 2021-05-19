@@ -23,6 +23,10 @@ public class ImageEntity extends AbstractEntity {
 
     private String data = "";
 
+    public ImageEntity(byte[] data) {
+        setData(new String(data));
+    }
+
     @Basic
     @Column(name = "data", nullable = false, insertable = true, updatable = true)
     @Type(type = "text")

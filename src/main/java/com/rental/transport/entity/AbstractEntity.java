@@ -1,5 +1,7 @@
 package com.rental.transport.entity;
 
+import com.vladmihalcea.hibernate.type.array.IntArrayType;
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -7,7 +9,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import lombok.Setter;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
+@TypeDefs({
+        @TypeDef(
+                name = "string-array",
+                typeClass = StringArrayType.class
+        ),
+        @TypeDef(
+                name = "int-array",
+                typeClass = IntArrayType.class
+        )
+})
 @Setter
 @MappedSuperclass
 public class AbstractEntity implements Serializable {

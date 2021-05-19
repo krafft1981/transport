@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +24,7 @@ public class OrderController {
     private OrderService service;
 
     @PostMapping(value = "/request/confirm")
-    public void doPostConfirmOrderRequest(
+    public void doPostConfirmOrder(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
@@ -33,18 +32,15 @@ public class OrderController {
     }
 
     @PostMapping(value = "/request/reject")
-    public void doPostRejectOrderRequest(
+    public void doPostRejectOrder(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
         service.rejectRequest(principal.getName(), requestId);
     }
 
-    @PostMapping(
-            produces = MediaType.TEXT_PLAIN_VALUE,
-            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE
-    )
-    public Map<Integer, Event> doPostRequest(
+    @PostMapping
+    public Map<Integer, Event> doPost(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,
@@ -94,7 +90,7 @@ public class OrderController {
     }
 
     @PutMapping(value = "/absent")
-    public Long doPutAbsentCustomerRequest(
+    public Long doPutAbsentCustomer(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "hour", required = true) Integer[] hours) {
@@ -103,14 +99,14 @@ public class OrderController {
     }
 
     @DeleteMapping(value = "/absent")
-    public void doDeleteAbsentCustomerRequest(
+    public void doDeleteAbsentCustomer(
             Principal principal,
             @RequestParam(value = "id", required = true) Long[] ids) {
         service.deleteAbsentCustomerEntry(principal.getName(), ids);
     }
 
     @GetMapping(value = "/calendar/transport")
-    public Map<Integer, Event> doGetTransportCalendarRequest(
+    public Map<Integer, Event> doGetTransportCalendar(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "transport_id", required = true) Long transportId) {
@@ -119,7 +115,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/calendar/customer")
-    public Map<Integer, Event> doGetCustomerCalendarRequest(
+    public Map<Integer, Event> doGetCustomerCalendar(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
