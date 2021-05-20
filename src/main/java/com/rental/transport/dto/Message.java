@@ -14,8 +14,8 @@ public class Message extends AbstractIdDto {
 
     @JsonProperty("text")
     private String text;
-    @JsonProperty("customer_id")
-    private Long customerId;
+    @JsonProperty("customer")
+    private Customer customer;
     @JsonProperty("date")
     private Long date;
 }

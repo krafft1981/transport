@@ -1,6 +1,8 @@
 package com.rental.transport.entity;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,16 +27,27 @@ import org.hibernate.annotations.Type;
 
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class MessageEntity extends AbstractEntity {
 
     private String text = "";
     private CustomerEntity customer;
-    private Date date = new Date();
+    private Date date;
 
     public MessageEntity(CustomerEntity customer, String text) {
         setCustomer(customer);
         setText(text);
+        setDate(getCurrentTime());
+    }
+
+    public MessageEntity() {
+        setDate(getCurrentTime());
+    }
+
+    private Date getCurrentTime() {
+        Calendar calendar = Calendar.getInstance();
+        Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(new Date());
+        return calendar.getTime();
     }
 
     @Basic
