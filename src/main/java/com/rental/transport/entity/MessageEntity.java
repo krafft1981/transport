@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
@@ -36,14 +35,14 @@ public class MessageEntity extends AbstractEntity {
     public MessageEntity(CustomerEntity customer, String text) {
         setCustomer(customer);
         setText(text);
-        setDate(getCurrentTime());
+        setDate(currentTime());
     }
 
     public MessageEntity() {
-        setDate(getCurrentTime());
+        setDate(currentTime());
     }
 
-    private Date getCurrentTime() {
+    private Date currentTime() {
         Calendar calendar = Calendar.getInstance();
         Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(new Date());

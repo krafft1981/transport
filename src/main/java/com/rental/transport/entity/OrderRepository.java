@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends IRepository<OrderEntity> {
 
     List<OrderEntity> findByCustomerOrderByIdDesc(CustomerEntity customer, Pageable pageable);
-    OrderEntity findByCustomerAndCalendar(CustomerEntity customer, CalendarEntity calendar);
+    List<OrderEntity> findByCustomerAndDay(CustomerEntity customer, Long day);
     List<OrderEntity> findByTransportOrderByIdDesc(TransportEntity transport, Pageable pageable);
 }

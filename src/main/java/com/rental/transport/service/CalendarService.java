@@ -2,7 +2,6 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.dto.Order;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
@@ -21,8 +20,8 @@ import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -242,14 +241,10 @@ public class CalendarService {
                 .findCustomerCalendarByDay(customer.getId(), day)
                 .stream()
                 .forEach(entity -> {
-                    OrderEntity orderEntity = orderRepository.findByCustomerAndCalendar(customer, entity);
-                    if (Objects.nonNull(orderEntity)) {
-                        for (Integer hour : orderEntity.getHours())
-                            result.put(hour, new Event(orderMapper.toDto(orderEntity)));
-                    }
-                    else {
-                        for (Integer hour : orderEntity.getHours())
-                            result.put(hour, new Event(EventTypeEnum.UNAVAILABLE, orderEntity.getDay(),orderEntity.getHours()));
+                    List<OrderEntity> orders = orderRepository.findByCustomerAndDay(customer, day);
+                    for (OrderEntity order : orders) {
+                        for (Integer hour : order.getHours())
+                            result.put(hour, new Event(orderMapper.toDto(order)));
                     }
                 });
 

@@ -24,6 +24,7 @@ import org.hibernate.annotations.Type;
         catalog = "relationship",
         indexes = {
                 @Index(columnList = "customer_id", name = "order_customer_idx"),
+                @Index(columnList = "driver_id", name = "order_driver_idx"),
                 @Index(columnList = "transport_id", name = "order_transport_idx")
         }
 )
@@ -66,7 +67,6 @@ public class OrderEntity extends AbstractEntity {
         return day;
     }
 
-    @Basic
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     public CustomerEntity getCustomer() {
@@ -84,10 +84,8 @@ public class OrderEntity extends AbstractEntity {
         return property;
     }
 
-    @Basic
-    @Column(name = "driver", nullable = false, insertable = true, updatable = true)
-
     @ManyToOne
+    @JoinColumn(name = "driver_id", referencedColumnName = "id")
     public CustomerEntity getDriver() {
         return driver;
     }
