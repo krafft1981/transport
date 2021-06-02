@@ -1,6 +1,5 @@
 package com.rental.transport.entity;
 
-import com.rental.transport.enums.RequestStatusEnum;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,7 +13,7 @@ public interface RequestRepository extends IRepository<RequestEntity> {
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours " +
-                    "from request where day = :day and r.transport_id = :transportId"
+                    "from request r where day = :day and r.transport_id = :transportId"
     )
     List<RequestEntity> findRequestByTransportAndDay(
             @Param("transportId") Long transportId,
