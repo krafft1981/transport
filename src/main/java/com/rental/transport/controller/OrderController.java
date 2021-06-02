@@ -1,8 +1,10 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Request;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -70,23 +72,17 @@ public class OrderController {
     }
 
     @GetMapping(value = "/request/customer")
-    public Map<Integer, Event> doGetRequestAsCustomer(
-            Principal principal,
-            @RequestParam(value = "page", required = true) Integer page,
-            @RequestParam(value = "size", required = true) Integer size) {
+    public List<Request> doGetRequestAsCustomer(
+            Principal principal) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getRequestAsCustomer(principal.getName(), pageable);
+        return service.getRequestAsCustomer(principal.getName());
     }
 
     @GetMapping(value = "/request/driver")
-    public Map<Integer, Event> doGetRequestAsDriver(
-            Principal principal,
-            @RequestParam(value = "page", required = true) Integer page,
-            @RequestParam(value = "size", required = true) Integer size) {
+    public List<Request> doGetRequestAsDriver(
+            Principal principal) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getRequestAsDriver(principal.getName(), pageable);
+        return service.getRequestAsDriver(principal.getName());
     }
 
     @PutMapping(value = "/absent")
@@ -95,8 +91,7 @@ public class OrderController {
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "hour", required = true) Integer[] hours) {
 
-        return service.putAbsentCustomerEntry(principal.getName(), day, hours);
-    }
+        return service.putAbsentCustomerEntry(principal.getName(), day, hours);    }
 
     @DeleteMapping(value = "/absent")
     public void doDeleteAbsentCustomer(

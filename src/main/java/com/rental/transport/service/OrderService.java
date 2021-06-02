@@ -1,6 +1,8 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Request;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
@@ -11,6 +13,7 @@ import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.RequestEntity;
 import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
 import com.rental.transport.mapper.CalendarMapper;
@@ -22,8 +25,10 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -110,7 +115,7 @@ public class OrderService {
 
         CustomerEntity customer = customerService.getEntity(account);
         Map<Integer, Event> result = new HashMap();
-        for(TransportEntity transport: customer.getTransport()) {
+        for (TransportEntity transport : customer.getTransport()) {
             orderRepository
                     .findByTransportOrderByIdDesc(transport, pageable)
                     .stream()
@@ -123,33 +128,24 @@ public class OrderService {
         return result;
     }
 
-    public Map<Integer, Event> getRequestAsCustomer(String account, Pageable pageable) {
+    public List<Request> getRequestAsCustomer(String account) {
 
         CustomerEntity customer = customerService.getEntity(account);
-        return null;
-
-//        return requestRepository
-//                .findByCustomer(customer, pageable)
-//                .stream()
-//                .map(entity -> new Event(
-//                        requestMapper.toDto(entity),
-//                        calendarMapper.toDto(entity.getCalendar()))
-//                )
-//                .collect(Collectors.toList());
+        return requestRepository
+                .findRequestByCustomer(customer.getId())
+                .stream()
+                .map(entity -> requestMapper.toDto(entity))
+                .collect(Collectors.toList());
     }
 
-    public Map<Integer, Event> getRequestAsDriver(String account, Pageable pageable) {
+    public List<Request> getRequestAsDriver(String account) {
 
         CustomerEntity driver = customerService.getEntity(account);
-        return null;
-//        return requestRepository
-//                .findByDriver(driver, pageable)
-//                .stream()
-//                .map(entity -> new Event(
-//                        requestMapper.toDto(entity),
-//                        calendarMapper.toDto(entity.getCalendar()))
-//                )
-//                .collect(Collectors.toList());
+        return requestRepository
+                .findRequestByDriver(driver.getId())
+                .stream()
+                .map(entity -> requestMapper.toDto(entity))
+                .collect(Collectors.toList());
     }
 
     public OrderEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -163,7 +159,7 @@ public class OrderService {
     public Long putAbsentCustomerEntry(String account, Long day, Integer[] hours)
             throws IllegalArgumentException, ObjectNotFoundException {
 
-        return null;
+        return 0L;
 
 //        CustomerEntity customer = customerService.getEntity(account);
 //        calendarService.checkCustomerBusy(customer, day, start, stop);

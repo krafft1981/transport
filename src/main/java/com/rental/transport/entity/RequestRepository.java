@@ -22,6 +22,24 @@ public interface RequestRepository extends IRepository<RequestEntity> {
 
     @Query(
             nativeQuery = true,
+            value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours " +
+                    "from request r where status = 'NEW' and driver_id = :customerId"
+    )
+    List<RequestEntity> findRequestByDriver(
+            @Param("customerId") Long customerId
+    );
+
+    @Query(
+            nativeQuery = true,
+            value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours " +
+                    "from request r where status = 'NEW' and customer_id = :customerId"
+    )
+    List<RequestEntity> findRequestByCustomer(
+            @Param("customerId") Long customerId
+    );
+
+    @Query(
+            nativeQuery = true,
             value = "delete from request where status = 'NEW' and customer_id = :customerId and transport_id = :transportId and day = :day"
     )
     @Modifying
