@@ -15,9 +15,9 @@ public class ImageService {
     @Autowired
     private ImageRepository imageRepository;
 
-    public Long create(byte[] source) {
+    public Long create(byte[] data) {
 
-        ImageEntity entity = new ImageEntity(source);
+        ImageEntity entity = new ImageEntity(data);
         return imageRepository.save(entity).getId();
     }
 

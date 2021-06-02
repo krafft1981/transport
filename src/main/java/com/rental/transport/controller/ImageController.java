@@ -26,9 +26,9 @@ public class ImageController {
     private ImageService service;
 
     @PostMapping
-    public Long doPostImage(@RequestBody byte[] image) {
+    public Long doPostImage(@RequestBody byte[] data) {
 
-        return service.create(image);
+        return service.create(data);
     }
 
     @GetMapping
