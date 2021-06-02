@@ -1,6 +1,5 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dto.Image;
 import com.rental.transport.service.ImageService;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
@@ -27,21 +26,20 @@ public class ImageController {
     private ImageService service;
 
     @PostMapping
-    public Long doPostImage(@RequestBody String image) {
+    public Long doPostImage(@RequestBody byte[] image) {
 
         return service.create(image);
     }
 
     @GetMapping
-    public Image doGetImage(@RequestParam(value = "id", required = true) Long id) throws ObjectNotFoundException {
+    public byte[] doGetImage(@RequestParam(value = "id", required = true) Long id) throws ObjectNotFoundException {
 
         return service.getImage(id);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] doGetImageByPath(@PathVariable(value = "id") Long id) throws ObjectNotFoundException {
-        Image image = service.getImage(id);
-        return service.Base64DecodeImage(image);
+        return service.getImage(id);
     }
 
     @DeleteMapping
