@@ -2,6 +2,7 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Customer;
 import com.rental.transport.service.CustomerService;
+import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class CustomerController {
     @Autowired
     private CustomerService service;
 
+    @ApiOperation(
+            value = "Редактирование пользователя"
+    )
     @PutMapping
     public void doPutUpdateCustomer(
             Principal principal,
@@ -30,6 +34,9 @@ public class CustomerController {
         service.update(principal.getName(), dto);
     }
 
+    @ApiOperation(
+            value = "Редактирование пароля пользователя"
+    )
     @PutMapping(value = "/update/password")
     public void doPutUpdateCustomerPassword(
             Principal principal,
@@ -38,6 +45,9 @@ public class CustomerController {
         service.updatePassword(principal.getName(), password);
     }
 
+    @ApiOperation(
+            value = "Получение списка доступных пользователей"
+    )
     @GetMapping(value = "/list")
     public List<Customer> doGetPagesCustomer(
             @RequestParam(value = "page", required = true) Integer page,
@@ -47,6 +57,9 @@ public class CustomerController {
         return service.getPage(pageable);
     }
 
+    @ApiOperation(
+            value = "Получение пользователя"
+    )
     @GetMapping
     public Customer doGetCustomer(
             Principal principal) {

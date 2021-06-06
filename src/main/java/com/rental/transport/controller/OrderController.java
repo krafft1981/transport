@@ -4,13 +4,11 @@ import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
 import com.rental.transport.service.OrderService;
+import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,23 +25,32 @@ public class OrderController {
     @Autowired
     private OrderService service;
 
+    @ApiOperation(
+            value = "Подтверждение в возможности выполнения заказа"
+    )
     @PostMapping(value = "/request/confirm")
-    public void doPostConfirmOrder(
+    public List<Request> doPostConfirmOrder(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
-        service.confirmRequest(principal.getName(), requestId);
+        return service.confirmRequest(principal.getName(), requestId);
     }
 
+    @ApiOperation(
+            value = "Отказ в возможности выполнения заказа"
+    )
     @PostMapping(value = "/request/reject")
-    public void doPostRejectOrder(
+    public List<Request> doPostRejectOrder(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
-        service.rejectRequest(principal.getName(), requestId);
+        return service.rejectRequest(principal.getName(), requestId);
     }
 
-    @PostMapping
+    @ApiOperation(
+            value = "Создание запроса на заказ"
+    )
+    @PostMapping(value = "/request")
     public Map<Integer, Event> doPost(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
@@ -53,45 +60,49 @@ public class OrderController {
         return service.createRequest(principal.getName(), transport_id, day, hour);
     }
 
-    @GetMapping
-    public List<Order> doGet(Principal principal) {
-        return service.getOrder(principal.getName());
-    }
-
+    @ApiOperation(
+            value = "Получение списка заказов по транспорту"
+    )
     @GetMapping(value = "/transport")
-    public Map<Integer, Event> doGetOrderByTransport(
-            Principal principal,
-            @RequestParam(value = "page", required = true) Integer page,
-            @RequestParam(value = "size", required = true) Integer size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getOrderByMyTransport(principal.getName(), pageable);
+    public List<Order> doGetOrderByTransport(Principal principal) {
+        return service.getOrderByMyTransport(principal.getName());
     }
 
+    @ApiOperation(
+            value = "Получение списка заказов по заказчику"
+    )
     @GetMapping(value = "/customer")
-    public Map<Integer, Event> doGetOrderByCustomer(
-            Principal principal,
-            @RequestParam(value = "page", required = true) Integer page,
-            @RequestParam(value = "size", required = true) Integer size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        return service.getOrderByCustomer(principal.getName(), pageable);
+    public List<Order> doGetOrderByCustomer(Principal principal) {
+        return service.getOrderByCustomer(principal.getName());
     }
 
-    @GetMapping(value = "/request/customer")
-    public List<Request> doGetRequestAsCustomer(
-            Principal principal) {
+    @ApiOperation(
+            value = "Получение списка заказов по водителю"
+    )
+    @GetMapping(value = "/driver")
+    public List<Order> doGetOrderByDriver(Principal principal) {
+        return service.getOrderByDriver(principal.getName());
+    }
 
+    @ApiOperation(
+            value = "Получение списка запросов заказчика"
+    )
+    @GetMapping(value = "/request/customer")
+    public List<Request> doGetRequestAsCustomer(Principal principal) {
         return service.getRequestAsCustomer(principal.getName());
     }
 
+    @ApiOperation(
+            value = "Получение списка запросов водителя"
+    )
     @GetMapping(value = "/request/driver")
-    public List<Request> doGetRequestAsDriver(
-            Principal principal) {
-
+    public List<Request> doGetRequestAsDriver(Principal principal) {
         return service.getRequestAsDriver(principal.getName());
     }
 
+    @ApiOperation(
+            value = "Редактивание записи в записной книге"
+    )
     @PutMapping(value = "/absent")
     public Long doPutAbsentCustomer(
             Principal principal,
@@ -101,6 +112,9 @@ public class OrderController {
         return service.putAbsentCustomerEntry(principal.getName(), id, message);
     }
 
+    @ApiOperation(
+            value = "Создание записи в записной книге"
+    )
     @PostMapping(value = "/absent")
     public Event doPostAbsentCustomer(
             Principal principal,
@@ -110,6 +124,9 @@ public class OrderController {
         return service.postAbsentCustomerEntry(principal.getName(), day, hours);
     }
 
+    @ApiOperation(
+            value = "Удаление записи из записной книги"
+    )
     @DeleteMapping(value = "/absent")
     public void doDeleteAbsentCustomer(
             Principal principal,
@@ -117,6 +134,9 @@ public class OrderController {
         service.deleteAbsentCustomerEntry(principal.getName(), ids);
     }
 
+    @ApiOperation(
+            value = "Получение календаря по транспорту"
+    )
     @GetMapping(value = "/calendar/transport")
     public Map<Integer, Event> doGetTransportCalendar(
             Principal principal,
@@ -126,6 +146,9 @@ public class OrderController {
         return service.getTransportCalendar(principal.getName(), day, transportId);
     }
 
+    @ApiOperation(
+            value = "Получение календаря по заказчику"
+    )
     @GetMapping(value = "/calendar/customer")
     public Map<Integer, Event> doGetCustomerCalendar(
             Principal principal,

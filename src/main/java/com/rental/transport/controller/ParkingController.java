@@ -2,6 +2,7 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Parking;
 import com.rental.transport.service.ParkingService;
+import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ParkingController {
     @Autowired
     private ParkingService service;
 
+    @ApiOperation(
+            value = "Удаление стоянки"
+    )
     @DeleteMapping
     public void doDeleteParking(
             Principal principal,
@@ -32,6 +36,9 @@ public class ParkingController {
         service.delete(principal.getName(), id);
     }
 
+    @ApiOperation(
+            value = "Получение списка доступных стоянок"
+    )
     @GetMapping(value = "/list")
     public List<Parking> goGetPagesParking(
             @RequestParam(value = "page", required = true) Integer page,
@@ -41,6 +48,9 @@ public class ParkingController {
         return service.getPage(pageable);
     }
 
+    @ApiOperation(
+            value = "Создание стоянки"
+    )
     @PostMapping
     public Long goPostParking(
             Principal principal) {
@@ -48,12 +58,18 @@ public class ParkingController {
         return service.create(principal.getName());
     }
 
+    @ApiOperation(
+            value = "Получение моих стоянок"
+    )
     @GetMapping(value = "/my")
     public List<Parking> doGetMyParking(Principal principal) {
 
         return service.getMyParking(principal.getName());
     }
 
+    @ApiOperation(
+            value = "Редактирование стоянки"
+    )
     @PutMapping
     public void goPutParking(
             Principal principal,

@@ -248,17 +248,17 @@ public class CalendarService {
     public Map<Integer, Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
         Map<Integer, Event> result = getCustomerWeekTime(day, customer);
-//        calendarRepository
-//                .findCustomerCalendarByDay(customer.getId(), day)
-//                .stream()
-//                .forEach(entity -> {
-//                    List<OrderEntity> orders = orderRepository.findByCustomerAndDay(customer, day);
+        calendarRepository
+                .findCustomerCalendarByDay(customer.getId(), day)
+                .stream()
+                .forEach(entity -> {
+//                    List<OrderEntity> orders = orderRepository.findByCustomer(customer, day);
 //                    System.out.println("found: " + orders.size() + " orders to day" + day);
 //                    for (OrderEntity order : orders) {
 //                        for (Integer hour : order.getHours())
 //                            result.put(hour, new Event(orderMapper.toDto(order)));
 //                    }
-//                });
+                });
 
         return result;
     }

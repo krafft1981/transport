@@ -32,7 +32,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +75,11 @@ public class OrderService {
         requestRepository.setExpired();
     }
 
+    private CustomerEntity getCustomerByAccount(String account) throws ObjectNotFoundException {
+
+        return customerService.getEntity(account);
+    }
+
     private void setInteracted(RequestEntity request, CustomerEntity driver, Long orderId) {
 
         requestRepository
@@ -95,43 +99,43 @@ public class OrderService {
                 });
     }
 
-    public Map<Integer, Event> getOrderByCustomer(String account, Pageable pageable)
-            throws ObjectNotFoundException {
+    public List<Order> getOrderByDriver(String account) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
-        Map<Integer, Event> result = new HashMap();
-        orderRepository
-                .findByCustomerOrderByIdDesc(customer, pageable)
+        CustomerEntity driver = getCustomerByAccount(account);
+        return orderRepository
+                .findByDriver(driver)
                 .stream()
-                .forEach(entity -> {
-                    for (Integer hour : entity.getHours())
-                        result.put(hour, new Event(orderMapper.toDto(entity)));
-                });
-
-        return result;
+                .map(entity -> orderMapper.toDto(entity))
+                .collect(Collectors.toList());
     }
 
-    public Map<Integer, Event> getOrderByMyTransport(String account, Pageable pageable)
-            throws ObjectNotFoundException {
+    public List<Order> getOrderByCustomer(String account) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
-        Map<Integer, Event> result = new HashMap();
+        CustomerEntity customer = getCustomerByAccount(account);
+        return orderRepository
+                .findByCustomer(customer)
+                .stream()
+                .map(entity -> orderMapper.toDto(entity))
+                .collect(Collectors.toList());
+    }
+
+    public List<Order> getOrderByMyTransport(String account) throws ObjectNotFoundException {
+
+        CustomerEntity customer = getCustomerByAccount(account);
+        List<Order> result = new ArrayList();
         for (TransportEntity transport : customer.getTransport()) {
             orderRepository
-                    .findByTransportOrderByIdDesc(transport, pageable)
+                    .findByTransport(transport)
                     .stream()
-                    .forEach(entity -> {
-                        for (Integer hour : entity.getHours())
-                            result.put(hour, new Event(orderMapper.toDto(entity)));
-                    });
+                    .forEach(entity -> result.add(orderMapper.toDto(entity)));
         }
 
         return result;
     }
 
-    public List<Request> getRequestAsCustomer(String account) {
+    public List<Request> getRequestAsCustomer(String account) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customer = getCustomerByAccount(account);
         return requestRepository
                 .findRequestByCustomer(customer.getId())
                 .stream()
@@ -139,14 +143,19 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public List<Request> getRequestAsDriver(String account) {
+    public List<Request> getRequestAsDriver(CustomerEntity driver) {
 
-        CustomerEntity driver = customerService.getEntity(account);
         return requestRepository
                 .findRequestByDriver(driver.getId())
                 .stream()
                 .map(entity -> requestMapper.toDto(entity))
                 .collect(Collectors.toList());
+    }
+
+    public List<Request> getRequestAsDriver(String account) throws ObjectNotFoundException {
+
+        CustomerEntity driver = getCustomerByAccount(account);
+        return getRequestAsDriver(driver);
     }
 
     public OrderEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -211,25 +220,18 @@ public class OrderService {
     public void deleteAbsentCustomerEntry(String account, Long[] ids)
             throws IllegalArgumentException, ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customer = getCustomerByAccount(account);
         for (Long id : ids) {
             CalendarEntity calendar = calendarService.getEntity(id);
             customer.deleteCalendarEntity(calendar);
         }
     }
 
-    public List<Order> getOrder(String account) {
-
-        CustomerEntity customer = customerService.getEntity(account);
-//        orderRepository.findByCustomerOrderByIdDesc(customer);
-        return new ArrayList();
-    }
-
     @Transactional
     public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customer = getCustomerByAccount(account);
         TransportEntity transport = transportService.getEntity(transportId);
 
         Date now = new Date();
@@ -273,24 +275,24 @@ public class OrderService {
         return getTransportCalendar(account, day, transportId);
     }
 
-    public Map<Integer, Event> getTransportCalendar(String account, Long day, Long transportId) {
+    public Map<Integer, Event> getTransportCalendar(String account, Long day, Long transportId) throws ObjectNotFoundException {
 
         TransportEntity transport = transportService.getEntity(transportId);
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customer = getCustomerByAccount(account);
         return calendarService.getTransportCalendar(customer, transport, day);
     }
 
-    public Map<Integer, Event> getCustomerCalendarWithOrders(String account, Long day) {
+    public Map<Integer, Event> getCustomerCalendarWithOrders(String account, Long day) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity customer = getCustomerByAccount(account);
         return calendarService.getCustomerCalendarWithOrders(day, customer);
     }
 
     @Transactional
-    public void confirmRequest(String account, Long requestId)
+    public List<Request> confirmRequest(String account, Long requestId)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
-        CustomerEntity driver = customerService.getEntity(account);
+        CustomerEntity driver = getCustomerByAccount(account);
         RequestEntity request = requestRepository
                 .findById(requestId)
                 .orElseThrow(() -> new ObjectNotFoundException("Event", requestId));
@@ -347,6 +349,7 @@ public class OrderService {
                 propertyService.copy("order_parking_locality", parking.getProperty(), "parking_locality"),
                 propertyService.copy("order_parking_region", parking.getProperty(), "parking_region"),
 
+                propertyService.create("order_transport_type", transport.getType().getName()),
                 propertyService.copy("order_transport_name", transport.getProperty(), "transport_name"),
                 propertyService.copy("order_transport_capacity", transport.getProperty(), "transport_capacity"),
                 propertyService.copy("order_transport_price", transport.getProperty(), "transport_price"),
@@ -389,25 +392,28 @@ public class OrderService {
                         }
                     }
                 });
+
+        return getRequestAsDriver(driver);
     }
 
     @Transactional
-    public void rejectRequest(String account, Long requestId)
+    public List<Request> rejectRequest(String account, Long requestId)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         RequestEntity request = requestRepository
                 .findById(requestId)
                 .orElseThrow(() -> new ObjectNotFoundException("Event", requestId));
 
-        CustomerEntity customer = customerService.getEntity(account);
+        CustomerEntity driver = getCustomerByAccount(account);
 
-        if (!request.getTransport().getCustomer().contains(customer) && !request.getCustomer().equals(customer))
+        if (!request.getTransport().getCustomer().contains(driver) && !request.getCustomer().equals(driver))
             throw new AccessDeniedException("Confirmation");
 
         if (request.getStatus() != RequestStatusEnum.NEW)
             throw new IllegalArgumentException("Try update non new request");
 
         setInteracted(request, null, null);
+        return getRequestAsDriver(driver);
     }
 
     @PostConstruct
@@ -420,6 +426,7 @@ public class OrderService {
         propertyService.createType("order_parking_locality", "Местонахождение", PropertyTypeEnum.String);
         propertyService.createType("order_parking_region", "Район", PropertyTypeEnum.String);
 
+        propertyService.createType("order_transport_type", "Тип транспорта", PropertyTypeEnum.String);
         propertyService.createType("order_transport_name", "Название транспорта", PropertyTypeEnum.String);
         propertyService.createType("order_transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
 

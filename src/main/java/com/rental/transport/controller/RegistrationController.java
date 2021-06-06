@@ -2,6 +2,7 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Customer;
 import com.rental.transport.service.CustomerService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,9 @@ public class RegistrationController {
     @Autowired
     private CustomerService service;
 
+    @ApiOperation(
+            value = "Регистрирование пользователя"
+    )
     @PostMapping
     public Customer doPostRegistration(
             @RequestParam(value = "account", required = true) String account,
@@ -27,6 +31,9 @@ public class RegistrationController {
         return service.create(account, password, phone, fio);
     }
 
+    @ApiOperation(
+            value = "Подтверждение регистрации пользователя"
+    )
     @PutMapping
     public void doPostRegistrationConfirm(
             @RequestParam(value = "account", required = true) String account) {
@@ -34,6 +41,9 @@ public class RegistrationController {
         service.confirm(account);
     }
 
+    @ApiOperation(
+            value = "Получение реквизитов пользователя на почту"
+    )
     @PostMapping(value = "/email")
     public void doPostRegistrationEmailCheck(
             @RequestParam(value = "account", required = true) String account) {

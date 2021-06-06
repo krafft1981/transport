@@ -2,6 +2,7 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Type;
 import com.rental.transport.service.TypeService;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,9 @@ public class TypeController {
     @Autowired
     private TypeService service;
 
+    @ApiOperation(
+          value = "Создание типа транспорта"
+    )
     @PostMapping
     public Long doPostType(
             @RequestParam(value = "name", required = true) String name) {
@@ -27,6 +31,9 @@ public class TypeController {
         return service.create(name);
     }
 
+    @ApiOperation(
+            value = "Получение списка доступных типов транспорта"
+    )
     @GetMapping(value = "/list")
     public List<Type> doGetListType(
             @RequestParam(value = "page", required = true) Integer page,

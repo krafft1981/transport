@@ -27,13 +27,4 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
     );
 
     CalendarEntity findByDayAndHours(Long day, Integer[] hours);
-
-    @Query(
-            nativeQuery = true,
-            value = "select c.id, c.day, c.hours, c.message from calendar c join request_calendar l on c.id = l.calendar_id where c.day = :day and l.transport_id = :transportId"
-    )
-    List<CalendarEntity> findRequestByCustomerAndDay(
-            @Param("transportId") Long transportId,
-            @Param("day") Long day
-    );
 }

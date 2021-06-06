@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.service.DistService;
+import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -21,11 +22,17 @@ public class DistController {
     @Autowired
     private DistService distService;
 
+    @ApiOperation(
+            value = "Получение файла"
+    )
     @GetMapping(value = "/list")
     public Set<String> getDistList() throws IOException {
         return distService.listFiles();
     }
 
+    @ApiOperation(
+            value = "Получение списка доступных файлов"
+    )
     @GetMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public HttpEntity<byte[]> getDistFile(
             @RequestParam(value = "name", required = true) String name
@@ -37,6 +44,9 @@ public class DistController {
         return new HttpEntity<byte[]>(distService.getFile(name), header);
     }
 
+    @ApiOperation(
+            value = "Получение количества загрузок"
+    )
     @GetMapping(value = "/score")
     public Map<String, AtomicLong> getDistScore() {
         return distService.getScore();
