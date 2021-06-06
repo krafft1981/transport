@@ -1,5 +1,6 @@
 package com.rental.transport.entity;
 
+import com.vladmihalcea.hibernate.type.array.DoubleArrayType;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import java.io.Serializable;
@@ -20,6 +21,10 @@ import org.hibernate.annotations.TypeDefs;
         @TypeDef(
                 name = "int-array",
                 typeClass = IntArrayType.class
+        ),
+        @TypeDef(
+                name = "double-array",
+                typeClass = DoubleArrayType.class
         )
 })
 @Setter

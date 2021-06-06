@@ -1,14 +1,11 @@
 package com.rental.transport.entity;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -20,9 +17,6 @@ import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 @Entity
 @Table(

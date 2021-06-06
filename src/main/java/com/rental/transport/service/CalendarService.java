@@ -22,6 +22,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,17 @@ public class CalendarService {
         calendar.set(java.util.Calendar.SECOND, 0);
         calendar.set(java.util.Calendar.MILLISECOND, 0);
         return calendar.getTime().getTime();
+    }
+
+    public CalendarEntity getEntity(Long day, Integer[] hours) {
+
+        CalendarEntity entity = calendarRepository.findByDayAndHours(day, hours);
+        if (Objects.isNull(entity)) {
+            entity = new CalendarEntity(day, hours);
+            calendarRepository.save(entity);
+        }
+
+        return entity;
     }
 
     public CalendarEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -184,7 +196,6 @@ public class CalendarService {
     public Map<Integer, Event> getTransportCalendar(CustomerEntity customer, TransportEntity transport, Long day) {
 
         Map<Integer, Event> result = new HashMap();
-
         Map<Integer, Event> transportCalendar = getTransportCalendar(getDayId(day), transport);
         Map<Integer, Event> driverCalendar = getDriversCalendar(getDayId(day), transport);
         Map<Integer, Event> customerCalendar = getCustomerCalendar(getDayId(day), customer);
@@ -237,16 +248,17 @@ public class CalendarService {
     public Map<Integer, Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
 
         Map<Integer, Event> result = getCustomerWeekTime(day, customer);
-        calendarRepository
-                .findCustomerCalendarByDay(customer.getId(), day)
-                .stream()
-                .forEach(entity -> {
-                    List<OrderEntity> orders = orderRepository.findByCustomerAndDay(customer, day);
-                    for (OrderEntity order : orders) {
-                        for (Integer hour : order.getHours())
-                            result.put(hour, new Event(orderMapper.toDto(order)));
-                    }
-                });
+//        calendarRepository
+//                .findCustomerCalendarByDay(customer.getId(), day)
+//                .stream()
+//                .forEach(entity -> {
+//                    List<OrderEntity> orders = orderRepository.findByCustomerAndDay(customer, day);
+//                    System.out.println("found: " + orders.size() + " orders to day" + day);
+//                    for (OrderEntity order : orders) {
+//                        for (Integer hour : order.getHours())
+//                            result.put(hour, new Event(orderMapper.toDto(order)));
+//                    }
+//                });
 
         return result;
     }

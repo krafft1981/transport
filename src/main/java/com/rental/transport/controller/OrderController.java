@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
 import com.rental.transport.service.OrderService;
 import java.security.Principal;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +51,11 @@ public class OrderController {
             @RequestParam(value = "hour", required = false) Integer[] hour) {
 
         return service.createRequest(principal.getName(), transport_id, day, hour);
+    }
+
+    @GetMapping
+    public List<Order> doGet(Principal principal) {
+        return service.getOrder(principal.getName());
     }
 
     @GetMapping(value = "/transport")
@@ -88,10 +95,20 @@ public class OrderController {
     @PutMapping(value = "/absent")
     public Long doPutAbsentCustomer(
             Principal principal,
+            @RequestParam(value = "id", required = true) Long id,
+            @RequestBody String message) {
+
+        return service.putAbsentCustomerEntry(principal.getName(), id, message);
+    }
+
+    @PostMapping(value = "/absent")
+    public Event doPostAbsentCustomer(
+            Principal principal,
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "hour", required = true) Integer[] hours) {
 
-        return service.putAbsentCustomerEntry(principal.getName(), day, hours);    }
+        return service.postAbsentCustomerEntry(principal.getName(), day, hours);
+    }
 
     @DeleteMapping(value = "/absent")
     public void doDeleteAbsentCustomer(

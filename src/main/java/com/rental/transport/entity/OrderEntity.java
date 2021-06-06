@@ -52,11 +52,9 @@ public class OrderEntity extends AbstractEntity {
         setDriver(driver);
     }
 
+    @Basic
+    @Column(name = "hours", columnDefinition = "Integer[]", nullable = false)
     @Type(type = "int-array")
-    @Column(
-            name = "hours",
-            columnDefinition = "integer[]"
-    )
     public Integer[] getHours() {
         return hours;
     }

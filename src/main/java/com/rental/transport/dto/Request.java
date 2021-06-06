@@ -1,8 +1,6 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.TransportEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,11 +19,11 @@ public class Request extends AbstractIdDto {
     @JsonProperty("order")
     private Order order;
     @JsonProperty("customer")
-    private CustomerEntity customer;
+    private Customer customer;
     @JsonProperty("driver")
-    private CustomerEntity driver;
+    private Customer driver;
     @JsonProperty("transport")
-    private TransportEntity transport;
+    private Transport transport;
     @JsonProperty("day")
     private Long day;
     @JsonProperty("hours")
