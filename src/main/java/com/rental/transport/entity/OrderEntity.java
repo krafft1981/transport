@@ -109,10 +109,22 @@ public class OrderEntity extends AbstractEntity {
         property.add(entity);
     }
 
+    public void addProperty(PropertyEntity entity, Integer order) {
+
+        String name = entity.getType().getLogicName();
+        PropertyEntity prop = property
+                .stream()
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity);
+        prop.setOrder(order);
+        property.add(prop);
+    }
+
     public void addProperty(PropertyEntity... entryes) {
 
         for (int id = 0; id < entryes.length; id++)
-            addProperty(entryes[id]);
+            addProperty(entryes[id], id);
     }
 
     public void addMessage(MessageEntity entity) {
