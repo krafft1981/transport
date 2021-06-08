@@ -406,6 +406,7 @@ public class OrderService {
         return getRequestAsDriver(driver);
     }
 
+    @Transactional
     public Order postOrderMessage(String account, Long orderId, String message)
             throws ObjectNotFoundException, AccessDeniedException {
 
@@ -418,7 +419,18 @@ public class OrderService {
             new AccessDeniedException("Message to");
 
         order.addMessage(new MessageEntity(customer, message));
+        orderRepository.save(order);
         return orderMapper.toDto(order);
+    }
+
+    public Order getOrder(String account, Long id) throws ObjectNotFoundException {
+
+        CustomerEntity customer = getCustomerByAccount(account);
+        OrderEntity entity = orderRepository
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Order", id));
+
+        return orderMapper.toDto(entity);
     }
 
     @PostConstruct

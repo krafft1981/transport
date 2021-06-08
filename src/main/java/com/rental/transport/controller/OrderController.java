@@ -160,14 +160,29 @@ public class OrderController {
     }
 
     @ApiOperation(
-            value = "Добавление сообщения"
+            value = "Добавление сообщения к заказу"
     )
-    @PostMapping(value = "/message")
+    @PostMapping(
+            value = "/message",
+            consumes = "text/plain",
+            produces = "application/json"
+    )
     public Order doPostCustomerMessage(
             Principal principal,
-            @RequestParam(value = "message", required = true) String message,
-            @RequestParam(value = "order_id", required = true) Long orderId) {
+            @RequestParam(value = "order_id", required = true) Long orderId,
+            @RequestBody String message) {
 
         return service.postOrderMessage(principal.getName(), orderId, message);
+    }
+
+    @ApiOperation(
+            value = "Получение заказа по Id"
+    )
+    @GetMapping
+    public Order doGetOrder(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long id) {
+
+        return service.getOrder(principal.getName(), id);
     }
 }
