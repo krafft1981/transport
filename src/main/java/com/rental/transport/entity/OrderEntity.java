@@ -1,21 +1,13 @@
 package com.rental.transport.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "orders")
 @Table(
@@ -38,8 +30,8 @@ public class OrderEntity extends AbstractEntity {
     private CustomerEntity driver;
     private TransportEntity transport;
 
-    private Set<PropertyEntity> property = new HashSet<>();
-    private Set<MessageEntity> message = new HashSet<>();
+    private Set<PropertyEntity> property = new HashSet();
+    private Set<MessageEntity> message = new HashSet();
     private Long day;
     private Integer[] hours;
 

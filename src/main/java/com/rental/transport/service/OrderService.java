@@ -3,15 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
-import com.rental.transport.entity.CalendarEntity;
-import com.rental.transport.entity.CalendarRepository;
-import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.OrderEntity;
-import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.ParkingEntity;
-import com.rental.transport.entity.RequestEntity;
-import com.rental.transport.entity.RequestRepository;
-import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.entity.*;
 import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
@@ -21,20 +13,14 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -59,6 +45,9 @@ public class OrderService {
 
     @Autowired
     private CalendarRepository calendarRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -93,8 +82,7 @@ public class OrderService {
                     if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
                         entity.setOrder(orderId);
                         entity.setInteract(RequestStatusEnum.ACCEPTED);
-                    }
-                    else
+                    } else
                         entity.setInteract(RequestStatusEnum.REJECTED);
                 });
     }
@@ -389,8 +377,7 @@ public class OrderService {
                     if (entity.getDay().equals(request.getDay())) {
                         try {
 //                            calendarService.checkTimeDiapazon(entity.getCalendar(), calendar);
-                        }
-                        catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException e) {
                             entity.setInteract(RequestStatusEnum.REJECTED);
                         }
                     }
@@ -417,6 +404,21 @@ public class OrderService {
 
         setInteracted(request, null, null);
         return getRequestAsDriver(driver);
+    }
+
+    public Order postOrderMessage(String account, Long orderId, String message)
+            throws ObjectNotFoundException, AccessDeniedException {
+
+        CustomerEntity customer = getCustomerByAccount(account);
+        OrderEntity order = orderRepository
+                .findById(orderId)
+                .orElseThrow(() -> new ObjectNotFoundException("Order", orderId));
+
+        if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
+            new AccessDeniedException("Message to");
+
+        order.addMessage(new MessageEntity(customer, message));
+        return orderMapper.toDto(order);
     }
 
     @PostConstruct

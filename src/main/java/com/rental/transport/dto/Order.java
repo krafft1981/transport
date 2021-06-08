@@ -20,4 +20,6 @@ public class Order extends AbstractIdDto {
     private Long day;
     @JsonProperty("hours")
     private Integer[] hours;
+    @JsonProperty("message")
+    private Set<Message> message = new HashSet<>();
 }

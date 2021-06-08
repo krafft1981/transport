@@ -5,9 +5,11 @@ import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
 import com.rental.transport.service.OrderService;
 import io.swagger.annotations.ApiOperation;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -155,5 +157,17 @@ public class OrderController {
             @RequestParam(value = "day", required = true) Long day) {
 
         return service.getCustomerCalendarWithOrders(principal.getName(), day);
+    }
+
+    @ApiOperation(
+            value = "Добавление сообщения"
+    )
+    @PostMapping(value = "/message")
+    public Order doPostCustomerMessage(
+            Principal principal,
+            @RequestParam(value = "message", required = true) String message,
+            @RequestParam(value = "order_id", required = true) Long orderId) {
+
+        return service.postOrderMessage(principal.getName(), orderId, message);
     }
 }
