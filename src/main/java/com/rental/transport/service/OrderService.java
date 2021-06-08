@@ -301,7 +301,7 @@ public class OrderService {
             throw new AccessDeniedException("Confirmation");
 
         if (request.getStatus() != RequestStatusEnum.NEW)
-            throw new IllegalArgumentException("Try update non new request");
+            throw new IllegalArgumentException("Вы пытаетесь ответить на не новый запрос");
 
         CustomerEntity customer = request.getCustomer();
         TransportEntity transport = request.getTransport();
@@ -311,7 +311,7 @@ public class OrderService {
         Date now = new Date();
 
         if ((request.getDay() < now.getTime()))
-            throw new IllegalArgumentException("Allow orders only in the future");
+            throw new IllegalArgumentException("Нельзя создавать заказы в прошлое");
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
@@ -354,6 +354,9 @@ public class OrderService {
                 propertyService.copy("order_transport_capacity", transport.getProperty(), "transport_capacity"),
                 propertyService.copy("order_transport_price", transport.getProperty(), "transport_price"),
                 propertyService.create("order_transport_cost", String.format("%.2f", cost)),
+
+                propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
+                propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone"),
 
                 propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
                 propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone")
@@ -406,11 +409,11 @@ public class OrderService {
 
         CustomerEntity driver = getCustomerByAccount(account);
 
-        if (!request.getTransport().getCustomer().contains(driver) && !request.getCustomer().equals(driver))
+        if (!request.getTransport().getCustomer().contains(driver))
             throw new AccessDeniedException("Confirmation");
 
         if (request.getStatus() != RequestStatusEnum.NEW)
-            throw new IllegalArgumentException("Try update non new request");
+            throw new IllegalArgumentException("Вы пытаетесь ответить на не новый запрос");
 
         setInteracted(request, null, null);
         return getRequestAsDriver(driver);

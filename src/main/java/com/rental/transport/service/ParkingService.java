@@ -8,13 +8,13 @@ import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.ParkingMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ParkingService {
@@ -37,7 +37,7 @@ public class ParkingService {
     @Autowired
     private ParkingMapper parkingMapper;
 
-    public void delete(@NonNull String account, @NonNull Long id)
+    public void delete(String account, Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerService.getEntity(account);
@@ -51,7 +51,7 @@ public class ParkingService {
         parkingRepository.delete(parking);
     }
 
-    public Long create(@NonNull String account) throws ObjectNotFoundException {
+    public Long create(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         ParkingEntity parking = new ParkingEntity(customer);
@@ -68,10 +68,10 @@ public class ParkingService {
         return parkingRepository.save(parking).getId();
     }
 
-    public void update(@NonNull String account, @NonNull Parking dto)
+    public void update(String account, Parking parking)
             throws AccessDeniedException, ObjectNotFoundException {
 
-        ParkingEntity entity = parkingMapper.toEntity(dto);
+        ParkingEntity entity = parkingMapper.toEntity(parking);
         CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))

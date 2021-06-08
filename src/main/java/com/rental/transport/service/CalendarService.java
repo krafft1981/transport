@@ -157,9 +157,11 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
+                    System.out.println("Append calendar record to transport: " + calendar.toString());
                     for (Integer hour : entity.getHours())
                         result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
                 });
+
         return result;
     }
 
@@ -171,6 +173,7 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
+                    System.out.println("Append calendar record to customer: " + calendar.toString());
                     for (Integer hour : entity.getHours())
                         result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
                 });
@@ -188,8 +191,10 @@ public class CalendarService {
 
         CustomerEntity driver = transport.getCustomer().iterator().next();
 
-        Map<Integer, Event> result = getCustomerWeekTime(day, driver);
+        Map<Integer, Event> result = new HashMap();
+        result.putAll(getCustomerWeekTime(day, driver));
         result.putAll(getCustomerCalendar(day, driver));
+
         return result;
     }
 
