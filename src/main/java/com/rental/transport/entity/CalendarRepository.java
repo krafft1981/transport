@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CalendarRepository extends IRepository<CalendarEntity> {
 
+    // Получаем календарь пользователя
     @Query(
             nativeQuery = true,
             value = "select c.id, c.day, c.hours from calendar c join customer_calendar l on c.id = l.calendar_id where " +
@@ -18,6 +19,7 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
             @Param("day") Long day
     );
 
+    // Получаем календарь транспорта
     @Query(
             nativeQuery = true,
             value = "select c.id, c.day, c.hours from calendar c join transport_calendar l on c.id = l.calendar_id " +
@@ -28,5 +30,6 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
             @Param("day") Long day
     );
 
+    // Получаем конкретную запись с календаря
     CalendarEntity findByDayAndHours(Long day, Integer[] hours);
 }

@@ -29,13 +29,6 @@ public class NoteBookEntity extends AbstractEntity {
     private Date date = currentTime();
     private String text = "";
 
-    private Date currentTime() {
-        Calendar calendar = Calendar.getInstance();
-        Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(new Date());
-        return calendar.getTime();
-    }
-
     @Basic
     @ManyToOne
     @JoinColumn(name = "calendar_id", referencedColumnName = "id")
@@ -58,7 +51,8 @@ public class NoteBookEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "date", nullable = false, insertable = true, updatable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
     public Date getDate() {
         return date;
     }

@@ -37,7 +37,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 public class RequestEntity extends AbstractEntity {
 
-    private Date createdAt = new Date();
+    private Date createdAt = currentTime();
     private Date interactAt = null;
 
     private Long day;

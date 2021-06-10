@@ -7,7 +7,6 @@ import com.rental.transport.dto.Text;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.MessageRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
@@ -177,7 +176,7 @@ public class OrderService {
         calendarService.checkCustomerBusy(customer, day, hours);
         CalendarEntity calendar = calendarService.getEntity(day, hours);
         customer.addCalendar(calendar);
-        return new Event(EventTypeEnum.NOTEBOOK, day, hours);
+        return new Event(EventTypeEnum.NOTE, day, hours);
     }
 
     @Transactional
@@ -381,7 +380,7 @@ public class OrderService {
 
     @Transactional
     public Order postOrderMessage(String account, Long orderId, Text body)
-            throws ObjectNotFoundException, AccessDeniedException {
+            throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         CustomerEntity customer = getCustomerByAccount(account);
         OrderEntity order = orderRepository
@@ -391,8 +390,13 @@ public class OrderService {
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
             new AccessDeniedException("Message to");
 
-        MessageEntity message = new MessageEntity(customer, body.getMessage());
-        order.addMessage(message);
+////        if (Objects.isNull(body.getMessage() == null))
+////            new IllegalArgumentException("Пустое сообщение не сохранено");
+
+//        String message = "body.getMessage()";
+//        //!! message.isEmpty())
+
+//        order.addMessage(new MessageEntity(customer, "message"));
         orderRepository.save(order);
         return orderMapper.toDto(order);
     }

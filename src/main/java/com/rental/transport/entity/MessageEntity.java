@@ -1,8 +1,6 @@
 package com.rental.transport.entity;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +8,8 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,13 +39,6 @@ public class MessageEntity extends AbstractEntity {
         setText(text);
     }
 
-    private Date currentTime() {
-        Calendar calendar = Calendar.getInstance();
-        Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(new Date());
-        return calendar.getTime();
-    }
-
     @Basic
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
@@ -61,7 +54,8 @@ public class MessageEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "date", nullable = false, insertable = true, updatable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
     public Date getDate() {
         return date;
     }

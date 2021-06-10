@@ -4,6 +4,9 @@ import com.vladmihalcea.hibernate.type.array.DoubleArrayType;
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,5 +41,12 @@ public class AbstractEntity implements Serializable {
     @Column(name = "id", unique = true, updatable = false, nullable = false)
     public Long getId() {
         return id;
+    }
+
+    public Date currentTime() {
+        Calendar calendar = Calendar.getInstance();
+        Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(new Date());
+        return calendar.getTime();
     }
 }

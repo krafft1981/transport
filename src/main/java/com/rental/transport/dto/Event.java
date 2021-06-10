@@ -20,9 +20,16 @@ public class Event extends AbstractDto {
     @JsonProperty("request")
     private Request request = null;
     @JsonProperty("note")
-    private NoteBook noteBook = null;
+    private NoteBook note = null;
     @JsonProperty("type")
     private Integer type = 0;
+
+    public Event(NoteBook note, Long day, Integer[] hours) {
+
+        setType(EventTypeEnum.NOTE.getId());
+        setNote(note);
+        setCalendar(new Calendar(day, hours));
+    }
 
     public Event(EventTypeEnum type, Long day, Integer[] hours) {
 
@@ -33,8 +40,8 @@ public class Event extends AbstractDto {
     public Event(EventTypeEnum type, Long day, Integer start, Integer stop) {
 
         Integer id = 0;
-        Integer[] diapazon = new Integer[stop-start];
-        for(Integer hour = start; hour < stop; hour ++, id ++)
+        Integer[] diapazon = new Integer[stop - start];
+        for (Integer hour = start; hour < stop; hour++, id++)
             diapazon[id] = hour;
 
         setType(type.getId());

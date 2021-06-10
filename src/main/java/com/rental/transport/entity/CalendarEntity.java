@@ -1,12 +1,14 @@
 package com.rental.transport.entity;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
-import java.util.Set;
 
 @Entity(name = "calendar")
 @Table(
