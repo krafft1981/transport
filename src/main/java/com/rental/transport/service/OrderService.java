@@ -7,6 +7,7 @@ import com.rental.transport.dto.Text;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.MessageRepository;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
@@ -140,7 +141,7 @@ public class OrderService {
 
         CustomerEntity customer = getCustomerByAccount(account);
         return requestRepository
-                .findRequestByCustomer(customer.getId())
+                .findByCustomer(customer.getId())
                 .stream()
                 .map(entity -> requestMapper.toDto(entity))
                 .collect(Collectors.toList());
@@ -149,7 +150,7 @@ public class OrderService {
     public List<Request> getRequestAsDriver(CustomerEntity driver) {
 
         return requestRepository
-                .findRequestByDriver(driver.getId())
+                .findByDriver(driver.getId())
                 .stream()
                 .map(entity -> requestMapper.toDto(entity))
                 .collect(Collectors.toList());
@@ -338,19 +339,19 @@ public class OrderService {
 
         // Отменяем все запросы по данному транспорту в это время (Не готово)
         requestRepository
-                .findNewRequestByTransportAndDay(transport.getId(), request.getDay())
+                .findNewByTransportAndDay(transport.getId(), request.getDay())
                 .stream()
                 .forEach(entity -> {
                 });
 
         requestRepository
-                .findNewRequestByCustomerAndDay(transport.getId(), request.getDay())
+                .findByCustomerAndDay(transport.getId(), request.getDay())
                 .stream()
                 .forEach(entity -> {
                 });
 
         requestRepository
-                .findNewRequestByDriverAndDay(transport.getId(), request.getDay())
+                .findByDriverAndDay(transport.getId(), request.getDay())
                 .stream()
                 .forEach(entity -> {
                 });
@@ -390,13 +391,7 @@ public class OrderService {
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
             new AccessDeniedException("Message to");
 
-////        if (Objects.isNull(body.getMessage() == null))
-////            new IllegalArgumentException("Пустое сообщение не сохранено");
-
-//        String message = "body.getMessage()";
-//        //!! message.isEmpty())
-
-//        order.addMessage(new MessageEntity(customer, "message"));
+        order.addMessage(new MessageEntity(customer, body.getMessage()));
         orderRepository.save(order);
         return orderMapper.toDto(order);
     }

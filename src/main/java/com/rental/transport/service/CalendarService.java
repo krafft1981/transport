@@ -222,7 +222,7 @@ public class CalendarService {
         }
 
         requestRepository
-                .findRequestByTransportAndDay(transport.getId(), getDayId(day))
+                .findByCustomerAndDay(transport.getId(), getDayId(day))
                 .stream()
                 .forEach(requestEntity -> {
                     switch (requestEntity.getStatus()) {
