@@ -2,13 +2,8 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.entity.CalendarEntity;
-import com.rental.transport.entity.CalendarRepository;
-import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.OrderEntity;
-import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.RequestRepository;
-import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.dto.Order;
+import com.rental.transport.entity.*;
 import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
@@ -18,14 +13,10 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 public class CalendarService {
@@ -157,7 +148,6 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
-                    System.out.println("Append calendar record to transport: " + calendar.toString());
                     for (Integer hour : entity.getHours())
                         result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
                 });
@@ -173,7 +163,6 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
-                    System.out.println("Append calendar record to customer: " + calendar.toString());
                     for (Integer hour : entity.getHours())
                         result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
                 });
@@ -250,19 +239,26 @@ public class CalendarService {
         return result;
     }
 
-    public Map<Integer, Event> getCustomerCalendarWithOrders(Long day, CustomerEntity customer) {
+    public Map<Integer, Event> getDriverCalendarWithOrders(Long day, CustomerEntity driver) {
 
-        Map<Integer, Event> result = getCustomerWeekTime(day, customer);
+        Map<Integer, Event> result = getCustomerWeekTime(day, driver);
+
         calendarRepository
-                .findCustomerCalendarByDay(customer.getId(), day)
+                .findCustomerCalendarByDay(driver.getId(), day)
                 .stream()
                 .forEach(entity -> {
-//                    List<OrderEntity> orders = orderRepository.findByCustomer(customer, day);
-//                    System.out.println("found: " + orders.size() + " orders to day" + day);
-//                    for (OrderEntity order : orders) {
-//                        for (Integer hour : order.getHours())
-//                            result.put(hour, new Event(orderMapper.toDto(order)));
-//                    }
+                    Calendar calendar = calendarMapper.toDto(entity);
+                    for (Integer hour : entity.getHours())
+                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                });
+
+        orderRepository
+                .findByDriverAndDay(driver, day)
+                .stream()
+                .forEach(entity -> {
+                    Order order = orderMapper.toDto(entity);
+                    for (Integer hour : entity.getHours())
+                        result.put(hour, new Event(order));
                 });
 
         return result;

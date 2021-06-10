@@ -78,7 +78,7 @@ public class TransportEntity extends AbstractEnabledEntity {
         return parking;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "transport_calendar",
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)

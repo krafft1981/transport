@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
@@ -17,7 +20,7 @@ public class Calendar extends AbstractDto {
     @JsonProperty("hours")
     private Integer[] hours;
     @JsonProperty("message")
-    private String message = "";
+    private Set<Message> message = new HashSet<>();
 
     public Calendar(Long day, Integer[] hours) {
         setDay(day);

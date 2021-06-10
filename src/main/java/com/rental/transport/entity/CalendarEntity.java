@@ -1,14 +1,13 @@
 package com.rental.transport.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "calendar")
 @Table(
@@ -27,11 +26,17 @@ public class CalendarEntity extends AbstractEntity {
 
     private Long day;
     private Integer[] hours;
-    private String message = "";
+    private Set<MessageEntity> message = new HashSet();
 
     public CalendarEntity(Long day, Integer[] hours) {
         setDay(day);
         setHours(hours);
+    }
+
+    @Basic
+    @Column(name = "day", nullable = false, insertable = true, updatable = true)
+    public Long getDay() {
+        return day;
     }
 
     @Type(type = "int-array")
@@ -43,16 +48,12 @@ public class CalendarEntity extends AbstractEntity {
         return hours;
     }
 
-    @Basic
-    @Column(name = "day", nullable = false, insertable = true, updatable = true)
-    public Long getDay() {
-        return day;
-    }
-
-    @Basic
-    @Column(name = "message", nullable = false, insertable = true, updatable = true)
-    @Type(type = "text")
-    public String getMessage() {
+    @OneToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "calendar_message",
+            joinColumns = @JoinColumn(name = "calendar_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
+    )
+    public Set<MessageEntity> getMessage() {
         return message;
     }
 }

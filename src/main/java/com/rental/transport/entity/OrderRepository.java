@@ -9,4 +9,5 @@ public interface OrderRepository extends IRepository<OrderEntity> {
     List<OrderEntity> findByCustomer(CustomerEntity customer);
     List<OrderEntity> findByDriver(CustomerEntity customer);
     List<OrderEntity> findByTransport(TransportEntity transport);
+    List<OrderEntity> findByDriverAndDay(CustomerEntity driver, Long day);
 }

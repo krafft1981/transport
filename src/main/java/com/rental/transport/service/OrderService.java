@@ -157,49 +157,17 @@ public class OrderService {
     public Event postAbsentCustomerEntry(String account, Long day, Integer[] hours)
             throws IllegalArgumentException, ObjectNotFoundException {
 
-        Event event = new Event(EventTypeEnum.UNAVAILABLE, day, hours);
-        return event;
-
-//        CustomerEntity customer = customerService.getEntity(account);
-//        calendarService.checkCustomerBusy(customer, day, start, stop);
-//        CalendarEntity calendar = calendarService.getEntity(day, start, stop, true);
-//        customer.addCalendar(calendar);
-
-//        // Отменяем все запросы на это время если все остальные водители заняты
-//        customer
-//                .getTransport()
-//                .stream()
-//                .forEach(transport -> {
-//                    Boolean delete = true;
-//                    for (CustomerEntity driver : transport.getCustomer()) {
-//                        if (driver.equals(customer))
-//                            continue;
-
-//                        try {
-//                            calendarService.checkCustomerBusy(
-//                                    driver,
-//                                    calendar.getDayNum(),
-//                                    calendar.getStartAt().getTime(),
-//                                    calendar.getStopAt().getTime()
-//                            );
-
-//                            delete = false;
-//                        }
-//                        catch (IllegalArgumentException e) {
-//                            System.out.println(e);
-//                        }
-//                    }
-
-//                    if (delete) {
-//                        //удаляем все запросы с пересекающимся временем
-//                    }
-//                });
-
-//        return calendar.getId();
+        CustomerEntity customer = customerService.getEntity(account);
+        calendarService.checkCustomerBusy(customer, day, hours);
+        CalendarEntity calendar = calendarService.getEntity(day, hours);
+        customer.addCalendar(calendar);
+        return new Event(EventTypeEnum.UNAVAILABLE, day, hours);
     }
 
     @Transactional
-    public Long putAbsentCustomerEntry(String name, Long id, String message) {
+    public Long putAbsentCustomerEntry(String account, Long id, String message) {
+
+        CustomerEntity customer = customerService.getEntity(account);
 
         return 0L;
     }
@@ -213,6 +181,19 @@ public class OrderService {
             CalendarEntity calendar = calendarService.getEntity(id);
             customer.deleteCalendarEntity(calendar);
         }
+    }
+
+    public Map<Integer, Event> getTransportCalendar(String account, Long day, Long transportId) throws ObjectNotFoundException {
+
+        TransportEntity transport = transportService.getEntity(transportId);
+        CustomerEntity customer = getCustomerByAccount(account);
+        return calendarService.getTransportCalendar(customer, transport, day);
+    }
+
+    public Map<Integer, Event> getCustomerCalendar(String account, Long day) throws ObjectNotFoundException {
+
+        CustomerEntity customer = getCustomerByAccount(account);
+        return calendarService.getDriverCalendarWithOrders(day, customer);
     }
 
     @Transactional
@@ -236,7 +217,7 @@ public class OrderService {
         if (Objects.nonNull(hours)) {
             Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
-                throw new IllegalArgumentException("Заказ должен состоять из не менее чем " + minTime + " часов последовательно");
+                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часов последовательно");
 
             Arrays.sort(hours);
             Integer current = null;
@@ -261,19 +242,6 @@ public class OrderService {
         }
 
         return getTransportCalendar(account, day, transportId);
-    }
-
-    public Map<Integer, Event> getTransportCalendar(String account, Long day, Long transportId) throws ObjectNotFoundException {
-
-        TransportEntity transport = transportService.getEntity(transportId);
-        CustomerEntity customer = getCustomerByAccount(account);
-        return calendarService.getTransportCalendar(customer, transport, day);
-    }
-
-    public Map<Integer, Event> getCustomerCalendarWithOrders(String account, Long day) throws ObjectNotFoundException {
-
-        CustomerEntity customer = getCustomerByAccount(account);
-        return calendarService.getCustomerCalendarWithOrders(day, customer);
     }
 
     @Transactional
@@ -303,23 +271,9 @@ public class OrderService {
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
-        calendarService.checkCustomerBusy(
-                driver,
-                request.getDay(),
-                request.getHours()
-        );
-
-        calendarService.checkCustomerBusy(
-                customer,
-                request.getDay(),
-                request.getHours()
-        );
-
-        calendarService.checkTransportBusy(
-                transport,
-                request.getDay(),
-                request.getHours()
-        );
+        calendarService.checkCustomerBusy(driver, request.getDay(), request.getHours());
+        calendarService.checkCustomerBusy(customer, request.getDay(), request.getHours());
+        calendarService.checkTransportBusy(transport, request.getDay(), request.getHours());
 
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
@@ -336,16 +290,13 @@ public class OrderService {
                 propertyService.copy("order_parking_address", parking.getProperty(), "parking_address"),
                 propertyService.copy("order_parking_locality", parking.getProperty(), "parking_locality"),
                 propertyService.copy("order_parking_region", parking.getProperty(), "parking_region"),
-
                 propertyService.create("order_transport_type", transport.getType().getName()),
                 propertyService.copy("order_transport_name", transport.getProperty(), "transport_name"),
                 propertyService.copy("order_transport_capacity", transport.getProperty(), "transport_capacity"),
                 propertyService.copy("order_transport_price", transport.getProperty(), "transport_price"),
                 propertyService.create("order_transport_cost", String.format("%.2f", cost)),
-
                 propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
                 propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone"),
-
                 propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
                 propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone")
         );
@@ -369,18 +320,16 @@ public class OrderService {
         // Водитель нашёлся
         setInteracted(request, driver, order.getId());
 
-        // Отменяем все запросы по данному транспорту в это время
+        // Отменяем все запросы по данному транспорту в это время (Не готово)
         requestRepository
                 .findNewRequestByTransportAndDay(transport.getId(), request.getDay())
                 .stream()
                 .forEach(entity -> {
-                    if (entity.getDay().equals(request.getDay())) {
-                        try {
+//                        try {
 //                            calendarService.checkTimeDiapazon(entity.getCalendar(), calendar);
-                        } catch (IllegalArgumentException e) {
-                            entity.setInteract(RequestStatusEnum.REJECTED);
-                        }
-                    }
+//                        } catch (IllegalArgumentException e) {
+//                            entity.setInteract(RequestStatusEnum.REJECTED);
+//                        }
                 });
 
         return getRequestAsDriver(driver);
