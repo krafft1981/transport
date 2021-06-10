@@ -3,14 +3,21 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
+import com.rental.transport.dto.Text;
 import com.rental.transport.service.OrderService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/order")
 @RestController
@@ -101,9 +108,9 @@ public class OrderController {
     public Long doPutAbsentCustomer(
             Principal principal,
             @RequestParam(value = "id", required = true) Long id,
-            @RequestBody String message) {
+            @RequestBody Text body) {
 
-        return service.putAbsentCustomerEntry(principal.getName(), id, message);
+        return service.putAbsentCustomerEntry(principal.getName(), id, body);
     }
 
     @ApiOperation(
@@ -154,13 +161,13 @@ public class OrderController {
     @ApiOperation(
             value = "Добавление сообщения к заказу"
     )
-    @PostMapping(value = "/message", consumes = "text/plain", produces = "application/json")
+    @PostMapping(value = "/message", consumes = "application/json", produces = "application/json")
     public Order doPostCustomerMessage(
             Principal principal,
             @RequestParam(value = "order_id", required = true) Long orderId,
-            @RequestBody String message) {
+            @RequestBody Text body) {
 
-        return service.postOrderMessage(principal.getName(), orderId, message);
+        return service.postOrderMessage(principal.getName(), orderId, body);
     }
 
     @ApiOperation(

@@ -3,7 +3,18 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
 import com.rental.transport.dto.Request;
-import com.rental.transport.entity.*;
+import com.rental.transport.dto.Text;
+import com.rental.transport.entity.CalendarEntity;
+import com.rental.transport.entity.CalendarRepository;
+import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.MessageEntity;
+import com.rental.transport.entity.MessageRepository;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.RequestEntity;
+import com.rental.transport.entity.RequestRepository;
+import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
@@ -13,14 +24,19 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -58,7 +74,7 @@ public class OrderService {
     @Autowired
     private CalendarMapper calendarMapper;
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 * * * *")
     public void setRequestExpired() {
 
         requestRepository.setExpired();
@@ -72,7 +88,7 @@ public class OrderService {
     private void setInteracted(RequestEntity request, CustomerEntity driver, Long orderId) {
 
         requestRepository
-                .findNewByCustomerAndTransportAndDay(
+                .updateNewByDay(
                         request.getCustomer().getId(),
                         request.getTransport().getId(),
                         request.getDay()
@@ -91,7 +107,7 @@ public class OrderService {
 
         CustomerEntity driver = getCustomerByAccount(account);
         return orderRepository
-                .findByDriver(driver)
+                .findByDriver(driver.getId())
                 .stream()
                 .map(entity -> orderMapper.toDto(entity))
                 .collect(Collectors.toList());
@@ -101,7 +117,7 @@ public class OrderService {
 
         CustomerEntity customer = getCustomerByAccount(account);
         return orderRepository
-                .findByCustomer(customer)
+                .findByCustomer(customer.getId())
                 .stream()
                 .map(entity -> orderMapper.toDto(entity))
                 .collect(Collectors.toList());
@@ -113,7 +129,7 @@ public class OrderService {
         List<Order> result = new ArrayList();
         for (TransportEntity transport : customer.getTransport()) {
             orderRepository
-                    .findByTransport(transport)
+                    .findByTransport(transport.getId())
                     .stream()
                     .forEach(entity -> result.add(orderMapper.toDto(entity)));
         }
@@ -161,11 +177,11 @@ public class OrderService {
         calendarService.checkCustomerBusy(customer, day, hours);
         CalendarEntity calendar = calendarService.getEntity(day, hours);
         customer.addCalendar(calendar);
-        return new Event(EventTypeEnum.UNAVAILABLE, day, hours);
+        return new Event(EventTypeEnum.NOTEBOOK, day, hours);
     }
 
     @Transactional
-    public Long putAbsentCustomerEntry(String account, Long id, String message) {
+    public Long putAbsentCustomerEntry(String account, Long id, Text body) {
 
         CustomerEntity customer = customerService.getEntity(account);
 
@@ -233,11 +249,12 @@ public class OrderService {
                 current = hour;
             }
 
+            calendarService.checkCustomerBusy(customer, day, hours);
+
             for (CustomerEntity driver : transport.getCustomer()) {
-                RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
-                calendarService.checkCustomerBusy(customer, day, hours);
+                calendarService.checkDriverBusy(transport, day, hours);
                 calendarService.checkTransportBusy(transport, day, hours);
-                requestRepository.save(request);
+                requestRepository.save(new RequestEntity(customer, driver, transport, day, hours));
             }
         }
 
@@ -325,11 +342,18 @@ public class OrderService {
                 .findNewRequestByTransportAndDay(transport.getId(), request.getDay())
                 .stream()
                 .forEach(entity -> {
-//                        try {
-//                            calendarService.checkTimeDiapazon(entity.getCalendar(), calendar);
-//                        } catch (IllegalArgumentException e) {
-//                            entity.setInteract(RequestStatusEnum.REJECTED);
-//                        }
+                });
+
+        requestRepository
+                .findNewRequestByCustomerAndDay(transport.getId(), request.getDay())
+                .stream()
+                .forEach(entity -> {
+                });
+
+        requestRepository
+                .findNewRequestByDriverAndDay(transport.getId(), request.getDay())
+                .stream()
+                .forEach(entity -> {
                 });
 
         return getRequestAsDriver(driver);
@@ -356,7 +380,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order postOrderMessage(String account, Long orderId, String message)
+    public Order postOrderMessage(String account, Long orderId, Text body)
             throws ObjectNotFoundException, AccessDeniedException {
 
         CustomerEntity customer = getCustomerByAccount(account);
@@ -367,7 +391,8 @@ public class OrderService {
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
             new AccessDeniedException("Message to");
 
-        order.addMessage(new MessageEntity(customer, message));
+        MessageEntity message = new MessageEntity(customer, body.getMessage());
+        order.addMessage(message);
         orderRepository.save(order);
         return orderMapper.toDto(order);
     }

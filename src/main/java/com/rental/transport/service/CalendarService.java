@@ -3,7 +3,13 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
-import com.rental.transport.entity.*;
+import com.rental.transport.entity.CalendarEntity;
+import com.rental.transport.entity.CalendarRepository;
+import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.OrderRepository;
+import com.rental.transport.entity.RequestRepository;
+import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
 import com.rental.transport.mapper.CustomerMapper;
@@ -13,10 +19,16 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 public class CalendarService {
@@ -144,12 +156,12 @@ public class CalendarService {
 
         Map<Integer, Event> result = new HashMap();
         calendarRepository
-                .findTransportCalendarByDay(transport.getId(), getDayId(day))
+                .findCalendarByTransportIdAndDay(transport.getId(), getDayId(day))
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     for (Integer hour : entity.getHours())
-                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                        result.put(hour, new Event(calendar));
                 });
 
         return result;
@@ -159,12 +171,12 @@ public class CalendarService {
 
         Map<Integer, Event> result = new HashMap();
         calendarRepository
-                .findCustomerCalendarByDay(customer.getId(), getDayId(day))
+                .findCalendarByCustomerIdAndDay(customer.getId(), getDayId(day))
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     for (Integer hour : entity.getHours())
-                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                        result.put(hour, new Event(calendar));
                 });
 
         return result;
@@ -172,8 +184,6 @@ public class CalendarService {
 
     private Map<Integer, Event> getDriversCalendar(Long day, TransportEntity transport)
             throws ObjectNotFoundException {
-
-        day = getDayId(day);
 
         if (transport.getCustomer().isEmpty())
             throw new ObjectNotFoundException("Transport driver", transport.getId());
@@ -190,9 +200,9 @@ public class CalendarService {
     public Map<Integer, Event> getTransportCalendar(CustomerEntity customer, TransportEntity transport, Long day) {
 
         Map<Integer, Event> result = new HashMap();
-        Map<Integer, Event> transportCalendar = getTransportCalendar(getDayId(day), transport);
-        Map<Integer, Event> driverCalendar = getDriversCalendar(getDayId(day), transport);
-        Map<Integer, Event> customerCalendar = getCustomerCalendar(getDayId(day), customer);
+        Map<Integer, Event> transportCalendar = getTransportCalendar(day, transport);
+        Map<Integer, Event> driverCalendar = getDriversCalendar(day, transport);
+        Map<Integer, Event> customerCalendar = getCustomerCalendar(day, customer);
 
         for (Integer hour = 0; hour < 24; hour++) {
             if (customerCalendar.containsKey(hour)) {
@@ -244,12 +254,12 @@ public class CalendarService {
         Map<Integer, Event> result = getCustomerWeekTime(day, driver);
 
         calendarRepository
-                .findCustomerCalendarByDay(driver.getId(), day)
+                .findCalendarByCustomerIdAndDay(driver.getId(), day)
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     for (Integer hour : entity.getHours())
-                        result.put(hour, new Event(EventTypeEnum.BUSY, calendar));
+                        result.put(hour, new Event(calendar));
                 });
 
         orderRepository
@@ -265,13 +275,37 @@ public class CalendarService {
     }
 
     public void checkCustomerBusy(CustomerEntity customer, Long day, Integer[] hours)
-            throws ObjectNotFoundException, IllegalArgumentException {
+            throws IllegalArgumentException {
 
+        Set<Integer> busyHours = new HashSet();
+        calendarRepository
+                .findCalendarByCustomerIdAndDay(customer.getId(), day)
+                .stream()
+                .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
 
+        for (Integer hour : hours) {
+            if (busyHours.contains(hour))
+                throw new IllegalArgumentException(String.format("Пользователь '%s' занят", customer.getId()));
+        }
     }
 
     public void checkTransportBusy(TransportEntity transport, Long day, Integer[] hours)
-            throws ObjectNotFoundException, IllegalArgumentException {
+            throws IllegalArgumentException {
+
+        Set<Integer> busyHours = new HashSet();
+        calendarRepository
+                .findCalendarByTransportIdAndDay(transport.getId(), day)
+                .stream()
+                .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
+
+        for (Integer hour : hours) {
+            if (busyHours.contains(hour))
+                throw new IllegalArgumentException(String.format("Транспорт '%s' занят", transport.getId()));
+        }
+    }
+
+    public void checkDriverBusy(TransportEntity transport, Long day, Integer[] hours)
+            throws IllegalArgumentException {
 
 
     }

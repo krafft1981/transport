@@ -1,49 +1,46 @@
 package com.rental.transport.entity;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 @Entity
 @Table(
-        name = "message",
+        name = "notebook",
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "customer_id", name = "message_customer_id_idx")
+                @Index(columnList = "customer_id", name = "notebook_customer_id_idx"),
+                @Index(columnList = "calendar_id", name = "notebook_calendar_id_idx")
         }
 )
 
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class MessageEntity extends AbstractEntity {
+public class NoteBookEntity extends AbstractEntity {
 
-    private String text = "";
+    private CalendarEntity calendar;
     private CustomerEntity customer;
     private Date date = currentTime();
-
-    public MessageEntity(CustomerEntity customer, String text) {
-        setCustomer(customer);
-        setText(text);
-    }
+    private String text = "";
 
     private Date currentTime() {
         Calendar calendar = Calendar.getInstance();
         Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(new Date());
         return calendar.getTime();
+    }
+
+    @Basic
+    @ManyToOne
+    @JoinColumn(name = "calendar_id", referencedColumnName = "id")
+    public CalendarEntity getCalendar() {
+        return calendar;
     }
 
     @Basic

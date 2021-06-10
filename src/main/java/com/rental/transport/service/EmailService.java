@@ -1,7 +1,6 @@
 package com.rental.transport.service;
 
 import com.rental.transport.entity.CustomerEntity;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service

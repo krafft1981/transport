@@ -19,6 +19,8 @@ public class Event extends AbstractDto {
     private Order order = null;
     @JsonProperty("request")
     private Request request = null;
+    @JsonProperty("note")
+    private NoteBook noteBook = null;
     @JsonProperty("type")
     private Integer type = 0;
 
@@ -39,9 +41,9 @@ public class Event extends AbstractDto {
         setCalendar(new Calendar(day, diapazon));
     }
 
-    public Event(EventTypeEnum type, Calendar calendar) {
+    public Event(Calendar calendar) {
 
-        setType(type.getId());
+        setType(EventTypeEnum.BUSY.getId());
         setCalendar(calendar);
     }
 

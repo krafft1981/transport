@@ -10,18 +10,20 @@ public interface CalendarRepository extends IRepository<CalendarEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "select c.id, c.day, c.hours from calendar c join customer_calendar l on c.id = l.calendar_id where c.day = :day and l.customer_id = :customerId"
+            value = "select c.id, c.day, c.hours from calendar c join customer_calendar l on c.id = l.calendar_id where " +
+                    "c.day = :day and l.customer_id = :customerId"
     )
-    List<CalendarEntity> findCustomerCalendarByDay(
+    List<CalendarEntity> findCalendarByCustomerIdAndDay(
             @Param("customerId") Long customerId,
             @Param("day") Long day
     );
 
     @Query(
             nativeQuery = true,
-            value = "select c.id, c.day, c.hours from calendar c join transport_calendar l on c.id = l.calendar_id where c.day = :day and l.transport_id = :transportId"
+            value = "select c.id, c.day, c.hours from calendar c join transport_calendar l on c.id = l.calendar_id " +
+                    "where c.day = :day and l.transport_id = :transportId"
     )
-    List<CalendarEntity> findTransportCalendarByDay(
+    List<CalendarEntity> findCalendarByTransportIdAndDay(
             @Param("transportId") Long transportId,
             @Param("day") Long day
     );

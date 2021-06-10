@@ -12,12 +12,14 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message extends AbstractIdDto {
+public class NoteBook extends AbstractIdDto {
 
     @JsonProperty("text")
     private String text;
     @JsonProperty("customer_id")
     private Long customerId;
+    @JsonProperty("calendar_id")
+    private Long calendar;
     @JsonProperty("date")
     private Date date;
 }
