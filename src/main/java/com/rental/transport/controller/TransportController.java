@@ -101,4 +101,28 @@ public class TransportController {
 
         return service.getParkingTransport(parkingId);
     }
+
+    @ApiOperation(
+            value = "Добавление картинки к транспорту"
+    )
+    @PostMapping(value = "/image")
+    public Transport doPostTransportImage(
+            Principal principal,
+            @RequestParam(value = "transport_id", required = true) Long transportId,
+            @RequestBody byte[] data) {
+
+        return service.addTransportImage(principal.getName(), transportId, data);
+    }
+
+    @ApiOperation(
+            value = "Удаление картинки из транспорта"
+    )
+    @DeleteMapping(value = "/image")
+    public Transport doDeleteTransportImage(
+            Principal principal,
+            @RequestParam(value = "transport_id", required = true) Long transportId,
+            @RequestParam(value = "image_id", required = true) Long imageId) {
+
+        return service.delTransportImage(principal.getName(), transportId, imageId);
+    }
 }

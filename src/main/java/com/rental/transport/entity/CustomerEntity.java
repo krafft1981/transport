@@ -81,7 +81,7 @@ public class CustomerEntity extends AbstractEnabledEntity {
         return confirmed;
     }
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "customer_image",
             joinColumns = @JoinColumn(name = "customer_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
@@ -135,6 +135,10 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
     public void addImage(ImageEntity entity) {
         image.add(entity);
+    }
+
+    public void delImage(ImageEntity entity) {
+        image.remove(entity);
     }
 
     public void addProperty(PropertyEntity entity) {

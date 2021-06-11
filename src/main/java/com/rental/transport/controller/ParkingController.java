@@ -1,6 +1,7 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Parking;
+import com.rental.transport.dto.Transport;
 import com.rental.transport.service.ParkingService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
@@ -76,5 +77,29 @@ public class ParkingController {
             @RequestBody Parking parking) {
 
         service.update(principal.getName(), parking);
+    }
+
+    @ApiOperation(
+            value = "Добавление картинки к стоянке"
+    )
+    @PostMapping(value = "/image")
+    public Parking doPostParkingImage(
+            Principal principal,
+            @RequestParam(value = "parking_id", required = true) Long parkingId,
+            @RequestBody byte[] data) {
+
+        return service.addParkingImage(principal.getName(), parkingId, data);
+    }
+
+    @ApiOperation(
+            value = "Удаление картинки из стоянки"
+    )
+    @DeleteMapping(value = "/image")
+    public Parking doDeleteParkingImage(
+            Principal principal,
+            @RequestParam(value = "parking_id", required = true) Long parkingId,
+            @RequestParam(value = "image_id", required = true) Long imageId) {
+
+        return service.delParkingImage(principal.getName(), parkingId, imageId);
     }
 }

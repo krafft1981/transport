@@ -60,7 +60,7 @@ public class TransportEntity extends AbstractEnabledEntity {
         return type;
     }
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "transport_image",
             joinColumns = @JoinColumn(name = "transport_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
@@ -104,6 +104,11 @@ public class TransportEntity extends AbstractEnabledEntity {
     public void addImage(ImageEntity entity) {
 
         image.add(entity);
+    }
+
+    public void delImage(ImageEntity entity) {
+
+        image.remove(entity);
     }
 
     public void addParking(ParkingEntity entity) {

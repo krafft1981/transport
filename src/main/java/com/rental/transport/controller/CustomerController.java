@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,5 +67,27 @@ public class CustomerController {
             Principal principal) {
 
         return service.getDto(principal.getName());
+    }
+
+    @ApiOperation(
+            value = "Добавление картинки к пользователю"
+    )
+    @PostMapping(value = "/image")
+    public Customer doPostCustomerImage(
+            Principal principal,
+            @RequestBody byte[] data) {
+
+        return service.addCustomerImage(principal.getName(), data);
+    }
+
+    @ApiOperation(
+            value = "Удаление картинки из пользователю"
+    )
+    @DeleteMapping(value = "/image")
+    public Customer doDeleteCustomerImage(
+            Principal principal,
+            @RequestParam(value = "image_id", required = true) Long imageId) {
+
+        return service.delCustomerImage(principal.getName(), imageId);
     }
 }

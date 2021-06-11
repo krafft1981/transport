@@ -3,6 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Customer;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
+import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Primary
 @Service
@@ -31,6 +33,9 @@ public class CustomerService implements UserDetailsService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private CustomerMapper customerMapper;
@@ -135,6 +140,26 @@ public class CustomerService implements UserDetailsService {
     public void check(String account) throws ObjectNotFoundException {
         CustomerEntity customer = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         emailService.sendVerifyEmail(customer);
+    }
+
+    @Transactional
+    public Customer addCustomerImage(String account, byte[] data)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = getEntity(account);
+        ImageEntity image = new ImageEntity(data);
+        customer.addImage(image);
+        return customerMapper.toDto(customer);
+    }
+
+    @Transactional
+    public Customer delCustomerImage(String account, Long imageId)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = getEntity(account);
+        ImageEntity image = imageService.getEntity(imageId);
+        customer.delImage(image);
+        return customerMapper.toDto(customer);
     }
 
     @PostConstruct

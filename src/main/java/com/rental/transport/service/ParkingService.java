@@ -2,19 +2,20 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Parking;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.ParkingMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ParkingService {
@@ -109,6 +110,28 @@ public class ParkingService {
     public Parking getDto(Long id) throws ObjectNotFoundException {
 
         return parkingMapper.toDto(getEntity(id));
+    }
+
+    @Transactional
+    public Parking addParkingImage(String account, Long parkingId, byte[] data)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        ParkingEntity parking = getEntity(parkingId);
+        ImageEntity image = new ImageEntity(data);
+        parking.addImage(image);
+        return parkingMapper.toDto(parking);
+    }
+
+    @Transactional
+    public Parking delParkingImage(String account, Long parkingId, Long imageId)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        ParkingEntity parking = getEntity(parkingId);
+        ImageEntity image = imageService.getEntity(imageId);
+        parking.delImage(image);
+        return parkingMapper.toDto(parking);
     }
 
     @PostConstruct

@@ -2,6 +2,7 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
 import com.rental.transport.entity.TransportTypeEntity;
@@ -16,12 +17,16 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TransportService {
 
     @Autowired
     private TransportRepository transportRepository;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private CustomerService customerService;
@@ -134,6 +139,28 @@ public class TransportService {
                 .filter(entity -> entity.getType().getEnable())
                 .map(transport -> transportMapper.toDto(transport))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Transport addTransportImage(String account, Long transportId, byte[] data)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = getEntity(transportId);
+        ImageEntity image = new ImageEntity(data);
+        transport.addImage(image);
+        return transportMapper.toDto(transport);
+    }
+
+    @Transactional
+    public Transport delTransportImage(String account, Long transportId, Long imageId)
+            throws AccessDeniedException, ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = getEntity(transportId);
+        ImageEntity image = imageService.getEntity(imageId);
+        transport.delImage(image);
+        return transportMapper.toDto(transport);
     }
 
     @PostConstruct
