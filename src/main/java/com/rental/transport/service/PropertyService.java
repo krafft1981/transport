@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class PropertyService {
 
     @Autowired
-    private PropertyRepository repository;
+    private PropertyRepository propertyRepository;
 
     @Autowired
     private PropertyTypeRepository propertyTypeRepository;
@@ -47,12 +47,12 @@ public class PropertyService {
 
         PropertyEntity entity = searchProperty(entryes, name);
         entity.setValue(value);
-        repository.save(entity);
+        propertyRepository.save(entity);
     }
 
     public List<Property> getPage(Pageable pageable) {
 
-        return repository
+        return propertyRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
@@ -66,7 +66,9 @@ public class PropertyService {
         if (Objects.isNull(type))
             throw new ObjectNotFoundException("Property Type", name);
 
-        return new PropertyEntity(type, value, 0);
+        PropertyEntity property = new PropertyEntity(type, value);
+        propertyRepository.save(property);
+        return property;
     }
 
     public void createType(String logic, String name, PropertyTypeEnum valueType) {

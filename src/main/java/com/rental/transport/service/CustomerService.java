@@ -69,16 +69,16 @@ public class CustomerService implements UserDetailsService {
             throw new IllegalArgumentException("Учётная запись уже существует");
 
         if (!vf.getValidator("Email").validate(account))
-            throw new IllegalArgumentException("Неправильное значение поля почта");
+            throw new IllegalArgumentException("Неправильное значение поля 'почта'");
 
         if (!vf.getValidator("Password").validate(password))
-            throw new IllegalArgumentException("Неправильное значение поля пароль");
+            throw new IllegalArgumentException("Неправильное значение поля 'пароль'");
 
         if (!vf.getValidator("Phone").validate(phone))
-            throw new IllegalArgumentException("Неправильное значение поля телефон");
+            throw new IllegalArgumentException("Неправильное значение поля 'телефон'");
 
         if (!vf.getValidator("String").validate(fio))
-            throw new IllegalArgumentException("Неправильное значение поля имя");
+            throw new IllegalArgumentException("Неправильное значение поля 'имя'");
 
         CustomerEntity customer = new CustomerEntity(account, password);
         customer.addProperty(
@@ -170,8 +170,8 @@ public class CustomerService implements UserDetailsService {
             throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
-        ImageEntity image = new ImageEntity(data);
-        customer.addImage(image);
+        customer.addImage(new ImageEntity(data));
+        customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
 
@@ -180,8 +180,8 @@ public class CustomerService implements UserDetailsService {
             throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
-        ImageEntity image = imageService.getEntity(imageId);
-        customer.delImage(image);
+        customer.delImage(imageService.getEntity(imageId));
+        customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
 

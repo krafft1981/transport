@@ -19,7 +19,6 @@ if [ ! -z $create ]
 then
 
     curl -X POST "$url/registration?account=$customer&password=b&phone=88006000500&fio=test"
-
     curl -X POST "$url/registration?account=$driver1&password=b&phone=88004000500&fio=test"
     curl -X POST "$url/registration?account=$driver2&password=b&phone=88004000500&fio=test"
     curl -X POST "$url/registration?account=$driver3&password=b&phone=88004000500&fio=test"

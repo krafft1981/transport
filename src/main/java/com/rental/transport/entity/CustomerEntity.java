@@ -152,22 +152,10 @@ public class CustomerEntity extends AbstractEnabledEntity {
         );
     }
 
-    public void addProperty(PropertyEntity entity, Integer order) {
-
-        String name = entity.getType().getLogicName();
-        PropertyEntity prop = property
-                .stream()
-                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
-        prop.setOrder(order);
-        property.add(prop);
-    }
-
     public void addProperty(PropertyEntity... entryes) {
 
-        for (Integer id = 0; id < entryes.length; id++)
-            addProperty(entryes[id], id);
+        for (PropertyEntity property : entryes)
+            addProperty(property);
     }
 
     public void addCalendar(CalendarEntity entity) {

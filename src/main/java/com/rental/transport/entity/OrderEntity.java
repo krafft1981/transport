@@ -1,13 +1,21 @@
 package com.rental.transport.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity(name = "orders")
 @Table(
@@ -101,22 +109,10 @@ public class OrderEntity extends AbstractEntity {
         property.add(entity);
     }
 
-    public void addProperty(PropertyEntity entity, Integer order) {
-
-        String name = entity.getType().getLogicName();
-        PropertyEntity prop = property
-                .stream()
-                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
-        prop.setOrder(order);
-        property.add(prop);
-    }
-
     public void addProperty(PropertyEntity... entryes) {
 
-        for (int id = 0; id < entryes.length; id++)
-            addProperty(entryes[id], id);
+        for (PropertyEntity property : entryes)
+            addProperty(property);
     }
 
     public void addMessage(MessageEntity entity) {

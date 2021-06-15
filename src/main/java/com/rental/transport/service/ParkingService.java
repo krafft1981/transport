@@ -129,8 +129,8 @@ public class ParkingService {
 
         CustomerEntity customer = customerService.getEntity(account);
         ParkingEntity parking = getEntity(parkingId);
-        ImageEntity image = new ImageEntity(data);
-        parking.addImage(image);
+        parking.addImage(new ImageEntity(data));
+        parkingRepository.save(parking);
         return parkingMapper.toDto(parking);
     }
 
@@ -140,8 +140,8 @@ public class ParkingService {
 
         CustomerEntity customer = customerService.getEntity(account);
         ParkingEntity parking = getEntity(parkingId);
-        ImageEntity image = imageService.getEntity(imageId);
-        parking.delImage(image);
+        parking.delImage(imageService.getEntity(imageId));
+        parkingRepository.save(parking);
         return parkingMapper.toDto(parking);
     }
 
