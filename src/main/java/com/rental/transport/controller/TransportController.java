@@ -76,11 +76,11 @@ public class TransportController {
             value = "Редактирование транспортного средства"
     )
     @PutMapping
-    public void doPutTransport(
+    public Transport doPutTransport(
             Principal principal,
             @RequestBody Transport transport) {
 
-        service.update(principal.getName(), transport);
+        return service.update(principal.getName(), transport);
     }
 
     @ApiOperation(

@@ -29,22 +29,22 @@ public class CustomerController {
             value = "Редактирование пользователя"
     )
     @PutMapping
-    public void doPutUpdateCustomer(
+    public Customer doPutUpdateCustomer(
             Principal principal,
             @RequestBody Customer dto) {
 
-        service.update(principal.getName(), dto);
+        return service.update(principal.getName(), dto);
     }
 
     @ApiOperation(
             value = "Редактирование пароля пользователя"
     )
     @PutMapping(value = "/update/password")
-    public void doPutUpdateCustomerPassword(
+    public Customer doPutUpdateCustomerPassword(
             Principal principal,
             @RequestParam(value = "password", required = true) String password) {
 
-        service.updatePassword(principal.getName(), password);
+        return service.updatePassword(principal.getName(), password);
     }
 
     @ApiOperation(

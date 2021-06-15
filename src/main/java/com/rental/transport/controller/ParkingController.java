@@ -72,11 +72,11 @@ public class ParkingController {
             value = "Редактирование стоянки"
     )
     @PutMapping
-    public void goPutParking(
+    public Parking goPutParking(
             Principal principal,
             @RequestBody Parking parking) {
 
-        service.update(principal.getName(), parking);
+        return service.update(principal.getName(), parking);
     }
 
     @ApiOperation(

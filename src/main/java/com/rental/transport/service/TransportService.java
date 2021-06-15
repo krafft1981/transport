@@ -1,5 +1,6 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Property;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ImageEntity;
@@ -9,11 +10,12 @@ import com.rental.transport.entity.TransportTypeEntity;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.TransportMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.utils.validator.ValidatorFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,9 @@ public class TransportService {
     @Autowired
     private TransportMapper transportMapper;
 
-    public void delete(@NonNull String account, @NonNull Long id)
+    private ValidatorFactory vf = new ValidatorFactory();
+
+    public void delete(String account, Long id)
             throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
@@ -56,7 +60,7 @@ public class TransportService {
         transportRepository.delete(transport);
     }
 
-    public Long create(@NonNull String account, @NonNull String type)
+    public Long create(String account, String type)
             throws ObjectNotFoundException {
 
         CustomerEntity customerEntity = customerService.getEntity(account);
@@ -73,16 +77,22 @@ public class TransportService {
         return transportRepository.save(transport).getId();
     }
 
-    public void update(@NonNull String account, @NonNull Transport dto)
-            throws AccessDeniedException, ObjectNotFoundException {
+    public Transport update(String account, Transport transport)
+            throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
-        TransportEntity entity = transportMapper.toEntity(dto);
+        for (Property property : transport.getProperty()) {
+            if (!vf.getValidator(property.getType()).validate(property.getValue()))
+                throw new IllegalArgumentException("Неправильное значение поля: '" + property.getHumanName() + "'");
+        }
+
+        TransportEntity entity = transportMapper.toEntity(transport);
         CustomerEntity customer = customerService.getEntity(account);
 
         if (!entity.getCustomer().contains(customer))
             throw new AccessDeniedException("Change");
 
         transportRepository.save(entity);
+        return transportMapper.toDto(entity);
     }
 
     public List<Transport> getPage(Pageable pageable) {

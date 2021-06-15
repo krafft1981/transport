@@ -10,9 +10,8 @@ public class BooleanNoValidator implements IStringValidator {
     @Override
     public Boolean validate(String value) {
 
-        if (!validator.validate(value)) {
+        if (!validator.validate(value))
             return false;
-        }
 
         return pattern.matcher(value).matches();
     }

@@ -1,6 +1,7 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Parking;
+import com.rental.transport.dto.Property;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ParkingEntity;
@@ -8,7 +9,9 @@ import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.ParkingMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.utils.validator.ValidatorFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -37,6 +40,8 @@ public class ParkingService {
 
     @Autowired
     private ParkingMapper parkingMapper;
+
+    private ValidatorFactory vf = new ValidatorFactory();
 
     public void delete(String account, Long id)
             throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
@@ -69,8 +74,13 @@ public class ParkingService {
         return parkingRepository.save(parking).getId();
     }
 
-    public void update(String account, Parking parking)
-            throws AccessDeniedException, ObjectNotFoundException {
+    public Parking update(String account, Parking parking)
+            throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
+
+        for (Property property : parking.getProperty()) {
+            if (!vf.getValidator(property.getType()).validate(property.getValue()))
+                throw new IllegalArgumentException("Неправильное значение поля: '" + property.getHumanName() + "'");
+        }
 
         ParkingEntity entity = parkingMapper.toEntity(parking);
         CustomerEntity customer = customerService.getEntity(account);
@@ -79,6 +89,7 @@ public class ParkingService {
             throw new AccessDeniedException("Change");
 
         parkingRepository.save(entity);
+        return parkingMapper.toDto(entity);
     }
 
     public List<Parking> getMyParking(String account) throws ObjectNotFoundException {

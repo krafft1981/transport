@@ -1,13 +1,16 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Customer;
+import com.rental.transport.dto.Property;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.CustomerRepository;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.CustomerMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import com.rental.transport.utils.validator.ValidatorFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +46,8 @@ public class CustomerService implements UserDetailsService {
     @Autowired
     private PropertyService propertyService;
 
+    private ValidatorFactory vf = new ValidatorFactory();
+
     @Override
     public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
 
@@ -60,12 +65,20 @@ public class CustomerService implements UserDetailsService {
 
     public Customer create(String account, String password, String phone, String fio) throws IllegalArgumentException {
 
-        if (account.isEmpty())
-            throw new IllegalArgumentException("Account can't be empty");
+        if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account)))
+            throw new IllegalArgumentException("Учётная запись уже существует");
 
-        if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account))) {
-            throw new IllegalArgumentException("account already exists");
-        }
+        if (!vf.getValidator("Email").validate(account))
+            throw new IllegalArgumentException("Неправильное значение поля почта");
+
+        if (!vf.getValidator("Password").validate(password))
+            throw new IllegalArgumentException("Неправильное значение поля пароль");
+
+        if (!vf.getValidator("Phone").validate(phone))
+            throw new IllegalArgumentException("Неправильное значение поля телефон");
+
+        if (!vf.getValidator("String").validate(fio))
+            throw new IllegalArgumentException("Неправильное значение поля имя");
 
         CustomerEntity customer = new CustomerEntity(account, password);
         customer.addProperty(
@@ -89,24 +102,34 @@ public class CustomerService implements UserDetailsService {
         customerRepository.save(entity);
     }
 
-    public void update(String account, Customer dto)
-            throws ObjectNotFoundException, AccessDeniedException {
+    public Customer update(String account, Customer customer)
+            throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
-        if (!account.equals(dto.getAccount()))
+        if (!account.equals(customer.getAccount()))
             throw new AccessDeniedException("Change");
 
+        for (Property property : customer.getProperty()) {
+            if (!vf.getValidator(property.getType()).validate(property.getValue()))
+                throw new IllegalArgumentException("Неправильное значение поля: '" + property.getHumanName() + "'");
+        }
+
         CustomerEntity entityFromDb = getEntity(account);
-        CustomerEntity entity = customerMapper.toEntity(dto);
+        CustomerEntity entity = customerMapper.toEntity(customer);
         entity.setPassword(entityFromDb.getPassword());
         customerRepository.save(entity);
+        return customerMapper.toDto(entity);
     }
 
-    public void updatePassword(String account, String password)
-            throws ObjectNotFoundException {
+    public Customer updatePassword(String account, String password)
+            throws ObjectNotFoundException, IllegalArgumentException {
 
-        CustomerEntity entity = getEntity(account);
-        entity.setPassword(password);
-        customerRepository.save(entity);
+        if (!vf.getValidator("Password").validate(password))
+            throw new IllegalArgumentException("Ошибка в поле пароль");
+
+        CustomerEntity customer = getEntity(account);
+        customer.setPassword(password);
+        customerRepository.save(customer);
+        return customerMapper.toDto(customer);
     }
 
     public List<Customer> getPage(Pageable pageable) {
