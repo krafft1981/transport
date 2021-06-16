@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RequestRepository extends IRepository<RequestEntity> {
 
-    // Применяется для загрузки календаря по транспорту
+    // Применяется для загрузки календаря по транспорту и для автоотмены заявки
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
@@ -21,7 +21,7 @@ public interface RequestRepository extends IRepository<RequestEntity> {
             @Param("day") Long day
     );
 
-    // Применяется для загрузки календаря по водителю
+    // Применяется для загрузки календаря по водителю и для автоотмены заявки
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
@@ -32,7 +32,7 @@ public interface RequestRepository extends IRepository<RequestEntity> {
             @Param("day") Long day
     );
 
-    // Применяется для загрузки календаря по пользователю
+    // Применяется для загрузки календаря по пользователю и для автоотмены заявки
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
@@ -43,18 +43,22 @@ public interface RequestRepository extends IRepository<RequestEntity> {
             @Param("day") Long day
     );
 
+
+
     // Прменяется для автоотмены заявок по транспорту
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
-                    "where day = :day and r.transport_id = :transportId and status = 'NEW'"
+                    "where status = 'NEW' and day = :day and r.transport_id = :transportId"
     )
     List<RequestEntity> findNewByTransportAndDay(
             @Param("transportId") Long transportId,
             @Param("day") Long day
     );
 
-    // Прменяется для автоотмены заявок по водителю
+
+
+    // Прменяется для поиска заявок по водителю
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
@@ -64,14 +68,24 @@ public interface RequestRepository extends IRepository<RequestEntity> {
             @Param("customerId") Long customerId
     );
 
-    // Прменяется для автоотмены заявок по пользователю
+    // Прменяется для поиска заявок по пользователю
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
                     "where status = 'NEW' and customer_id = :customerId"
     )
-    List<RequestEntity> findByCustomer(
+    List<RequestEntity> findNewByCustomer(
             @Param("customerId") Long customerId
+    );
+
+    // Прменяется для поиска заявок по транспорту
+    @Query(
+            nativeQuery = true,
+            value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
+                    "where status = 'NEW' and transport_id = :transportId"
+    )
+    List<RequestEntity> findNewByTransport(
+            @Param("transportId") Long transportId
     );
 
     // Применяется при обновлении заявки

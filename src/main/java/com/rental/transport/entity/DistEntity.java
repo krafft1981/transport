@@ -8,6 +8,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -22,11 +23,12 @@ import lombok.Setter;
 )
 
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class DistEntity extends AbstractEntity {
 
     private String program = "";
-    private Date createdAt = new Date();
+    private Date createdAt = currentTime();
 
     public DistEntity(String program) {
         setProgram(program);

@@ -2,7 +2,6 @@ package com.rental.transport.controller;
 
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Order;
-import com.rental.transport.dto.Request;
 import com.rental.transport.dto.Text;
 import com.rental.transport.service.OrderService;
 import io.swagger.annotations.ApiOperation;
@@ -25,41 +24,6 @@ public class OrderController {
 
     @Autowired
     private OrderService service;
-
-    @ApiOperation(
-            value = "Подтверждение в возможности выполнения заказа"
-    )
-    @PostMapping(value = "/request/confirm")
-    public List<Request> doPostConfirmOrder(
-            Principal principal,
-            @RequestParam(value = "request_id", required = true) Long requestId) {
-
-        return service.confirmRequest(principal.getName(), requestId);
-    }
-
-    @ApiOperation(
-            value = "Отказ в возможности выполнения заказа"
-    )
-    @PostMapping(value = "/request/reject")
-    public List<Request> doPostRejectOrder(
-            Principal principal,
-            @RequestParam(value = "request_id", required = true) Long requestId) {
-
-        return service.rejectRequest(principal.getName(), requestId);
-    }
-
-    @ApiOperation(
-            value = "Создание запроса на заказ"
-    )
-    @PostMapping(value = "/request")
-    public Map<Integer, Event> doPost(
-            Principal principal,
-            @RequestParam(value = "transport_id", required = true) Long transport_id,
-            @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "hour", required = false) Integer[] hour) {
-
-        return service.createRequest(principal.getName(), transport_id, day, hour);
-    }
 
     @ApiOperation(
             value = "Получение списка заказов по транспорту"
@@ -86,22 +50,6 @@ public class OrderController {
     }
 
     @ApiOperation(
-            value = "Получение списка запросов заказчика"
-    )
-    @GetMapping(value = "/request/customer")
-    public List<Request> doGetRequestAsCustomer(Principal principal) {
-        return service.getRequestAsCustomer(principal.getName());
-    }
-
-    @ApiOperation(
-            value = "Получение списка запросов водителя"
-    )
-    @GetMapping(value = "/request/driver")
-    public List<Request> doGetRequestAsDriver(Principal principal) {
-        return service.getRequestAsDriver(principal.getName());
-    }
-
-    @ApiOperation(
             value = "Редактивание записи в записной книге"
     )
     @PutMapping(value = "/absent")
@@ -110,7 +58,7 @@ public class OrderController {
             @RequestParam(value = "id", required = true) Long id,
             @RequestBody Text body) {
 
-        return service.putAbsentCustomerEntry(principal.getName(), id, body);
+        return 0L;//service.putAbsentCustomerEntry(principal.getName(), id, body);
     }
 
     @ApiOperation(
@@ -122,7 +70,7 @@ public class OrderController {
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "hour", required = true) Integer[] hours) {
 
-        return service.postAbsentCustomerEntry(principal.getName(), day, hours);
+        return null;//service.postAbsentCustomerEntry(principal.getName(), day, hours);
     }
 
     @ApiOperation(
@@ -132,7 +80,7 @@ public class OrderController {
     public void doDeleteAbsentCustomer(
             Principal principal,
             @RequestParam(value = "id", required = true) Long[] ids) {
-        service.deleteAbsentCustomerEntry(principal.getName(), ids);
+        //service.deleteAbsentCustomerEntry(principal.getName(), ids);
     }
 
     @ApiOperation(
@@ -144,7 +92,8 @@ public class OrderController {
             @RequestParam(value = "day", required = true) Long day,
             @RequestParam(value = "transport_id", required = true) Long transportId) {
 
-        return service.getTransportCalendar(principal.getName(), day, transportId);
+        return null;
+//        return service.getTransportCalendar(principal.getName(), day, transportId);
     }
 
     @ApiOperation(
@@ -155,7 +104,8 @@ public class OrderController {
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
-        return service.getCustomerCalendar(principal.getName(), day);
+        return null;
+//        return service.getCustomerCalendar(principal.getName(), day);
     }
 
     @ApiOperation(
@@ -167,7 +117,8 @@ public class OrderController {
             @RequestParam(value = "order_id", required = true) Long orderId,
             @RequestBody Text body) {
 
-        return service.postOrderMessage(principal.getName(), orderId, body);
+        return null;
+//        return service.postOrderMessage(principal.getName(), orderId, body);
     }
 
     @ApiOperation(

@@ -1,13 +1,19 @@
 package com.rental.transport.entity;
 
+import java.util.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 @Entity
 @Table(
@@ -22,12 +28,18 @@ import java.util.TimeZone;
 
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class NoteBookEntity extends AbstractEntity {
 
     private CalendarEntity calendar;
     private CustomerEntity customer;
     private Date date = currentTime();
     private String text = "";
+
+    public NoteBookEntity(CustomerEntity customer, String text) {
+        setCustomer(customer);
+        setText(text);
+    }
 
     @Basic
     @ManyToOne

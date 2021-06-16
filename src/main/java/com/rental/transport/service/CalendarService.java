@@ -309,4 +309,10 @@ public class CalendarService {
 
 
     }
+
+    public Map<Integer, Event> getCustomerCalendar(String account, Long day) throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        return getDriverCalendarWithOrders(day, customer);
+    }
 }
