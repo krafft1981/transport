@@ -1,19 +1,22 @@
 package com.rental.transport.service;
 
 import com.rental.transport.dto.Order;
+import com.rental.transport.dto.Text;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.OrderMapper;
+import com.rental.transport.utils.exceptions.AccessDeniedException;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -50,20 +53,6 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public List<Order> getOrderByMyTransport(String account) throws ObjectNotFoundException {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        List<Order> result = new ArrayList();
-        for (TransportEntity transport : customer.getTransport()) {
-            orderRepository
-                    .findByTransport(transport.getId())
-                    .stream()
-                    .forEach(entity -> result.add(orderMapper.toDto(entity)));
-        }
-
-        return result;
-    }
-
     public OrderEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return orderRepository
@@ -76,6 +65,25 @@ public class OrderService {
         CustomerEntity customer = customerService.getEntity(account);
         OrderEntity entity = getEntity(id);
         return orderMapper.toDto(entity);
+    }
+
+    @Transactional
+    public Order postOrderMessage(String account, Long orderId, Text body)
+            throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
+
+        OrderEntity order = getEntity(orderId);
+        CustomerEntity customer = customerService.getEntity(account);
+        MessageEntity message = new MessageEntity(customer, body.getMessage());
+
+        if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
+            new AccessDeniedException("Message to");
+
+        if (body.getMessage() != null && !body.getMessage().isEmpty())
+            throw new IllegalArgumentException("Пустое сообщение не сохранено");
+
+        order.addMessage(message);
+        orderRepository.save(order);
+        return orderMapper.toDto(order);
     }
 
     @PostConstruct

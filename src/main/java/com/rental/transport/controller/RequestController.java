@@ -51,13 +51,13 @@ public class RequestController {
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "hour", required = false) Integer[] hour) {
+            @RequestParam(value = "hour", required = true) Integer[] hour) {
 
         return requestService.createRequest(principal.getName(), transport_id, day, hour);
     }
 
     @ApiOperation(
-            value = "Получение списка запросов заказчика"
+            value = "Получение списка запросов сделанных заказчиком"
     )
     @GetMapping(value = "/customer")
     public List<Request> doGetRequestAsCustomer(Principal principal) {
@@ -65,7 +65,7 @@ public class RequestController {
     }
 
     @ApiOperation(
-            value = "Получение списка запросов водителя"
+            value = "Получение списка запросов поступивших водителю"
     )
     @GetMapping(value = "/driver")
     public List<Request> doGetRequestAsDriver(Principal principal) {

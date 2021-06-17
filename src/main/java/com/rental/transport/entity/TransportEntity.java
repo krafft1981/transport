@@ -36,7 +36,6 @@ public class TransportEntity extends AbstractEnabledEntity {
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<ImageEntity> image = new HashSet<>();
     private Set<CustomerEntity> customer = new HashSet<>();
-    private Set<CalendarEntity> calendar = new HashSet<>();
 
     public TransportEntity(CustomerEntity customer, TransportTypeEntity type) {
 
@@ -76,15 +75,6 @@ public class TransportEntity extends AbstractEnabledEntity {
     )
     public Set<ParkingEntity> getParking() {
         return parking;
-    }
-
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(name = "transport_calendar",
-            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
-    )
-    public Set<CalendarEntity> getCalendar() {
-        return calendar;
     }
 
     @ManyToMany
@@ -134,15 +124,5 @@ public class TransportEntity extends AbstractEnabledEntity {
 
         for (PropertyEntity property : entryes)
             addProperty(property);
-    }
-
-    public void addCalendar(CalendarEntity entity) {
-
-        calendar.add(entity);
-    }
-
-    public void deleteCalendarEntity(CalendarEntity entity) {
-
-        calendar.remove(entity);
     }
 }

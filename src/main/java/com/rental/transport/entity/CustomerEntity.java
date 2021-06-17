@@ -44,7 +44,6 @@ public class CustomerEntity extends AbstractEnabledEntity {
     private Set<TransportEntity> transport = new HashSet<>();
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<PropertyEntity> property = new HashSet<>();
-    private Set<CalendarEntity> calendar = new HashSet<>();
 
     public CustomerEntity(String account, String password) {
         setAccount(account);
@@ -88,15 +87,6 @@ public class CustomerEntity extends AbstractEnabledEntity {
     )
     public Set<ImageEntity> getImage() {
         return image;
-    }
-
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(name = "customer_calendar",
-            joinColumns = @JoinColumn(name = "customer_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "calendar_id", nullable = false)
-    )
-    public Set<CalendarEntity> getCalendar() {
-        return calendar;
     }
 
     @ManyToMany
@@ -156,15 +146,5 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
         for (PropertyEntity property : entryes)
             addProperty(property);
-    }
-
-    public void addCalendar(CalendarEntity entity) {
-
-        calendar.add(entity);
-    }
-
-    public void deleteCalendarEntity(CalendarEntity entity) {
-
-        calendar.remove(entity);
     }
 }

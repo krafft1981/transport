@@ -39,6 +39,17 @@ public interface OrderRepository extends IRepository<OrderEntity> {
             @Param("transportId") Long transportId
     );
 
+    // Поиск заказов по заказчику
+    @Query(
+            nativeQuery = true,
+            value = "select o.id, o.day, o.hours, o.customer_id, o.driver_id, o.transport_id from orders o " +
+                    "where customer_id = :customerId and day = :day"
+    )
+    List<OrderEntity> findByCustomerAndDay(
+            @Param("customerId") Long customerId,
+            @Param("day") Long day
+    );
+
     // Поиск заказов по Водителю и дню
     List<OrderEntity> findByDriverAndDay(CustomerEntity driver, Long day);
 }

@@ -1,8 +1,11 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.enums.CalendarTypeEnum;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -16,7 +19,8 @@ import org.hibernate.annotations.Type;
         schema = "public",
         catalog = "relationship",
         indexes = {
-                @Index(columnList = "day", name = "calendar_day_num_id_idx")
+                @Index(columnList = "day", name = "calendar_day_num_id_idx"),
+                @Index(columnList = "type", name = "calendar_type_idx")
         }
 )
 
@@ -27,6 +31,17 @@ public class CalendarEntity extends AbstractEntity {
 
     private Long day;
     private Integer[] hours;
+    private CalendarTypeEnum type;
+    private Long objectId;
+    private String note = "";
+
+    public CalendarEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId) {
+
+        setDay(day);
+        setHours(hours);
+        setType(type);
+        setObjectId(objectId);
+    }
 
     @Basic
     @Column(name = "day", nullable = false, insertable = true, updatable = true)
@@ -41,5 +56,24 @@ public class CalendarEntity extends AbstractEntity {
     )
     public Integer[] getHours() {
         return hours;
+    }
+
+    @Basic
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, insertable = true, updatable = true)
+    public CalendarTypeEnum getType() {
+        return type;
+    }
+
+    @Basic
+    @Column(name = "object_id", nullable = false, insertable = true, updatable = true)
+    public Long getObjectId() {
+        return objectId;
+    }
+
+    @Basic
+    @Column(name = "note", nullable = false, insertable = true, updatable = true)
+    public String getNote() {
+        return note;
     }
 }

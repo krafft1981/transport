@@ -118,7 +118,7 @@ public class RequestEntity extends AbstractEntity {
     }
 
     public void setInteract(RequestStatusEnum status) {
-        setInteractAt(new Date());
+        setInteractAt(currentTime());
         setStatus(status);
     }
 }

@@ -44,8 +44,7 @@ public class AbstractEntity implements Serializable {
     }
 
     public Date currentTime() {
-        Calendar calendar = Calendar.getInstance();
-        Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(new Date());
         return calendar.getTime();
     }
