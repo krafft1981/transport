@@ -77,10 +77,73 @@ public class RequestService {
                     if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
                         entity.setOrder(orderId);
                         entity.setInteract(RequestStatusEnum.ACCEPTED);
-                    }
-                    else
+                    } else
                         entity.setInteract(RequestStatusEnum.REJECTED);
                 });
+
+        requestRepository.save(request);
+    }
+
+    @Transactional
+    public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
+            throws ObjectNotFoundException, IllegalArgumentException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = transportService.getEntity(transportId);
+
+        Date now = new Date();
+        day = calendarService.getDayIdByTime(day);
+
+        if (day < calendarService.getDayIdByTime(now.getTime()))
+            throw new IllegalArgumentException("Запрос устарел");
+
+        requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
+
+        if (transport.getParking().isEmpty())
+            throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
+
+        if (transport.getCustomer().isEmpty())
+            throw new IllegalArgumentException("Данный транспорт не имеет водителей");
+
+        if (Objects.nonNull(hours)) {
+            Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            if (hours.length < minTime)
+                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часов последовательно");
+
+            Arrays.sort(hours);
+            Integer current = null;
+            for (Integer hour : hours) {
+                if (current == null) {
+                    current = hour;
+                    continue;
+                }
+
+                if ((current + 1) != hour)
+                    throw new IllegalArgumentException("Выберите часы последовательно");
+
+                current = hour;
+            }
+
+            calendarService.checkBusyByCustomer(customer, day, hours);
+            calendarService.checkBusyByNote(customer, day, hours);
+
+            Integer requestCount = 0;
+            for (CustomerEntity driver : transport.getCustomer()) {
+                try {
+                    calendarService.checkBusyByCustomer(driver, day, hours);
+                    calendarService.checkBusyByNote(driver, day, hours);
+                    RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
+                    requestRepository.save(request);
+                    requestCount++;
+                } catch (Exception e) {
+                }
+            }
+
+            if (requestCount == 0)
+                throw new IllegalArgumentException("Извините, некому принять заявку");
+        }
+
+        return calendarService.getTransportEvents(account, day, transportId);
     }
 
     @Transactional
@@ -108,9 +171,11 @@ public class RequestService {
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
-        calendarService.checkCustomerBusy(customer, request.getDay(), request.getHours());
-        calendarService.checkCustomerBusy(driver, request.getDay(), request.getHours());
-        calendarService.checkTransportBusy(transport, request.getDay(), request.getHours());
+        calendarService.checkBusyByCustomer(customer, request.getDay(), request.getHours());
+        calendarService.checkBusyByNote(customer, request.getDay(), request.getHours());
+
+        calendarService.checkBusyByCustomer(driver, request.getDay(), request.getHours());
+        calendarService.checkBusyByNote(driver, request.getDay(), request.getHours());
 
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
@@ -139,7 +204,6 @@ public class RequestService {
         );
 
         calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, customer.getId());
-        calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.TRANSPORT, transport.getId());
         calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, driver.getId());
 
         order.setCustomer(customer);
@@ -152,7 +216,8 @@ public class RequestService {
         request.setOrder(order.getId());
 
         setInteracted(request, driver, order.getId());
-        rejectAllcrossRequests(request, account);
+
+        rejectAllcrossRequests(account, request);
 
         return getRequestAsDriver(account);
     }
@@ -168,69 +233,10 @@ public class RequestService {
             throw new AccessDeniedException("Нельзя отвечать на запрос другому водителю");
 
         if (request.getStatus() != RequestStatusEnum.NEW)
-            throw new IllegalArgumentException("Запрос устарел");
+            throw new IllegalArgumentException("На этот запрос уже ответили");
 
         setInteracted(request, null, null);
         return getRequestAsDriver(account);
-    }
-
-    @Transactional
-    public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
-            throws ObjectNotFoundException, IllegalArgumentException {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        TransportEntity transport = transportService.getEntity(transportId);
-
-        Date now = new Date();
-        day = calendarService.getDayIdByTime(day);
-
-        if (day < calendarService.getDayIdByTime(now.getTime()))
-            throw new IllegalArgumentException("Запрос устарел");
-
-        requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
-
-        if (transport.getParking().isEmpty())
-            throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
-
-        if (Objects.nonNull(hours)) {
-            Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
-            if (hours.length < minTime)
-                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часов последовательно");
-
-            Arrays.sort(hours);
-            Integer current = null;
-            for (Integer hour : hours) {
-                if (current == null) {
-                    current = hour;
-                    continue;
-                }
-
-                if ((current + 1) != hour)
-                    throw new IllegalArgumentException("Выберите часы последовательно");
-
-                current = hour;
-            }
-
-            calendarService.checkCustomerBusy(customer, day, hours);
-            calendarService.checkTransportBusy(transport, day, hours);
-
-            Integer freeDriverCount = 0;
-            for (CustomerEntity driver : transport.getCustomer()) {
-                try {
-                    calendarService.checkCustomerBusy(driver, day, hours);
-                    RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
-                    requestRepository.save(request);
-                    freeDriverCount++;
-                }
-                catch (Exception e) {
-                }
-            }
-
-            if (freeDriverCount == 0)
-                throw new IllegalArgumentException("Для такого заказа нет свободных водителей. Выберите другое время.");
-        }
-
-        return calendarService.getTransportEvents(account, day, transportId);
     }
 
     public List<Request> getRequestAsCustomer(String account) throws ObjectNotFoundException {
@@ -253,18 +259,7 @@ public class RequestService {
                 .collect(Collectors.toList());
     }
 
-    private void rejectAllcrossRequests(RequestEntity request, String account) {
-        requestRepository
-                .findNewByTransportAndDay(request.getTransport().getId(), request.getDay())
-                .stream()
-                .forEach(entity -> {
-                    for (Integer hour : request.getHours()) {
-                        if (Arrays.asList(entity.getHours()).contains(hour)) {
-                            rejectRequest(account, request.getId());
-                            break;
-                        }
-                    }
-                });
+    private void rejectAllcrossRequests(String account, RequestEntity request) {
 
         requestRepository
                 .findNewByCustomerAndDay(request.getCustomer().getId(), request.getDay())
@@ -272,7 +267,10 @@ public class RequestService {
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
-                            rejectRequest(account, request.getId());
+                            rejectRequest(
+                                    entity.getDriver().getAccount(),
+                                    entity.getId()
+                            );
                             break;
                         }
                     }
@@ -284,7 +282,10 @@ public class RequestService {
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
-                            rejectRequest(account, request.getId());
+                            rejectRequest(
+                                    entity.getDriver().getAccount(),
+                                    entity.getId()
+                            );
                             break;
                         }
                     }

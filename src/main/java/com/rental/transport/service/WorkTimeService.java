@@ -1,12 +1,16 @@
 package com.rental.transport.service;
 
-import com.rental.transport.dto.Calendar;
+import com.rental.transport.dto.Event;
 import com.rental.transport.entity.CustomerEntity;
+import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,30 +20,35 @@ public class WorkTimeService {
     @Autowired
     private PropertyService propertyService;
 
-    private Calendar getCustomerWorkTime(Long day, CustomerEntity customer)
+    private List<Event> getCustomerWorkTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        Integer startWorkAt = Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime"));
-        Integer stopWorkAt = Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime"));
-        return new Calendar(day, startWorkAt, stopWorkAt);
+        List<Event> result = new ArrayList();
+        result.add(new Event(EventTypeEnum.GENERATED, day, 0, Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime"))));
+        result.add(new Event(EventTypeEnum.FREE, day,
+                Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime")),
+                Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime")))
+        );
+        result.add(new Event(EventTypeEnum.GENERATED, day, Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime")), 24));
+        return result;
     }
 
-    private Calendar getCustomerHolidayTime(Long day, CustomerEntity customer)
+    private List<Event> getCustomerHolidayTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException {
 
-        String workAtWeekEnd = propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd");
-
         IStringValidator validator = new BooleanYesValidator();
-        if (validator.validate(workAtWeekEnd))
+        if (validator.validate(propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd")))
             return getCustomerWorkTime(day, customer);
 
-        return new Calendar(day);
+        List<Event> result = new ArrayList();
+        result.add(new Event(EventTypeEnum.GENERATED, day, 0, 24));
+        return result;
     }
 
-    public Calendar getCustomerWeekTime(Long day, CustomerEntity customer)
+    public List<Event> getCustomerWeekTime(Long day, CustomerEntity customer)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        java.util.Calendar calendar = new GregorianCalendar();
+        java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         calendar.setTimeInMillis(day);
 
         switch (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
@@ -56,6 +65,6 @@ public class WorkTimeService {
             }
         }
 
-        return new Calendar(day);
+        throw new IllegalArgumentException("Что то пошло не так.");
     }
 }

@@ -5,8 +5,7 @@ import lombok.Getter;
 public enum CalendarTypeEnum {
 
     CUSTOMER(1, "CUSTOMER"),
-    TRANSPORT(2, "TRANSPORT"),
-    NOTE(3, "NOTE");
+    NOTE(2, "NOTE");
 
     @Getter
     private int id = 0;

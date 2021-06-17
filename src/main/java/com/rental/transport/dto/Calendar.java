@@ -31,7 +31,7 @@ public class Calendar extends AbstractDto {
             hours[id] = hour;
     }
 
-    public Integer getMinHour() {
+    public Integer minHour() {
         Integer min = Integer.MAX_VALUE;
 
         for (Integer value : hours) {
@@ -42,7 +42,7 @@ public class Calendar extends AbstractDto {
         return min;
     }
 
-    public Integer getMaxHour() {
+    public Integer maxHour() {
         Integer max = Integer.MIN_VALUE;
 
         for (Integer value : hours) {

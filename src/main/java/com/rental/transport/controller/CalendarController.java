@@ -28,7 +28,7 @@ public class CalendarController {
             value = "Получение личного календаря пользователя"
     )
     @GetMapping(value = "/transport")
-    public Map<Integer, Event> doGetTransportEvents(
+    public Map<Integer, Event> doGetTransportCalendar(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day) {
@@ -40,7 +40,7 @@ public class CalendarController {
             value = "Получение календаря аренды транспорта"
     )
     @GetMapping(value = "/customer")
-    public Map<Integer, Event> doGetCustomerEvents(
+    public Map<Integer, Event> doGetCustomerCalendar(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
