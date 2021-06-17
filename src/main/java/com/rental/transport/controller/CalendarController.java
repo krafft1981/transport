@@ -25,7 +25,7 @@ public class CalendarController {
     private CalendarService calendarService;
 
     @ApiOperation(
-            value = "Получение личного календаря пользователя"
+            value = "Получение календаря заказчика транспорта"
     )
     @GetMapping(value = "/transport")
     public Map<Integer, Event> doGetTransportCalendar(
@@ -37,7 +37,7 @@ public class CalendarController {
     }
 
     @ApiOperation(
-            value = "Получение календаря аренды транспорта"
+            value = "Получение календаря владельца транспорта"
     )
     @GetMapping(value = "/customer")
     public Map<Integer, Event> doGetCustomerCalendar(

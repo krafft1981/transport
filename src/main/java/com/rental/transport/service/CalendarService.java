@@ -2,15 +2,19 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
+import com.rental.transport.dto.Request;
 import com.rental.transport.dto.Text;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.entity.ParkingEntity;
+import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.CalendarTypeEnum;
+import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
+import com.rental.transport.mapper.OrderMapper;
+import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
@@ -32,6 +36,12 @@ public class CalendarService {
     private CalendarMapper calendarMapper;
 
     @Autowired
+    private OrderMapper orderMapper;
+
+    @Autowired
+    private RequestMapper requestMapper;
+
+    @Autowired
     private TransportService transportService;
 
     @Autowired
@@ -45,6 +55,9 @@ public class CalendarService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private RequestRepository requestRepository;
 
     public Long getDayIdByTime(Long time) {
 
@@ -138,12 +151,49 @@ public class CalendarService {
         }
     }
 
-    //    Transport calendar (Показывается у заказчика)
-    //    Берём за основу рабочее время транспорта (Первого водителя транспорта).
-    //    Накладываем на него записи NOTE.
-    //    Накладываем на него записи занятости одобренные по заказам водителем.
-    //    Накладываем на него свою занятость с других заказов.
-    //    Накладываем жёлтым время созданных запросов
+    private Map<Integer, Event> getMergedEvents(List<Event> events) {
+
+        Map<Integer, Event> result = new HashMap();
+        events
+                .stream()
+                .forEach(event -> {
+                    System.out.println("Building from event type: " + event.getType());
+                    Integer min = event.getCalendar().minHour();
+                    Integer max = event.getCalendar().maxHour();
+                    for (Integer hour = min; hour < max; hour++)
+                        result.put(hour, event);
+                });
+
+        return result;
+    }
+
+    //    Customer calendar (Показывается у водителя) +
+    //    Берём за основу своё рабочее время. (Своё собственное) +
+    //    Накладываем на него записи NOTE. +
+    //    Накладываем на него записи занятости одобренные по заказам водителем. +
+    public Map<Integer, Event> getCustomerEvents(String account, Long day) {
+
+        day = getDayIdByTime(day);
+        CustomerEntity customer = customerService.getEntity(account);
+        List<Event> workTime = workTimeService.getCustomerWeekTime(day, customer);
+        
+        calendarRepository
+                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
+                .stream()
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getDay(), entity.getHours())));
+        orderRepository
+                .findByDriverAndDay(customer, day)
+                .stream()
+                .forEach(entity -> workTime.add(new Event(orderMapper.toDto(entity))));
+
+        return getMergedEvents(workTime);
+    }
+
+    //    Transport calendar (Показывается у заказчика) +
+    //    Берём за основу рабочее время транспорта (Первого водителя транспорта). +
+    //    Накладываем на него записи NOTE. +
+    //    Накладываем на него записи занятости одобренные по заказам водителем. +
+    //    Накладываем жёлтым время созданных запросов +
     public Map<Integer, Event> getTransportEvents(String account, Long day, Long transportId)
             throws IllegalArgumentException {
 
@@ -155,17 +205,21 @@ public class CalendarService {
         CustomerEntity driver = transport.getCustomer().iterator().next();
         CustomerEntity customer = customerService.getEntity(account);
         List<Event> workTime = workTimeService.getCustomerWeekTime(day, driver);
-        return new HashMap();
-    }
 
-    //    Customer calendar (Показывается у водителя)
-    //    Берём за основу своё рабочее время. (Своё собственное)
-    //    Накладываем на него записи NOTE.
-    //    Накладываем на него записи занятости одобренные по заказам водителем.
-    public Map<Integer, Event> getCustomerEvents(String account, Long day) {
+        calendarRepository
+                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, driver.getId())
+                .stream()
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+        orderRepository
+                .findByCustomerAndDay(customer, day)
+                .stream()
+                .forEach(entity -> workTime.add(new Event(orderMapper.toDto(entity))));
 
-        day = getDayIdByTime(day);
-        CustomerEntity customer = customerService.getEntity(account);
-        return new HashMap();
+        requestRepository
+                .findNewByCustomerAndDay(customer.getId(), day)
+                .stream()
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.REQUEST, requestMapper.toDto(entity))));
+
+        return getMergedEvents(workTime);
     }
 }

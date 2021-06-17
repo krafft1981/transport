@@ -1,6 +1,7 @@
 package com.rental.transport.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rental.transport.enums.CalendarTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,10 +17,13 @@ public class Calendar extends AbstractDto {
     private Long day;
     @JsonProperty("hours")
     private Integer[] hours;
+    @JsonProperty("note")
+    private String note = "";
 
-    public Calendar(Long day) {
+    public Calendar(Long day, Integer[] hours) {
 
         setDay(day);
+        setHours(hours);
     }
 
     public Calendar(Long day, Integer start, Integer stop) {

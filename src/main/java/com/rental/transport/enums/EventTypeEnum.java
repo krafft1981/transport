@@ -17,6 +17,10 @@ public enum EventTypeEnum {
     @Getter
     private String name;
 
+    public int id() {
+        return id;
+    }
+
     EventTypeEnum(int id, String name) {
         this.id = id;
         this.name = name;

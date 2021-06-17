@@ -19,17 +19,8 @@ public class Event extends AbstractDto {
     private Order order = null;
     @JsonProperty("request")
     private Request request = null;
-    @JsonProperty("note")
-    private NoteBook note = null;
     @JsonProperty("type")
     private Integer type = 0;
-
-    public Event(NoteBook note, Long day, Integer[] hours) {
-
-        setType(EventTypeEnum.NOTE.getId());
-        setNote(note);
-        setCalendar(new Calendar(day, hours));
-    }
 
     public Event(EventTypeEnum type, Long day, Integer[] hours) {
 
