@@ -193,6 +193,7 @@ public class CalendarService {
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getDay(), entity.getHours())));
+
         orderRepository
                 .findByDriverAndDay(customer, day)
                 .stream()
@@ -205,6 +206,7 @@ public class CalendarService {
     //    Берём за основу рабочее время транспорта (Первого водителя транспорта). +
     //    Накладываем на него записи NOTE. +
     //    Накладываем на него записи занятости одобренные по заказам водителем. +
+    //    Накладываем на него собственную занятость. (заказы + заметки)
     //    Накладываем жёлтым время созданных запросов +
     public Map<Integer, Event> getTransportEvents(String account, Long day, Long transportId)
             throws IllegalArgumentException {
@@ -222,6 +224,17 @@ public class CalendarService {
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, driver.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+
+        calendarRepository
+                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, driver.getId())
+                .stream()
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+
+        calendarRepository
+                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
+                .stream()
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+
         orderRepository
                 .findByCustomerAndDay(customer, day)
                 .stream()
