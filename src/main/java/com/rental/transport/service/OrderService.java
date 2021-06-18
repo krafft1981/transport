@@ -78,7 +78,7 @@ public class OrderService {
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
             new AccessDeniedException("Message to");
 
-        if (body.getMessage() != null && !body.getMessage().isEmpty())
+        if (body.getMessage().isEmpty())
             throw new IllegalArgumentException("Пустое сообщение не сохранено");
 
         order.addMessage(message);

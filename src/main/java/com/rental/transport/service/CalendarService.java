@@ -2,7 +2,6 @@ package com.rental.transport.service;
 
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
-import com.rental.transport.dto.Request;
 import com.rental.transport.dto.Text;
 import com.rental.transport.entity.CalendarEntity;
 import com.rental.transport.entity.CalendarRepository;
@@ -86,6 +85,20 @@ public class CalendarService {
     public Calendar createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
             throws ObjectNotFoundException, IllegalArgumentException {
 
+        Arrays.sort(hours);
+        Integer current = null;
+        for (Integer hour : hours) {
+            if (current == null) {
+                current = hour;
+                continue;
+            }
+
+            if ((current + 1) != hour)
+                throw new IllegalArgumentException("Выберите часы последовательно");
+
+            current = hour;
+        }
+
         day = getDayIdByTime(day);
         CustomerEntity customer = customerService.getEntity(account);
         checkBusyByCustomer(customer, day, hours);
@@ -157,7 +170,6 @@ public class CalendarService {
         events
                 .stream()
                 .forEach(event -> {
-                    System.out.println("Building from event type: " + event.getType());
                     Integer min = event.getCalendar().minHour();
                     Integer max = event.getCalendar().maxHour();
                     for (Integer hour = min; hour < max; hour++)
@@ -176,7 +188,7 @@ public class CalendarService {
         day = getDayIdByTime(day);
         CustomerEntity customer = customerService.getEntity(account);
         List<Event> workTime = workTimeService.getCustomerWeekTime(day, customer);
-        
+
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
@@ -216,7 +228,7 @@ public class CalendarService {
                 .forEach(entity -> workTime.add(new Event(orderMapper.toDto(entity))));
 
         requestRepository
-                .findNewByCustomerAndDay(customer.getId(), day)
+                .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), day)
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.REQUEST, requestMapper.toDto(entity))));
 

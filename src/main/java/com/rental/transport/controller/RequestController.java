@@ -51,7 +51,7 @@ public class RequestController {
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,
-            @RequestParam(value = "hour", required = true) Integer[] hour) {
+            @RequestParam(value = "hour", required = false) Integer[] hour) {
 
         return requestService.createRequest(principal.getName(), transport_id, day, hour);
     }

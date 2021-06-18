@@ -13,10 +13,10 @@ public interface RequestRepository extends IRepository<RequestEntity> {
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
-                    "where status = 'NEW' and day = :day and r.transport_id = :transportId"
+                    "where status = 'NEW' and day = :day and r.customer_id = :customerId"
     )
-    List<RequestEntity> findNewByTransportAndDay(
-            @Param("transportId") Long transportId,
+    List<RequestEntity> findNewByCustomerAndDay(
+            @Param("customerId") Long customerId,
             @Param("day") Long day
     );
 
@@ -33,10 +33,11 @@ public interface RequestRepository extends IRepository<RequestEntity> {
     @Query(
             nativeQuery = true,
             value = "select r.id, r.created_at, r.interact_at, r.order_id, r.status, r.customer_id, r.driver_id, r.transport_id, r.day, r.hours from request r " +
-                    "where status = 'NEW' and day = :day and customer_id = :customerId"
+                    "where status = 'NEW' and day = :day and customer_id = :customerId and transport_id = :transportId"
     )
-    List<RequestEntity> findNewByCustomerAndDay(
+    List<RequestEntity> findNewByCustomerAndTransportAndDay(
             @Param("customerId") Long customerId,
+            @Param("transportId") Long transportId,
             @Param("day") Long day
     );
 
