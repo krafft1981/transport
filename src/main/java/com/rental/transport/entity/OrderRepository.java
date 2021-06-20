@@ -38,6 +38,6 @@ public interface OrderRepository extends IRepository<OrderEntity> {
             @Param("transportId") Long transportId
     );
 
-    List<OrderEntity> findByCustomerAndDay(CustomerEntity customer, Long day);
+    List<OrderEntity> findByCustomerAndTransportAndDay(CustomerEntity customer, TransportEntity transport, Long day);
     List<OrderEntity> findByDriverAndDay(CustomerEntity driver, Long day);
 }

@@ -48,7 +48,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return rawPassword.toString().equals(encodedPassword);
+                return rawPassword
+                        .toString()
+                        .equals(encodedPassword);
             }
         };
     }
@@ -75,6 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/registration/**").permitAll()
                 .antMatchers("/dist/**").permitAll()
+                .antMatchers("/websocket/**").permitAll()
                 .anyRequest().authenticated();
     }
 

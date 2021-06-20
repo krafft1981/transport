@@ -13,7 +13,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -52,14 +51,12 @@ public class CustomerEntity extends AbstractEnabledEntity {
 
     @Basic
     @Column(name = "account", unique = true, nullable = false, insertable = true, updatable = false)
-    @NotEmpty
     public String getAccount() {
         return account;
     }
 
     @Basic
     @Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true)
-    @NotEmpty
     public String getPassword() {
         return password;
     }

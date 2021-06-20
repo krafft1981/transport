@@ -49,6 +49,9 @@ public class RequestService {
     private PropertyService propertyService;
 
     @Autowired
+    private NotifyService notifyService;
+
+    @Autowired
     private RequestMapper requestMapper;
 
     @Scheduled(cron = "0 0 * * * *")
@@ -77,8 +80,12 @@ public class RequestService {
                     if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
                         entity.setOrder(orderId);
                         entity.setInteract(RequestStatusEnum.ACCEPTED);
-                    } else
+                        notifyService.confirmRequest(request);
+                    }
+                    else {
                         entity.setInteract(RequestStatusEnum.REJECTED);
+                        notifyService.rejectRequest(request);
+                    }
                 });
 
         requestRepository.save(request);
@@ -88,14 +95,13 @@ public class RequestService {
     public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        CustomerEntity customer = customerService.getEntity(account);
-        TransportEntity transport = transportService.getEntity(transportId);
-
-        Date now = new Date();
         day = calendarService.getDayIdByTime(day);
 
-        if (day < calendarService.getDayIdByTime(now.getTime()))
+        if (day < calendarService.getDayIdByTime(new Date().getTime()))
             throw new IllegalArgumentException("Запрос устарел");
+
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = transportService.getEntity(transportId);
 
         requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
 
@@ -134,8 +140,10 @@ public class RequestService {
                     calendarService.checkBusyByNote(driver, day, hours);
                     RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
                     requestRepository.save(request);
+                    notifyService.createRequest(request);
                     requestCount++;
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                 }
             }
 
@@ -164,9 +172,7 @@ public class RequestService {
         ParkingEntity parking = transport.getParking().iterator().next();
 
         // validate future
-        Date now = new Date();
-
-        if ((request.getDay() < now.getTime()))
+        if ((request.getDay() < calendarService.getDayIdByTime(new Date().getTime())))
             throw new IllegalArgumentException("Запрос устарел");
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
@@ -204,7 +210,9 @@ public class RequestService {
         );
 
         calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, customer.getId());
-        calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, driver.getId());
+        if (customer.getId() != driver.getId()) {
+            calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, driver.getId());
+        }
 
         order.setCustomer(customer);
         order.setTransport(transport);
@@ -218,7 +226,6 @@ public class RequestService {
         setInteracted(request, driver, order.getId());
 
         rejectAllcrossRequests(account, request);
-
         return getRequestAsDriver(account);
     }
 
@@ -230,7 +237,7 @@ public class RequestService {
         CustomerEntity driver = customerService.getEntity(account);
 
         if (!request.getTransport().getCustomer().contains(driver))
-            throw new AccessDeniedException("Нельзя отвечать на запрос другому водителю");
+            throw new AccessDeniedException("Нельзя отвечать на чужой запрос");
 
         if (request.getStatus() != RequestStatusEnum.NEW)
             throw new IllegalArgumentException("На этот запрос уже ответили");

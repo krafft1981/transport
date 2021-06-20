@@ -157,9 +157,6 @@ public class TransportService {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(transportId);
-        if (!transport.getCustomer().contains(customer))
-            throw new AccessDeniedException("Изменение картинок");
-
         transport.addImage(new ImageEntity(data));
         transportRepository.save(transport);
         return transportMapper.toDto(transport);
@@ -171,8 +168,6 @@ public class TransportService {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(transportId);
-        if (!transport.getCustomer().contains(customer))
-            throw new AccessDeniedException("Изменение картинок");
         transport.delImage(imageService.getEntity(imageId));
         transportRepository.save(transport);
         return transportMapper.toDto(transport);

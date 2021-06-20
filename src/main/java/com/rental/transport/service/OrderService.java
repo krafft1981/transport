@@ -11,6 +11,7 @@ import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -22,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     @Autowired
+    private CalendarService calendarService;
+
+    @Autowired
     private CustomerService customerService;
 
     @Autowired
@@ -29,6 +33,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private NotifyService notifyService;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -62,7 +69,6 @@ public class OrderService {
 
     public Order getOrder(String account, Long id) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
         OrderEntity entity = getEntity(id);
         return orderMapper.toDto(entity);
     }
@@ -75,14 +81,18 @@ public class OrderService {
         CustomerEntity customer = customerService.getEntity(account);
         MessageEntity message = new MessageEntity(customer, body.getMessage());
 
+        if (order.getDay() < calendarService.getDayIdByTime(new Date().getTime()))
+            throw new IllegalArgumentException("Запрос устарел");
+
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
             new AccessDeniedException("Message to");
 
         if (body.getMessage().isEmpty())
-            throw new IllegalArgumentException("Пустое сообщение не сохранено");
+            throw new IllegalArgumentException("Введите текст для отправки");
 
         order.addMessage(message);
         orderRepository.save(order);
+        notifyService.createOrderMessage(order);
         return orderMapper.toDto(order);
     }
 

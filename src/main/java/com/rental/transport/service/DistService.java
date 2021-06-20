@@ -49,10 +49,10 @@ public class DistService {
 
     public byte[] getFile(String name) throws IOException {
         File file = new File(buildName(name));
-        Integer len = Long.valueOf(file.length()).intValue();
+        Long len = file.length();
         InputStream fis = new FileInputStream(new File(buildName(name)));
-        byte[] data = new byte[len];
-        ByteStreams.read(fis, data, 0, len);
+        byte[] data = new byte[len.intValue()];
+        ByteStreams.read(fis, data, 0, len.intValue());
         appendScore(name, 0);
         distRepository.save(new DistEntity(name));
         return data;
@@ -67,6 +67,8 @@ public class DistService {
 
     @PostConstruct
     public void postConstruct() {
-        distRepository.findAll().forEach(entity -> appendScore(entity.getProgram(), 1));
+        distRepository
+                .findAll()
+                .forEach(entity -> appendScore(entity.getProgram(), 1));
     }
 }
