@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Customer extends AbstractIdDto {
 
+    @JsonProperty("time_zone")
+    private String timeZone;
     @JsonProperty("account")
     private String account;
     @JsonProperty("send_email")

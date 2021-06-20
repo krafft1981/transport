@@ -63,7 +63,7 @@ public class CustomerService implements UserDetailsService {
         return user;
     }
 
-    public Customer create(String account, String password, String phone, String fio) throws IllegalArgumentException {
+    public Customer create(String account, String password, String phone, String fio, String tz) throws IllegalArgumentException {
 
         if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account)))
             throw new IllegalArgumentException("Учётная запись уже существует");
@@ -80,7 +80,7 @@ public class CustomerService implements UserDetailsService {
         if (!vf.getValidator("String").validate(fio))
             throw new IllegalArgumentException("Неправильное значение поля 'имя'");
 
-        CustomerEntity customer = new CustomerEntity(account, password);
+        CustomerEntity customer = new CustomerEntity(account, password, tz);
         customer.addProperty(
                 propertyService.create("customer_fio", fio),
                 propertyService.create("customer_phone", phone),

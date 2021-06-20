@@ -25,9 +25,10 @@ public class RegistrationController {
             @RequestParam(value = "account", required = true) String account,
             @RequestParam(value = "password", required = true) String password,
             @RequestParam(value = "phone", required = true) String phone,
-            @RequestParam(value = "fio", required = true) String fio) {
+            @RequestParam(value = "fio", required = true) String fio,
+            @RequestParam(value = "time_zone", required = true) String tz) {
 
-        return service.create(account, password, phone, fio);
+        return service.create(account, password, phone, fio, tz);
     }
 
     @ApiOperation(

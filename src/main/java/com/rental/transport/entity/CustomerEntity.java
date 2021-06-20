@@ -35,6 +35,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CustomerEntity extends AbstractEnabledEntity {
 
+    private String timeZone;
     private String account;
     private String password;
     private Boolean confirmed = true;
@@ -44,9 +45,16 @@ public class CustomerEntity extends AbstractEnabledEntity {
     private Set<ParkingEntity> parking = new HashSet<>();
     private Set<PropertyEntity> property = new HashSet<>();
 
-    public CustomerEntity(String account, String password) {
+    public CustomerEntity(String account, String password, String tz) {
         setAccount(account);
         setPassword(password);
+        setTimeZone(tz);
+    }
+
+    @Basic
+    @Column(name = "time_zone", unique = false, nullable = false, insertable = true, updatable = false)
+    public String getTimeZone() {
+        return timeZone;
     }
 
     @Basic
