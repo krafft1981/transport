@@ -60,11 +60,11 @@ public class TransportService {
         transportRepository.delete(transport);
     }
 
-    public Long create(String account, String type)
+    public Long create(String account, Long typeId)
             throws ObjectNotFoundException {
 
         CustomerEntity customerEntity = customerService.getEntity(account);
-        TransportTypeEntity transportTypeEntity = typeService.getEntity(type);
+        TransportTypeEntity transportTypeEntity = typeService.getEntity(typeId);
         TransportEntity transport = new TransportEntity(customerEntity, transportTypeEntity);
         transport.addProperty(
                 propertyService.create("transport_name", "Не указано"),

@@ -67,9 +67,9 @@ public class TransportController {
     @PostMapping
     public Long doPostTransport(
             Principal principal,
-            @RequestParam(value = "type", required = true) String type) {
+            @RequestParam(value = "type", required = true) Long typeId) {
 
-        return service.create(principal.getName(), type);
+        return service.create(principal.getName(), typeId);
     }
 
     @ApiOperation(
