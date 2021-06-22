@@ -1,5 +1,5 @@
 package com.rental.transport.dto;
 
-public class AbstractDto{
+public class AbstractDto {
 
 }

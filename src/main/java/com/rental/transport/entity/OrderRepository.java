@@ -12,7 +12,7 @@ public interface OrderRepository extends IRepository<OrderEntity> {
     @Query(
             nativeQuery = true,
             value = "select o.id, o.day, o.hours, o.customer_id, o.driver_id, o.transport_id from orders o " +
-                    "where customer_id = :customerId and Date(to_timestamp(day/1000)) >= Date(Now())"
+                    "where customer_id = :customerId and Date(to_timestamp(day/1000)) >= (select Date((Now()) at time zone time_zone) from customer where id = customer_id)"
     )
     List<OrderEntity> findByCustomer(
             @Param("customerId") Long customerId
@@ -22,7 +22,7 @@ public interface OrderRepository extends IRepository<OrderEntity> {
     @Query(
             nativeQuery = true,
             value = "select o.id, o.day, o.hours, o.customer_id, o.driver_id, o.transport_id from orders o " +
-                    "where driver_id = :driverId and Date(to_timestamp(day/1000)) >= Date(Now())"
+                    "where driver_id = :driverId and Date(to_timestamp(day/1000)) >= (select Date((Now()) at time zone time_zone) from customer where id = customer_id)"
     )
     List<OrderEntity> findByDriver(
             @Param("driverId") Long driverId
@@ -32,7 +32,7 @@ public interface OrderRepository extends IRepository<OrderEntity> {
     @Query(
             nativeQuery = true,
             value = "select o.id, o.day, o.hours, o.customer_id, o.driver_id, o.transport_id from orders o " +
-                    "where transport_id = :transportId and Date(to_timestamp(day/1000)) >= Date(Now())"
+                    "where transport_id = :transportId and Date(to_timestamp(day/1000)) >= (select Date((Now()) at time zone time_zone) from customer where id = customer_id)"
     )
     List<OrderEntity> findByTransport(
             @Param("transportId") Long transportId

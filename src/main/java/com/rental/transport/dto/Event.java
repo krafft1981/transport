@@ -28,15 +28,32 @@ public class Event extends AbstractDto {
         setCalendar(new Calendar(day, hours));
     }
 
+    public Event(EventTypeEnum type, Long id, Long day, Integer[] hours) {
+
+        setType(type.getId());
+        setCalendar(new Calendar(id, day, hours));
+    }
+
     public Event(EventTypeEnum type, Long day, Integer start, Integer stop) {
 
-        Integer id = 0;
+        Integer index = 0;
         Integer[] diapazon = new Integer[stop - start];
-        for (Integer hour = start; hour < stop; hour++, id++)
-            diapazon[id] = hour;
+        for (Integer hour = start; hour < stop; hour++, index++)
+            diapazon[index] = hour;
 
         setType(type.getId());
         setCalendar(new Calendar(day, diapazon));
+    }
+
+    public Event(EventTypeEnum type, Long id, Long day, Integer start, Integer stop) {
+
+        Integer index = 0;
+        Integer[] diapazon = new Integer[stop - start];
+        for (Integer hour = start; hour < stop; hour++, index++)
+            diapazon[index] = hour;
+
+        setType(type.getId());
+        setCalendar(new Calendar(id, day, diapazon));
     }
 
     public Event(Calendar calendar) {

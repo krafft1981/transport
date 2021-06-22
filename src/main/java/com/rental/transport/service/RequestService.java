@@ -17,7 +17,6 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -96,13 +95,10 @@ public class RequestService {
             throws ObjectNotFoundException, IllegalArgumentException {
 
         day = calendarService.getDayIdByTime(day);
-
-        if (day < calendarService.getDayIdByTime(new Date().getTime()))
-            throw new IllegalArgumentException("Запрос устарел");
-
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
 
+        calendarService.obsolescenceСheck(day, customer, hours);
         requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
 
         if (transport.getParking().isEmpty())
@@ -171,9 +167,7 @@ public class RequestService {
         TransportEntity transport = request.getTransport();
         ParkingEntity parking = transport.getParking().iterator().next();
 
-        // validate future
-        if ((request.getDay() < calendarService.getDayIdByTime(new Date().getTime())))
-            throw new IllegalArgumentException("Запрос устарел");
+        calendarService.obsolescenceСheck(request.getDay(), customer, request.getHours());
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
@@ -225,7 +219,7 @@ public class RequestService {
 
         setInteracted(request, driver, order.getId());
 
-        rejectAllcrossRequests(account, request);
+        rejectAllcrossRequests(request);
         return getRequestAsDriver(account);
     }
 
@@ -266,7 +260,7 @@ public class RequestService {
                 .collect(Collectors.toList());
     }
 
-    private void rejectAllcrossRequests(String account, RequestEntity request) {
+    private void rejectAllcrossRequests(RequestEntity request) {
 
         requestRepository
                 .findNewByCustomerAndDay(request.getCustomer().getId(), request.getDay())

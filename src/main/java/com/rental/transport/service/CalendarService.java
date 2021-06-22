@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,13 +86,31 @@ public class CalendarService {
         return calendarRepository.save(entity);
     }
 
+    public void obsolescenceСheck(Long day, CustomerEntity customer, Integer[] hours)
+            throws IllegalArgumentException {
+
+        java.util.Calendar c = java.util.Calendar.getInstance(TimeZone.getTimeZone(customer.getTimeZone()));
+        c.setTime(new Date());
+
+        if (day < getDayIdByTime(c.getTimeInMillis()))
+            throw new IllegalArgumentException("Запрос устарел");
+
+        if (day == getDayIdByTime(c.getTimeInMillis())) {
+            for (Integer hour : hours) {
+                if (hour < c.get(java.util.Calendar.HOUR))
+                    throw new IllegalArgumentException("Запрос устарел");
+            }
+        }
+    }
+
     @Transactional
     public Calendar createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
             throws ObjectNotFoundException, IllegalArgumentException {
 
+        CustomerEntity customer = customerService.getEntity(account);
         day = getDayIdByTime(day);
-        if (day < getDayIdByTime(new Date().getTime()))
-            throw new IllegalArgumentException("Запрос устарел");
+
+        obsolescenceСheck(day, customer, hours);
 
         Arrays.sort(hours);
         Integer current = null;
@@ -108,8 +125,6 @@ public class CalendarService {
 
             current = hour;
         }
-
-        CustomerEntity customer = customerService.getEntity(account);
 
         checkBusyByCustomer(customer, day, hours);
         checkBusyByNote(customer, day, hours);
@@ -221,7 +236,7 @@ public class CalendarService {
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getId(), entity.getDay(), entity.getHours())));
 
         orderRepository
                 .findByDriverAndDay(customer, day)
@@ -252,22 +267,22 @@ public class CalendarService {
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, driver.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, driver.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
 
         orderRepository
                 .findByCustomerAndTransportAndDay(customer, transport, day)

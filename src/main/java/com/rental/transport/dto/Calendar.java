@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Calendar extends AbstractDto {
+public class Calendar extends AbstractIdDto {
 
     @JsonProperty("day")
     private Long day;
@@ -22,6 +22,13 @@ public class Calendar extends AbstractDto {
 
     public Calendar(Long day, Integer[] hours) {
 
+        setDay(day);
+        setHours(hours);
+    }
+
+    public Calendar(Long id, Long day, Integer[] hours) {
+
+        setId(id);
         setDay(day);
         setHours(hours);
     }
