@@ -94,8 +94,10 @@ public interface RequestRepository extends IRepository<RequestEntity> {
 
     @Query(
             nativeQuery = true,
-            value = "update request set status = 'EXPIRED', interact_at = CURRENT_TIMESTAMP " +
-                    "where id in (select id from request where status = 'NEW' and Date(to_timestamp(day/1000)) < (select Date((Now()) at time zone time_zone) from customer where id = customer_id))"
+            value = "update request set status = 'EXPIRED', interact_at = CURRENT_TIMESTAMP where id in (select id from request where status = 'NEW' and " +
+                    " Date(to_timestamp(day/1000)) < (select Date((Now()) at time zone time_zone) " +
+                        "from customer where id = customer_id)" +
+                    ")"
     )
     @Modifying
     @Transactional

@@ -80,8 +80,7 @@ public class RequestService {
                         entity.setOrder(orderId);
                         entity.setInteract(RequestStatusEnum.ACCEPTED);
                         notifyService.confirmRequest(request);
-                    }
-                    else {
+                    } else {
                         entity.setInteract(RequestStatusEnum.REJECTED);
                         notifyService.rejectRequest(request);
                     }
@@ -138,8 +137,7 @@ public class RequestService {
                     requestRepository.save(request);
                     notifyService.createRequest(request);
                     requestCount++;
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                 }
             }
 
@@ -203,10 +201,26 @@ public class RequestService {
                 propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone")
         );
 
-        calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, customer.getId());
-        if (customer.getId() != driver.getId()) {
-            calendarService.getEntity(request.getDay(), request.getHours(), CalendarTypeEnum.CUSTOMER, driver.getId());
-        }
+        String customer_phone = propertyService.getValue(request.getCustomer().getProperty(), "customer_phone");
+        String customer_fio = propertyService.getValue(request.getCustomer().getProperty(), "customer_fio");
+        String driver_phone = propertyService.getValue(request.getDriver().getProperty(), "customer_phone");
+        String driver_fio = propertyService.getValue(request.getDriver().getProperty(), "customer_fio");
+
+        calendarService.getEntity(
+                request.getDay(),
+                request.getHours(),
+                CalendarTypeEnum.CUSTOMER,
+                customer.getId(),
+                customer_phone + " " + customer_fio
+        );
+
+        calendarService.getEntity(
+                request.getDay(),
+                request.getHours(),
+                CalendarTypeEnum.CUSTOMER,
+                driver.getId(),
+                driver_phone + " " + driver_fio
+        );
 
         order.setCustomer(customer);
         order.setTransport(transport);

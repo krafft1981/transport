@@ -80,27 +80,38 @@ public class CalendarService {
                 .orElseThrow(() -> new ObjectNotFoundException("Calendar", id));
     }
 
-    public CalendarEntity getEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId) {
+    public CalendarEntity getEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId, String message) {
 
-        CalendarEntity entity = new CalendarEntity(day, hours, type, objectId);
+        CalendarEntity entity = new CalendarEntity(day, hours, type, objectId, message);
         return calendarRepository.save(entity);
     }
 
     public void obsolescenceСheck(Long day, CustomerEntity customer, Integer[] hours)
             throws IllegalArgumentException {
 
-        java.util.Calendar c = java.util.Calendar.getInstance(TimeZone.getTimeZone(customer.getTimeZone()));
-        c.setTime(new Date());
+        java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone(customer.getTimeZone()));
+        calendar.setTime(new Date());
 
-        if (day < getDayIdByTime(c.getTimeInMillis()))
-            throw new IllegalArgumentException("Запрос устарел");
+        Long currentDay = getDayIdByTime(calendar.getTimeInMillis());
+        Integer currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
 
-        if (day == getDayIdByTime(c.getTimeInMillis())) {
+        if (day > currentDay)
+            return;
+
+        if (day.equals(currentDay)) {
+            Boolean last = false;
             for (Integer hour : hours) {
-                if (hour < c.get(java.util.Calendar.HOUR))
-                    throw new IllegalArgumentException("Запрос устарел");
+                if (hour <= currentHour) {
+                    last = true;
+                    break;
+                }
             }
+
+            if (!last)
+                return;
         }
+
+        throw new IllegalArgumentException("Сорян, время уже прошло");
     }
 
     @Transactional
@@ -238,10 +249,10 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getId(), entity.getDay(), entity.getHours())));
 
-        orderRepository
-                .findByDriverAndDay(customer, day)
+        calendarRepository
+                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(orderMapper.toDto(entity))));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, entity.getId(), entity.getDay(), entity.getHours())));
 
         return getMergedEvents(workTime);
     }
