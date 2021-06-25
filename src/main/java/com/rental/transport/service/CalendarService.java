@@ -170,6 +170,7 @@ public class CalendarService {
     public Calendar updateCalendarNote(String account, Long calendarId, Text body)
             throws ObjectNotFoundException, IllegalArgumentException {
 
+        CustomerEntity customer = customerService.getEntity(account);
         CalendarEntity calendar = getEntity(calendarId);
         calendar.setNote(body.getMessage());
         calendarRepository.save(calendar);
@@ -179,6 +180,7 @@ public class CalendarService {
     public void deleteCalendarNote(String account, Long calendarId)
             throws IllegalArgumentException {
 
+        CustomerEntity customer = customerService.getEntity(account);
         CalendarEntity calendar = getEntity(calendarId);
         if (calendar.getType() == CalendarTypeEnum.NOTE)
             calendarRepository.delete(calendar);
@@ -226,15 +228,18 @@ public class CalendarService {
         CustomerEntity customer = customerService.getEntity(account);
         List<Event> workTime = workTimeService.getCustomerWeekTime(day, customer);
 
+        if (day < getDayIdByTime(new Date().getTime()))
+            return workTime;
+
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, calendarMapper.toDto(entity))));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, calendarMapper.toDto(entity))));
 
         return workTime;
     }
@@ -257,35 +262,44 @@ public class CalendarService {
         CustomerEntity customer = customerService.getEntity(account);
         List<Event> workTime = workTimeService.getCustomerWeekTime(day, driver);
 
+        if (day < getDayIdByTime(new Date().getTime()))
+            return workTime;
+
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, driver.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, driver.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getId(), entity.getDay(), entity.getHours())));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         orderRepository
                 .findByCustomerAndTransportAndDay(customer, transport, day)
                 .stream()
-                .forEach(entity -> workTime.add(new Event(orderMapper.toDto(entity))));
+                .forEach(entity -> {
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    workTime.add(new Event(EventTypeEnum.ORDER, calendar, entity.getId()));
+                });
 
         requestRepository
                 .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), day)
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
+                .forEach(entity -> {
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    workTime.add(new Event(EventTypeEnum.REQUEST, calendar, entity.getId()));
+                });
 
         return workTime;
     }

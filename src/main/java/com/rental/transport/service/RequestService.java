@@ -10,16 +10,19 @@ import com.rental.transport.entity.RequestEntity;
 import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.CalendarTypeEnum;
+import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
 import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -88,6 +91,18 @@ public class RequestService {
         requestRepository.save(request);
     }
 
+    public List<Request> getRequest(String account, Long[] ids)
+            throws ObjectNotFoundException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        List<Request> result = new ArrayList();
+        requestRepository
+                .findAllById(Arrays.asList(ids))
+                .forEach(entity -> result.add(requestMapper.toDto(entity)));
+
+        return result;
+    }
+
     @Transactional
     public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
@@ -148,7 +163,7 @@ public class RequestService {
     }
 
     @Transactional
-    public List<Request> confirmRequest(String account, Long requestId)
+    public List<Event> confirmRequest(String account, Long requestId)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         CustomerEntity driver = customerService.getEntity(account);
@@ -240,7 +255,7 @@ public class RequestService {
     }
 
     @Transactional
-    public List<Request> rejectRequest(String account, Long requestId)
+    public List<Event> rejectRequest(String account, Long requestId)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         RequestEntity request = getEntity(requestId);
@@ -256,24 +271,26 @@ public class RequestService {
         return getRequestAsDriver(account);
     }
 
-    public List<Request> getRequestAsCustomer(String account) throws ObjectNotFoundException {
+    public List<Event> getRequestAsCustomer(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         return requestRepository
                 .findNewByCustomer(customer.getId())
                 .stream()
-                .map(entity -> requestMapper.toDto(entity))
+                .map(entity -> new Event(EventTypeEnum.REQUEST, entity.getDay(), entity.getHours()))
                 .collect(Collectors.toList());
     }
 
-    public List<Request> getRequestAsDriver(String account) throws ObjectNotFoundException {
+    public List<Event> getRequestAsDriver(String account) throws ObjectNotFoundException {
 
         CustomerEntity driver = customerService.getEntity(account);
-        return requestRepository
-                .findNewByDriver(driver.getId())
-                .stream()
-                .map(entity -> requestMapper.toDto(entity))
-                .collect(Collectors.toList());
+//        return requestRepository
+//                .findNewByDriver(driver.getId())
+//                .stream()
+//                .map(entity -> requestMapper.toDto(entity))
+//                .collect(Collectors.toList());
+
+        return null;
     }
 
     private void rejectAllcrossRequests(RequestEntity request) {

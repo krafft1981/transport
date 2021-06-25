@@ -25,7 +25,7 @@ public class RequestController {
             value = "Подтверждение в возможности выполнения заказа"
     )
     @PostMapping(value = "/confirm")
-    public List<Request> doPostConfirmRequest(
+    public List<Event> doPostConfirmRequest(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
@@ -36,7 +36,7 @@ public class RequestController {
             value = "Отказ в возможности выполнения заказа"
     )
     @PostMapping(value = "/reject")
-    public List<Request> doPostRejectRequest(
+    public List<Event> doPostRejectRequest(
             Principal principal,
             @RequestParam(value = "request_id", required = true) Long requestId) {
 
@@ -57,10 +57,21 @@ public class RequestController {
     }
 
     @ApiOperation(
+            value = "Получение группы запросов"
+    )
+    @GetMapping
+    public List<Request> doGetRequest(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long[] ids) {
+
+        return requestService.getRequest(principal.getName(), ids);
+    }
+
+    @ApiOperation(
             value = "Получение списка запросов сделанных заказчиком"
     )
     @GetMapping(value = "/customer")
-    public List<Request> doGetRequestAsCustomer(Principal principal) {
+    public List<Event> doGetRequestAsCustomer(Principal principal) {
         return requestService.getRequestAsCustomer(principal.getName());
     }
 
@@ -68,7 +79,7 @@ public class RequestController {
             value = "Получение списка запросов поступивших водителю"
     )
     @GetMapping(value = "/driver")
-    public List<Request> doGetRequestAsDriver(Principal principal) {
+    public List<Event> doGetRequestAsDriver(Principal principal) {
         return requestService.getRequestAsDriver(principal.getName());
     }
 }

@@ -15,8 +15,8 @@ public class Event extends AbstractDto {
 
     @JsonProperty("calendar")
     private Calendar calendar;
-    @JsonProperty("order")
-    private Order order = null;
+    @JsonProperty("object_id")
+    private Long objectId = null;
     @JsonProperty("type")
     private Integer type = 0;
 
@@ -43,10 +43,16 @@ public class Event extends AbstractDto {
         setCalendar(new Calendar(day, diapazon));
     }
 
-    public Event(Order order) {
+    public Event(EventTypeEnum type, Calendar calendar) {
 
-        setOrder(order);
-        setType(EventTypeEnum.ORDER.getId());
-        setCalendar(new Calendar(order.getDay(), order.getHours()));
+        setType(type.getId());
+        setCalendar(calendar);
+    }
+
+    public Event(EventTypeEnum type, Calendar calendar, Long objectId) {
+
+        setType(type.getId());
+        setCalendar(calendar);
+        setObjectId(objectId);
     }
 }
