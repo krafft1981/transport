@@ -284,13 +284,11 @@ public class RequestService {
     public List<Event> getRequestAsDriver(String account) throws ObjectNotFoundException {
 
         CustomerEntity driver = customerService.getEntity(account);
-//        return requestRepository
-//                .findNewByDriver(driver.getId())
-//                .stream()
-//                .map(entity -> requestMapper.toDto(entity))
-//                .collect(Collectors.toList());
-
-        return null;
+        return requestRepository
+                .findNewByDriver(driver.getId())
+                .stream()
+                .map(entity -> new Event(EventTypeEnum.REQUEST, entity.getDay(), entity.getHours()))
+                .collect(Collectors.toList());
     }
 
     private void rejectAllcrossRequests(RequestEntity request) {
