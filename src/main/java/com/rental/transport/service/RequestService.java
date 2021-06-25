@@ -1,5 +1,6 @@
 package com.rental.transport.service;
 
+import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Request;
 import com.rental.transport.entity.CustomerEntity;
@@ -277,7 +278,10 @@ public class RequestService {
         return requestRepository
                 .findNewByCustomer(customer.getId())
                 .stream()
-                .map(entity -> new Event(EventTypeEnum.REQUEST, entity.getDay(), entity.getHours()))
+                .map(entity -> {
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    return new Event(EventTypeEnum.REQUEST, calendar, entity.getId());
+                })
                 .collect(Collectors.toList());
     }
 
@@ -287,7 +291,10 @@ public class RequestService {
         return requestRepository
                 .findNewByDriver(driver.getId())
                 .stream()
-                .map(entity -> new Event(EventTypeEnum.REQUEST, entity.getDay(), entity.getHours()))
+                .map(entity -> {
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    return new Event(EventTypeEnum.REQUEST, calendar, entity.getId());
+                })
                 .collect(Collectors.toList());
     }
 
