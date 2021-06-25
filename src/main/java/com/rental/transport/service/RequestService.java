@@ -90,14 +90,13 @@ public class RequestService {
     }
 
     @Transactional
-    public Map<Integer, Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
+    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         day = calendarService.getDayIdByTime(day);
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
 
-        calendarService.obsolescenceСheck(day, customer, hours);
         requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
 
         if (transport.getParking().isEmpty())
@@ -107,6 +106,7 @@ public class RequestService {
             throw new IllegalArgumentException("Данный транспорт не имеет водителей");
 
         if (Objects.nonNull(hours)) {
+            calendarService.obsolescenceСheck(day, customer, hours);
             Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часов последовательно");

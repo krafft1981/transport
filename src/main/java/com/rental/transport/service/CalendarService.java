@@ -219,26 +219,11 @@ public class CalendarService {
         }
     }
 
-    private Map<Integer, Event> getMergedEvents(List<Event> events) {
-
-        Map<Integer, Event> result = new HashMap();
-        events
-                .stream()
-                .forEach(event -> {
-                    Integer min = event.getCalendar().minHour();
-                    Integer max = event.getCalendar().maxHour();
-                    for (Integer hour = min; hour < max; hour++)
-                        result.put(hour, event);
-                });
-
-        return result;
-    }
-
     //    Customer calendar (Показывается у водителя) +
     //    Берём за основу своё рабочее время. (Своё собственное) +
     //    Накладываем на него записи NOTE. +
     //    Накладываем на него записи занятости одобренные по заказам водителем. +
-    public Map<Integer, Event> getCustomerEvents(String account, Long day) {
+    public List<Event> getCustomerEvents(String account, Long day) {
 
         day = getDayIdByTime(day);
         CustomerEntity customer = customerService.getEntity(account);
@@ -254,7 +239,7 @@ public class CalendarService {
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, entity.getId(), entity.getDay(), entity.getHours())));
 
-        return getMergedEvents(workTime);
+        return workTime;
     }
 
     //    Transport calendar (Показывается у заказчика) +
@@ -263,7 +248,7 @@ public class CalendarService {
     //    Накладываем на него записи занятости одобренные по заказам водителем. +
     //    Накладываем на него собственную занятость. (заказы + заметки) +
     //    Накладываем жёлтым время созданных запросов +
-    public Map<Integer, Event> getTransportEvents(String account, Long day, Long transportId)
+    public List<Event> getTransportEvents(String account, Long day, Long transportId)
             throws IllegalArgumentException {
 
         day = getDayIdByTime(day);
@@ -303,8 +288,8 @@ public class CalendarService {
         requestRepository
                 .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), day)
                 .stream()
-                .forEach(entity -> workTime.add(new Event(EventTypeEnum.REQUEST, requestMapper.toDto(entity))));
+                .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, entity.getDay(), entity.getHours())));
 
-        return getMergedEvents(workTime);
+        return workTime;
     }
 }

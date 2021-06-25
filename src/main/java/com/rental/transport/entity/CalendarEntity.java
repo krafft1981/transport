@@ -33,15 +33,8 @@ public class CalendarEntity extends AbstractEntity {
     private Integer[] hours;
     private CalendarTypeEnum type;
     private Long objectId;
+    private Long orderId;
     private String note = "";
-
-    public CalendarEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId) {
-
-        setDay(day);
-        setHours(hours);
-        setType(type);
-        setObjectId(objectId);
-    }
 
     @Basic
     @Column(name = "day", nullable = false, insertable = true, updatable = true)

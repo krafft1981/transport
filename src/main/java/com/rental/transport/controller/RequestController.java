@@ -47,7 +47,7 @@ public class RequestController {
             value = "Создание запроса на заказ"
     )
     @PostMapping
-    public Map<Integer, Event> doPostRequest(
+    public List<Event> doPostRequest(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day,

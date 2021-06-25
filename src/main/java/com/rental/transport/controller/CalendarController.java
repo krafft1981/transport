@@ -6,6 +6,7 @@ import com.rental.transport.dto.Text;
 import com.rental.transport.service.CalendarService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +29,7 @@ public class CalendarController {
             value = "Получение календаря заказчика транспорта"
     )
     @GetMapping(value = "/transport")
-    public Map<Integer, Event> doGetTransportCalendar(
+    public List<Event> doGetTransportCalendar(
             Principal principal,
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day) {
@@ -40,7 +41,7 @@ public class CalendarController {
             value = "Получение календаря владельца транспорта"
     )
     @GetMapping(value = "/customer")
-    public Map<Integer, Event> doGetCustomerCalendar(
+    public List<Event> doGetCustomerCalendar(
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
