@@ -18,7 +18,6 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class RequestService {
     @Scheduled(cron = "0 0 * * * *")
     public void setRequestExpired() {
 
-        requestRepository.setExpired();
+        requestRepository.setExpiredByDay();
     }
 
     public RequestEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -109,7 +108,7 @@ public class RequestService {
             calendarService.obsolescenceСheck(day, customer, hours);
             Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
-                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часов последовательно");
+                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
             Arrays.sort(hours);
             Integer current = null;
@@ -142,7 +141,7 @@ public class RequestService {
             }
 
             if (requestCount == 0)
-                throw new IllegalArgumentException("Извините, некому принять заявку");
+                throw new IllegalArgumentException("Извините, некому принять заявку, попробуйте сделать заказ на другое время");
         }
 
         return calendarService.getTransportEvents(account, day, transportId);
@@ -206,11 +205,20 @@ public class RequestService {
         String driver_phone = propertyService.getValue(request.getDriver().getProperty(), "customer_phone");
         String driver_fio = propertyService.getValue(request.getDriver().getProperty(), "customer_fio");
 
+        order.setCustomer(customer);
+        order.setTransport(transport);
+        order.setDay(request.getDay());
+        order.setHours(request.getHours());
+        order.setDriver(driver);
+
+        orderRepository.save(order);
+
         calendarService.getEntity(
                 request.getDay(),
                 request.getHours(),
                 CalendarTypeEnum.CUSTOMER,
                 customer.getId(),
+                order.getId(),
                 customer_phone + " " + customer_fio
         );
 
@@ -219,16 +227,10 @@ public class RequestService {
                 request.getHours(),
                 CalendarTypeEnum.CUSTOMER,
                 driver.getId(),
+                order.getId(),
                 driver_phone + " " + driver_fio
         );
 
-        order.setCustomer(customer);
-        order.setTransport(transport);
-        order.setDay(request.getDay());
-        order.setHours(request.getHours());
-        order.setDriver(driver);
-
-        orderRepository.save(order);
         request.setOrder(order.getId());
 
         setInteracted(request, driver, order.getId());
@@ -282,10 +284,7 @@ public class RequestService {
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
-                            rejectRequest(
-                                    entity.getDriver().getAccount(),
-                                    entity.getId()
-                            );
+                            rejectRequest(entity.getDriver().getAccount(), entity.getId());
                             break;
                         }
                     }
@@ -297,10 +296,7 @@ public class RequestService {
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
-                            rejectRequest(
-                                    entity.getDriver().getAccount(),
-                                    entity.getId()
-                            );
+                            rejectRequest(entity.getDriver().getAccount(), entity.getId());
                             break;
                         }
                     }

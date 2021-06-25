@@ -17,6 +17,8 @@ public class Calendar extends AbstractIdDto {
     private Long day;
     @JsonProperty("hours")
     private Integer[] hours;
+    @JsonProperty("order_id")
+    private Long orderId = null;
     @JsonProperty("note")
     private String note = "";
 

@@ -19,10 +19,8 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,7 @@ public class CalendarService {
 
     public Long getDayIdByTime(Long time) {
 
-        java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.setTimeInMillis(time);
         calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
         calendar.set(java.util.Calendar.MINUTE, 0);
@@ -80,9 +78,9 @@ public class CalendarService {
                 .orElseThrow(() -> new ObjectNotFoundException("Calendar", id));
     }
 
-    public CalendarEntity getEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId, String message) {
+    public CalendarEntity getEntity(Long day, Integer[] hours, CalendarTypeEnum type, Long objectId, Long orderId, String message) {
 
-        CalendarEntity entity = new CalendarEntity(day, hours, type, objectId, message);
+        CalendarEntity entity = new CalendarEntity(day, hours, type, objectId, orderId, message);
         return calendarRepository.save(entity);
     }
 
@@ -93,11 +91,10 @@ public class CalendarService {
         calendar.setTime(new Date());
 
         Long currentDay = getDayIdByTime(calendar.getTimeInMillis());
-        Integer currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
-
         if (day > currentDay)
             return;
 
+        Integer currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
         if (day.equals(currentDay)) {
             Boolean last = false;
             for (Integer hour : hours) {
@@ -140,7 +137,7 @@ public class CalendarService {
         checkBusyByCustomer(customer, day, hours);
         checkBusyByNote(customer, day, hours);
 
-        CalendarEntity calendar = new CalendarEntity(day, hours, CalendarTypeEnum.NOTE, customer.getId(), body.getMessage());
+        CalendarEntity calendar = new CalendarEntity(day, hours, CalendarTypeEnum.NOTE, customer.getId(), null, body.getMessage());
         calendarRepository.save(calendar);
 
         requestRepository
