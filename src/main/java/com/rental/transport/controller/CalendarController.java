@@ -52,7 +52,7 @@ public class CalendarController {
             value = "Создание записи в календаре"
     )
     @PostMapping(value = "/note")
-    public Calendar doPostCalendarNote(
+    public List<Event> doPostCalendarNote(
             Principal principal,
             @RequestParam(value = "hour", required = true) Integer[] hour,
             @RequestParam(value = "day", required = true) Long day,
@@ -65,7 +65,7 @@ public class CalendarController {
             value = "Обновление записи в календаре"
     )
     @PutMapping(value = "/note")
-    public Calendar doPutCalendarNote(
+    public List<Event> doPutCalendarNote(
             Principal principal,
             @RequestParam(value = "calendar_id", required = true) Long calendarId,
             @RequestBody Text body) {
@@ -77,10 +77,10 @@ public class CalendarController {
             value = "Удаление записи из календаря"
     )
     @DeleteMapping(value = "/note")
-    public void doDeleteCalendarNote(
+    public List<Event> doDeleteCalendarNote(
             Principal principal,
             @RequestParam(value = "calendar_id", required = true) Long calendarId) {
 
-        calendarService.deleteCalendarNote(principal.getName(), calendarId);
+        return calendarService.deleteCalendarNote(principal.getName(), calendarId);
     }
 }

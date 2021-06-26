@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +113,7 @@ public class CalendarService {
     }
 
     @Transactional
-    public Calendar createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
+    public List<Event> createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerService.getEntity(account);
@@ -164,28 +165,31 @@ public class CalendarService {
                     }
                 });
 
-        return calendarMapper.toDto(calendar);
+        return getCustomerEvents(account, day);
     }
 
-    public Calendar updateCalendarNote(String account, Long calendarId, Text body)
+    public List<Event> updateCalendarNote(String account, Long calendarId, Text body)
             throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerService.getEntity(account);
         CalendarEntity calendar = getEntity(calendarId);
+        Long day = calendar.getDay();
         calendar.setNote(body.getMessage());
         calendarRepository.save(calendar);
-        return calendarMapper.toDto(calendar);
+        return getCustomerEvents(account, day);
     }
 
-    public void deleteCalendarNote(String account, Long calendarId)
-            throws IllegalArgumentException {
+    public List<Event> deleteCalendarNote(String account, Long calendarId)
+            throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerService.getEntity(account);
         CalendarEntity calendar = getEntity(calendarId);
         if (calendar.getType() == CalendarTypeEnum.NOTE)
             calendarRepository.delete(calendar);
         else
-            throw new IllegalArgumentException("Удалять можно только записи записной книги.");
+            throw new IllegalArgumentException("Нельзя удалить подтверждённую запись");
+
+        return getCustomerEvents(account, calendar.getDay());
     }
 
     public void checkBusyByCustomer(CustomerEntity customer, Long day, Integer[] hours)
