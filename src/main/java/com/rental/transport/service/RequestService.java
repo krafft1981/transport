@@ -118,9 +118,10 @@ public class RequestService {
                     transport
                             .getCustomer()
                             .stream()
-                            .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, selectedDay));
-                    requestRepository.deleteById(entity.getId());
+                            .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, customer, transport, selectedDay, hours));
                 });
+
+        requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), selectedDay);
 
         if (transport.getParking().isEmpty())
             throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
@@ -134,20 +135,6 @@ public class RequestService {
             Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
-
-            Arrays.sort(hours);
-            Integer current = null;
-            for (Integer hour : hours) {
-                if (current == null) {
-                    current = hour;
-                    continue;
-                }
-
-                if ((current + 1) != hour)
-                    throw new IllegalArgumentException("Выберите часы последовательно");
-
-                current = hour;
-            }
 
             calendarService.checkBusyByCustomer(customer, selectedDay, hours);
             calendarService.checkBusyByNote(customer, selectedDay, hours);

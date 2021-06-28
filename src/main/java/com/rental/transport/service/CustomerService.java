@@ -147,9 +147,8 @@ public class CustomerService implements UserDetailsService {
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
-        if (!entity.getConfirmed()) {
+        if (!entity.getConfirmed())
             throw new ObjectNotFoundException("Account", account);
-        }
 
         return entity;
     }

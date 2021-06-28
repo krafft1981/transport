@@ -259,15 +259,16 @@ public class CalendarService {
     //    Накладываем на него собственную занятость. (заказы + заметки) +
     //    Накладываем жёлтым время созданных запросов +
     public List<Event> getTransportEvents(String account, Long day, Long transportId)
-            throws IllegalArgumentException {
+            throws ObjectNotFoundException, IllegalArgumentException {
 
         final Long selectedDay = getDayIdByTime(day);
+        CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
         if (transport.getCustomer().isEmpty())
             throw new IllegalArgumentException("Данный транспорт не имеет водителей");
 
         CustomerEntity driver = transport.getCustomer().iterator().next();
-        CustomerEntity customer = customerService.getEntity(account);
+
         List<Event> workTime = workTimeService.getCustomerWeekTime(selectedDay, driver);
 
         if (selectedDay < getDayIdByTime(new Date().getTime()))

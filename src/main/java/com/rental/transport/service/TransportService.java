@@ -130,11 +130,16 @@ public class TransportService {
 
     public TransportEntity getEntity(Long id) throws ObjectNotFoundException {
 
-        return transportRepository
+        TransportEntity entity = transportRepository
                 .findById(id)
-                .filter(entity -> entity.getEnable())
-                .filter(entity -> entity.getType().getEnable())
-                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
+                .orElse(null);
+
+        if (entity == null)
+            throw new ObjectNotFoundException("Transport", id);
+
+        return entity;
+//                .filter(entity -> entity.getEnable())
+//                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 
     public Transport getDto(Long id) throws ObjectNotFoundException {
