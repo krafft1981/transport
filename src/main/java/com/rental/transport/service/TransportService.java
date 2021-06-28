@@ -56,6 +56,8 @@ public class TransportService {
         if (transport.getCustomer().contains(customer) == false)
             throw new AccessDeniedException("Delete");
 
+        transport.getProperty().clear();
+        transport.getImage().clear();
         transport.setType(null);
         transportRepository.delete(transport);
     }

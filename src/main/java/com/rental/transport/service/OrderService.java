@@ -92,7 +92,7 @@ public class OrderService {
 
         order.addMessage(message);
         orderRepository.save(order);
-        notifyService.createOrderMessage(order);
+        notifyService.messageCreated(order);
         return orderMapper.toDto(order);
     }
 

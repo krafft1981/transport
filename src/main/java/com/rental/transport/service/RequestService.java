@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -82,10 +81,10 @@ public class RequestService {
                     if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
                         entity.setOrder(orderId);
                         entity.setInteract(RequestStatusEnum.ACCEPTED);
-                        notifyService.confirmRequest(request);
+                        notifyService.requestConfirmed(request);
                     } else {
                         entity.setInteract(RequestStatusEnum.REJECTED);
-                        notifyService.rejectRequest(request);
+                        notifyService.requestRejected(request);
                     }
                 });
 
@@ -108,11 +107,20 @@ public class RequestService {
     public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
             throws ObjectNotFoundException, IllegalArgumentException {
 
-        day = calendarService.getDayIdByTime(day);
+        final Long selectedDay = calendarService.getDayIdByTime(day);
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
 
-        requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), day);
+        requestRepository
+                .findByCustomerAndTransportAndDayAndStatus(customer, transport, selectedDay, RequestStatusEnum.NEW)
+                .stream()
+                .forEach(entity -> {
+                    transport
+                            .getCustomer()
+                            .stream()
+                            .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, selectedDay));
+                    requestRepository.deleteById(entity.getId());
+                });
 
         if (transport.getParking().isEmpty())
             throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
@@ -121,7 +129,8 @@ public class RequestService {
             throw new IllegalArgumentException("Данный транспорт не имеет водителей");
 
         if (Objects.nonNull(hours)) {
-            calendarService.obsolescenceСheck(day, customer, hours);
+            calendarService.obsolescenceСheck(selectedDay, customer, hours);
+            calendarService.sequenceСheck(hours);
             Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
@@ -140,17 +149,17 @@ public class RequestService {
                 current = hour;
             }
 
-            calendarService.checkBusyByCustomer(customer, day, hours);
-            calendarService.checkBusyByNote(customer, day, hours);
+            calendarService.checkBusyByCustomer(customer, selectedDay, hours);
+            calendarService.checkBusyByNote(customer, selectedDay, hours);
 
             Integer requestCount = 0;
             for (CustomerEntity driver : transport.getCustomer()) {
                 try {
-                    calendarService.checkBusyByCustomer(driver, day, hours);
-                    calendarService.checkBusyByNote(driver, day, hours);
-                    RequestEntity request = new RequestEntity(customer, driver, transport, day, hours);
+                    calendarService.checkBusyByCustomer(driver, selectedDay, hours);
+                    calendarService.checkBusyByNote(driver, selectedDay, hours);
+                    RequestEntity request = new RequestEntity(customer, driver, transport, selectedDay, hours);
                     requestRepository.save(request);
-                    notifyService.createRequest(request);
+                    notifyService.requestCreated(request);
                     requestCount++;
                 } catch (Exception e) {
                 }
@@ -160,7 +169,7 @@ public class RequestService {
                 throw new IllegalArgumentException("Извините, некому принять заявку, попробуйте сделать заказ на другое время");
         }
 
-        return calendarService.getTransportEvents(account, day, transportId);
+        return calendarService.getTransportEvents(account, selectedDay, transportId);
     }
 
     @Transactional

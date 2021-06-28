@@ -1,29 +1,45 @@
 package com.rental.transport.service;
 
+import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.RequestEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NotifyService {
 
-    public void createOrderMessage(OrderEntity order) {
+    @Autowired
+    private PropertyService propertyService;
 
-        System.out.println("Post message: " + order.toString());
+    @Autowired
+    private EventHandlerService eventHandlerService;
+
+    public void messageCreated(OrderEntity order) {
+
+        eventHandlerService.sendMessage(order.getDriver(), "Для вас есть новое сообщение");
     }
 
-    public void createRequest(RequestEntity request) {
+    public void requestCreated(RequestEntity request) {
 
-        System.out.println("create request: " + request.toString());
+        String name = propertyService.getValue(request.getDriver().getProperty(), "customer_fio");
+        eventHandlerService.sendMessage(request.getDriver(), name + " создал новый заказ");
     }
 
-    public void confirmRequest(RequestEntity request) {
+    public void requestConfirmed(RequestEntity request) {
 
-        System.out.println("confirm request: " + request.toString());
+        String name = propertyService.getValue(request.getCustomer().getProperty(), "customer_fio");
+        eventHandlerService.sendMessage(request.getCustomer(), name + ", Ваш заказ принят");
     }
 
-    public void rejectRequest(RequestEntity request) {
+    public void requestRejected(RequestEntity request) {
 
-        System.out.println("reject request: " + request.toString());
+        eventHandlerService.sendMessage(request.getCustomer(), "Извините. Заказ не может быть выполнен");
+    }
+
+    public void requestCanceled(CustomerEntity customer, Long day) {
+
+        String name = propertyService.getValue(customer.getProperty(), "customer_fio");
+        eventHandlerService.sendMessage(customer, name + " отменил заказ");
     }
 }

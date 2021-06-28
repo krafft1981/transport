@@ -71,5 +71,6 @@ public class TypeService {
         create("Яхта");
         create("Катамаран");
         create("Байдарка");
+        create("Катер");
     }
 }

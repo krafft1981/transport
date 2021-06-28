@@ -69,7 +69,7 @@ public class CalendarService {
         calendar.set(java.util.Calendar.MINUTE, 0);
         calendar.set(java.util.Calendar.SECOND, 0);
         calendar.set(java.util.Calendar.MILLISECOND, 0);
-        return calendar.getTime().getTime();
+        return calendar.getTimeInMillis();
     }
 
     public CalendarEntity getEntity(Long id) throws ObjectNotFoundException {
@@ -112,14 +112,7 @@ public class CalendarService {
         throw new IllegalArgumentException("Сорян, время уже прошло");
     }
 
-    @Transactional
-    public List<Event> createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
-            throws ObjectNotFoundException, IllegalArgumentException {
-
-        CustomerEntity customer = customerService.getEntity(account);
-        day = getDayIdByTime(day);
-
-        obsolescenceСheck(day, customer, hours);
+    public void sequenceСheck(Integer[] hours) throws IllegalArgumentException {
 
         Arrays.sort(hours);
         Integer current = null;
@@ -134,6 +127,17 @@ public class CalendarService {
 
             current = hour;
         }
+    }
+
+    @Transactional
+    public List<Event> createCalendarWithNote(String account, Long day, Integer[] hours, Text body)
+            throws ObjectNotFoundException, IllegalArgumentException {
+
+        CustomerEntity customer = customerService.getEntity(account);
+        day = getDayIdByTime(day);
+
+        obsolescenceСheck(day, customer, hours);
+        sequenceСheck(hours);
 
         checkBusyByCustomer(customer, day, hours);
         checkBusyByNote(customer, day, hours);
@@ -257,40 +261,40 @@ public class CalendarService {
     public List<Event> getTransportEvents(String account, Long day, Long transportId)
             throws IllegalArgumentException {
 
-        day = getDayIdByTime(day);
+        final Long selectedDay = getDayIdByTime(day);
         TransportEntity transport = transportService.getEntity(transportId);
         if (transport.getCustomer().isEmpty())
             throw new IllegalArgumentException("Данный транспорт не имеет водителей");
 
         CustomerEntity driver = transport.getCustomer().iterator().next();
         CustomerEntity customer = customerService.getEntity(account);
-        List<Event> workTime = workTimeService.getCustomerWeekTime(day, driver);
+        List<Event> workTime = workTimeService.getCustomerWeekTime(selectedDay, driver);
 
-        if (day < getDayIdByTime(new Date().getTime()))
+        if (selectedDay < getDayIdByTime(new Date().getTime()))
             return workTime;
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, driver.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, driver.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, driver.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, driver.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity))));
 
         orderRepository
-                .findByCustomerAndTransportAndDay(customer, transport, day)
+                .findByCustomerAndTransportAndDay(customer, transport, selectedDay)
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
@@ -298,7 +302,7 @@ public class CalendarService {
                 });
 
         requestRepository
-                .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), day)
+                .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), selectedDay)
                 .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
