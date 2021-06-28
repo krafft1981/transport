@@ -1,13 +1,11 @@
 package com.rental.transport.controller;
 
-import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Text;
 import com.rental.transport.service.CalendarService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

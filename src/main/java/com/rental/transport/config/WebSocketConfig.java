@@ -1,6 +1,6 @@
 package com.rental.transport.config;
 
-import com.rental.transport.service.EventHandlerService;
+import com.rental.transport.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -12,12 +12,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    private EventHandlerService eventHandlerService;
+    private EventService eventService;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry
-                .addHandler(eventHandlerService, "/websocket")
+                .addHandler(eventService, "/websocket")
                 .setAllowedOrigins("*");
     }
 }

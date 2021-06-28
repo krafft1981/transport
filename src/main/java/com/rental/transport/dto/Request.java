@@ -28,4 +28,13 @@ public class Request extends AbstractIdDto {
     private Long day;
     @JsonProperty("hours")
     private Integer[] hours;
+
+    public Request(Customer customer, Customer driver, Transport transport, Long day, Integer[] hours) {
+
+        setCustomer(customer);
+        setDriver(driver);
+        setTransport(transport);
+        setDay(day);
+        setHours(hours);
+    }
 }
