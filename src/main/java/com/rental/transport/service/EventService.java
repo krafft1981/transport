@@ -1,18 +1,16 @@
 package com.rental.transport.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.NotifyEntity;
 import com.rental.transport.entity.NotifyRepository;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -29,10 +27,12 @@ public class EventService extends TextWebSocketHandler {
     private CustomerService customerService;
 
     @Autowired
+    private CalendarService calendarService;
+
+    @Autowired
     private NotifyRepository notifyRepository;
 
-    @Value("${spring.request.event.lifetime}")
-    private Long lifeTime;
+    private ObjectMapper objectMapper;
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
@@ -44,7 +44,7 @@ public class EventService extends TextWebSocketHandler {
         List<String> headers = session.getHandshakeHeaders().get("username");
         session.close();
         sessions.remove(session);
-        System.out.println("session count: " + sessions.size());
+        System.out.println("remove Account: " + headers.get(0) + " session count: " + sessions.size());
     }
 
     @Override
@@ -53,8 +53,6 @@ public class EventService extends TextWebSocketHandler {
         List<String> headers = session.getHandshakeHeaders().get("username");
         if (Objects.nonNull(headers)) {
             CustomerEntity customer = customerService.getEntity(headers.get(0));
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(new Date().getTime() - lifeTime);
 
             sessions.add(session);
 
@@ -62,23 +60,17 @@ public class EventService extends TextWebSocketHandler {
                     .findByCustomerOrderById(customer)
                     .stream()
                     .forEach(entity -> {
-                        if (entity.getDate().before(calendar.getTime()))
+                        try {
+                            session.sendMessage(new TextMessage(entity.getRequest().asText()));
                             notifyRepository.deleteById(entity.getId());
-
-                        else {
-                            try {
-                                session.sendMessage(new TextMessage(entity.getText()));
-                                notifyRepository.deleteById(entity.getId());
-                                System.out.println("Success send message to " + customer.getAccount());
-                            }
-                            catch (Exception e) {
-                                System.out.println("Failed send message to: " + customer.getAccount());
-                            }
+                            System.out.println("Success send message to " + customer.getAccount());
+                        } catch (Exception e) {
+                            System.out.println("Failed send message to: " + customer.getAccount());
                         }
                     });
-        }
 
-        System.out.println("session count: " + sessions.size());
+            System.out.println("append Account: " + headers.get(0) + " session count: " + sessions.size());
+        }
     }
 
     @Override
@@ -106,9 +98,9 @@ public class EventService extends TextWebSocketHandler {
             }
 
             if (!sended)
-                System.out.println("Failed send message to: " + customer.getAccount());
-        }
-        catch (Exception e) {
+                throw new Exception("Failed send message to: " + customer.getAccount());
+
+        } catch (Exception e) {
 
             System.out.println(e.getMessage());
             NotifyEntity entity = new NotifyEntity(customer, text);

@@ -130,21 +130,17 @@ public class TransportService {
 
     public TransportEntity getEntity(Long id) throws ObjectNotFoundException {
 
-        TransportEntity entity = transportRepository
+        return transportRepository
                 .findById(id)
-                .orElse(null);
-
-        if (entity == null)
-            throw new ObjectNotFoundException("Transport", id);
-
-        return entity;
-//                .filter(entity -> entity.getEnable())
-//                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
+                .filter(entity -> entity.getEnable())
+                .filter(entity -> entity.getType().getEnable())
+                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 
     public Transport getDto(Long id) throws ObjectNotFoundException {
 
-        return transportMapper.toDto(getEntity(id));
+        TransportEntity entity = getEntity(id);
+        return transportMapper.toDto(entity);
     }
 
     public List<Transport> getParkingTransport(Long parkingId) throws ObjectNotFoundException {
@@ -164,7 +160,8 @@ public class TransportService {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(transportId);
-        transport.addImage(new ImageEntity(data));
+        ImageEntity image = new ImageEntity(data);
+        transport.addImage(image);
         transportRepository.save(transport);
         return transportMapper.toDto(transport);
     }

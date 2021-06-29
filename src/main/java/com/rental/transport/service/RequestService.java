@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -91,16 +93,13 @@ public class RequestService {
         requestRepository.save(request);
     }
 
-    public List<Request> getRequest(String account, Long[] ids)
-            throws ObjectNotFoundException {
+    public List<Request> getRequest(String account, Long[] ids) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        List<Request> result = new ArrayList();
-        requestRepository
-                .findAllById(Arrays.asList(ids))
-                .forEach(entity -> result.add(requestMapper.toDto(entity)));
-
-        return result;
+        return StreamSupport.stream(requestRepository
+                .findAllById(Arrays.asList(ids)).spliterator(), true)
+                .map(entity -> requestMapper.toDto(entity))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -114,12 +113,12 @@ public class RequestService {
         requestRepository
                 .findByCustomerAndTransportAndDayAndStatus(customer, transport, selectedDay, RequestStatusEnum.NEW)
                 .stream()
-                .forEach(entity -> {
-                    transport
-                            .getCustomer()
-                            .stream()
-                            .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, customer, transport, selectedDay, hours));
-                });
+                .forEach(entity ->
+                        transport
+                                .getCustomer()
+                                .stream()
+                                .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, customer, transport, selectedDay, hours))
+                );
 
         requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), selectedDay);
 

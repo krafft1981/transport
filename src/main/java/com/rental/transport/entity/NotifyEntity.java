@@ -1,5 +1,8 @@
 package com.rental.transport.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -14,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 @Entity
 @Table(
@@ -24,19 +28,22 @@ import org.hibernate.annotations.Type;
                 @Index(columnList = "customer_id", name = "notify_customer_id_idx")
         }
 )
-
+@TypeDef(
+        typeClass = JsonBinaryType.class,
+        defaultForType = JsonNode.class
+)
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotifyEntity extends AbstractEntity {
 
-    private String text;
+    private JsonNode request;
     private CustomerEntity customer;
     private Date date = currentTime();
 
-    public NotifyEntity(CustomerEntity customer, String text) {
+    public NotifyEntity(CustomerEntity customer, String request) {
         setCustomer(customer);
-        setText(text);
+        this.request = JacksonUtil.toJsonNode(request);
     }
 
     @Basic
@@ -47,10 +54,9 @@ public class NotifyEntity extends AbstractEntity {
     }
 
     @Basic
-    @Column(name = "text", nullable = false, insertable = true, updatable = true)
-    @Type(type = "text")
-    public String getText() {
-        return text;
+    @Column(name = "request", columnDefinition = "jsonb")
+    public JsonNode getRequest() {
+        return request;
     }
 
     @Basic
