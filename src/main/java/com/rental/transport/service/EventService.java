@@ -42,9 +42,9 @@ public class EventService extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
         List<String> headers = session.getHandshakeHeaders().get("username");
-        System.out.println("Remove account: " + headers.get(0));
         session.close();
         sessions.remove(session);
+        System.out.println("session count: " + sessions.size());
     }
 
     @Override
@@ -52,7 +52,6 @@ public class EventService extends TextWebSocketHandler {
 
         List<String> headers = session.getHandshakeHeaders().get("username");
         if (Objects.nonNull(headers)) {
-            System.out.println("Append account: " + headers.get(0));
             CustomerEntity customer = customerService.getEntity(headers.get(0));
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(new Date().getTime() - lifeTime);
@@ -73,11 +72,13 @@ public class EventService extends TextWebSocketHandler {
                                 System.out.println("Success send message to " + customer.getAccount());
                             }
                             catch (Exception e) {
-                                System.out.println("Сообщение не удалось доставить: " + customer.getAccount());
+                                System.out.println("Failed send message to: " + customer.getAccount());
                             }
                         }
                     });
         }
+
+        System.out.println("session count: " + sessions.size());
     }
 
     @Override
@@ -87,7 +88,7 @@ public class EventService extends TextWebSocketHandler {
         if (message.getPayload().isEmpty())
             session.sendMessage(message);
         else
-            System.out.println("Recved garbage: " + message.getPayload());
+            System.out.println("Received garbage: " + message.getPayload());
     }
 
     public void sendMessage(CustomerEntity customer, String text) {
@@ -96,9 +97,7 @@ public class EventService extends TextWebSocketHandler {
             Boolean sended = false;
             for (WebSocketSession session : sessions) {
                 List<String> headers = session.getHandshakeHeaders().get("username");
-                System.out.println("Search account: " + headers.get(0));
                 if (headers.get(0).equals(customer.getAccount())) {
-                    System.out.println("Try send message to: " + customer.getAccount());
                     session.sendMessage(new TextMessage(text));
                     sended = true;
                     System.out.println("Success send message to " + customer.getAccount());
@@ -107,7 +106,7 @@ public class EventService extends TextWebSocketHandler {
             }
 
             if (!sended)
-                throw new Exception("Failed to delivery message to: " + customer.getAccount());
+                System.out.println("Failed send message to: " + customer.getAccount());
         }
         catch (Exception e) {
 
