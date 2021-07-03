@@ -16,15 +16,12 @@ import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,12 +89,12 @@ public class CalendarService {
         java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone(customer.getTimeZone()));
         calendar.setTime(new Date());
 
-        Long currentDay = getDayIdByTime(calendar.getTimeInMillis());
-        if (day > currentDay)
+        final Long selectedDay = getDayIdByTime(calendar.getTimeInMillis());
+        if (day > selectedDay)
             return;
 
         Integer currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
-        if (day.equals(currentDay)) {
+        if (day.equals(selectedDay)) {
             Boolean last = false;
             for (Integer hour : hours) {
                 if (hour <= currentHour) {
@@ -135,19 +132,19 @@ public class CalendarService {
             throws ObjectNotFoundException, IllegalArgumentException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        day = getDayIdByTime(day);
+        final Long selectedDay = getDayIdByTime(day);
 
-        obsolescenceСheck(day, customer, hours);
+        obsolescenceСheck(selectedDay, customer, hours);
         sequenceСheck(hours);
 
-        checkBusyByCustomer(customer, day, hours);
-        checkBusyByNote(customer, day, hours);
+        checkBusyByCustomer(customer, selectedDay, hours);
+        checkBusyByNote(customer, selectedDay, hours);
 
-        CalendarEntity calendar = new CalendarEntity(day, hours, CalendarTypeEnum.NOTE, customer.getId(), null, body.getMessage());
+        CalendarEntity calendar = new CalendarEntity(selectedDay, hours, CalendarTypeEnum.NOTE, customer.getId(), null, body.getMessage());
         calendarRepository.save(calendar);
 
         requestRepository
-                .findNewByCustomerAndDay(customer.getId(), day)
+                .findNewByCustomerAndDay(customer.getId(), selectedDay)
                 .stream()
                 .forEach(entity -> {
                     for (Integer hour : hours) {
@@ -159,7 +156,7 @@ public class CalendarService {
                 });
 
         requestRepository
-                .findNewByDriverAndDay(customer.getId(), day)
+                .findNewByDriverAndDay(customer.getId(), selectedDay)
                 .stream()
                 .forEach(entity -> {
                     for (Integer hour : hours) {
@@ -170,7 +167,7 @@ public class CalendarService {
                     }
                 });
 
-        return getCustomerEvents(account, day);
+        return getCustomerEvents(account, selectedDay);
     }
 
     public List<Event> updateCalendarNote(String account, Long calendarId, Text body)
@@ -178,10 +175,9 @@ public class CalendarService {
 
         CustomerEntity customer = customerService.getEntity(account);
         CalendarEntity calendar = getEntity(calendarId);
-        Long day = calendar.getDay();
         calendar.setNote(body.getMessage());
         calendarRepository.save(calendar);
-        return getCustomerEvents(account, day);
+        return getCustomerEvents(account, calendar.getDay());
     }
 
     public List<Event> deleteCalendarNote(String account, Long calendarId)
@@ -233,20 +229,21 @@ public class CalendarService {
     //    Накладываем на него записи занятости одобренные по заказам водителем. +
     public List<Event> getCustomerEvents(String account, Long day) {
 
-        day = getDayIdByTime(day);
-        CustomerEntity customer = customerService.getEntity(account);
-        List<Event> workTime = workTimeService.getCustomerWeekTime(day, customer);
+        final Long selectedDay = getDayIdByTime(day);
 
-        if (day < getDayIdByTime(new Date().getTime()))
+        CustomerEntity customer = customerService.getEntity(account);
+        List<Event> workTime = workTimeService.getCustomerWeekTime(selectedDay, customer);
+
+        if (selectedDay < getDayIdByTime(new Date().getTime()))
             return workTime;
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, customer.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, calendarMapper.toDto(entity))));
 
         calendarRepository
-                .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
+                .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
                 .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, calendarMapper.toDto(entity))));
 
