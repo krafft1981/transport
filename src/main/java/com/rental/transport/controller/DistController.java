@@ -23,7 +23,7 @@ public class DistController {
     private DistService distService;
 
     @ApiOperation(
-            value = "Получение файла"
+            value = "Получение списка доступных файлов"
     )
     @GetMapping(value = "/list")
     public Set<String> getDistList() throws IOException {
@@ -31,7 +31,7 @@ public class DistController {
     }
 
     @ApiOperation(
-            value = "Получение списка доступных файлов"
+            value = "Получение файла"
     )
     @GetMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public HttpEntity<byte[]> getDistFile(
