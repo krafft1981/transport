@@ -1,126 +1,168 @@
 package com.rental.transport.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Notify;
-import com.rental.transport.dto.Request;
 import com.rental.transport.entity.CustomerEntity;
-import com.rental.transport.entity.OrderEntity;
+import com.rental.transport.entity.NotifyEntity;
+import com.rental.transport.entity.NotifyRepository;
 import com.rental.transport.entity.RequestEntity;
 import com.rental.transport.entity.TransportEntity;
-import com.rental.transport.mapper.CustomerMapper;
-import com.rental.transport.mapper.RequestMapper;
-import com.rental.transport.mapper.TransportMapper;
+import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.server.HandshakeInterceptor;
 
 @Service
-public class NotifyService {
+public class NotifyService extends TextWebSocketHandler implements HandshakeInterceptor {
+
+    private List<WebSocketSession> sessions = new CopyOnWriteArrayList();
 
     @Autowired
-    private PropertyService propertyService;
+    private CustomerService customerService;
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
-    private RequestService requestService;
-
-    @Autowired
-    private CalendarService calendarService;
-
-    @Autowired
-    private RequestMapper requestMapper;
-
-    @Autowired
-    private CustomerMapper customerMapper;
-
-    @Autowired
-    private TransportMapper transportMapper;
+    private NotifyRepository notifyRepository;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public void messageCreated(OrderEntity order) {
+    @Override
+    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
-        eventService.sendMessage(order.getDriver(), "Для вас есть новое сообщение");
+        if (request.getHeaders().get("username").size() == 0)
+            return false;
+
+        try {
+            String account = request.getHeaders().get("username").get(0);
+            customerService.getEntity(account);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+
+    }
+
+    @Override
+    public void handleTextMessage(WebSocketSession session, TextMessage message)
+            throws InterruptedException, IOException {
+
+        if (message.getPayload().isEmpty())
+            session.sendMessage(message);
+    }
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception, ObjectNotFoundException {
+
+        List<String> headers = session.getHandshakeHeaders().get("username");
+        CustomerEntity customer = customerService.getEntity(headers.get(0));
+        sessions.add(session);
+        notifyRepository
+                .findByCustomerOrderById(customer)
+                .stream()
+                .forEach(entity -> {
+                    try {
+                        sendMessage(entity.getCustomer(), entity.getAction(), entity.getMessage(), false);
+                        notifyRepository.deleteById(entity.getId());
+                    }
+                    catch (Exception e) {
+                        System.out.println(e);
+                    }
+                });
+    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+
+        super.afterConnectionClosed(session, status);
+        session.close();
+        sessions.remove(session);
+    }
+
+    private void sendMessage(CustomerEntity customer, String action, String text) {
+
+        try {
+            sendMessage(customer, action, text, true);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    private void sendMessage(CustomerEntity customer, String action, String text, Boolean save)
+            throws Exception {
+
+        try {
+            Boolean sended = false;
+            for (WebSocketSession session : sessions) {
+                List<String> headers = session.getHandshakeHeaders().get("username");
+                if (headers.get(0).equals(customer.getAccount())) {
+                    Notify notify = new Notify(text, action);
+                    StringWriter writer = new StringWriter();
+                    objectMapper.writeValue(writer, notify);
+                    session.sendMessage(new TextMessage(writer.toString()));
+                    sended = true;
+                    break;
+                }
+            }
+
+            if (!sended)
+                throw new Exception("Failed send message to: " + customer.getAccount());
+        }
+
+        catch (Exception e) {
+            if (save) {
+                NotifyEntity entity = new NotifyEntity(customer, action, text);
+                notifyRepository.save(entity);
+            }
+
+            else
+                throw e;
+        }
     }
 
     public void requestCreated(RequestEntity request) {
 
-        List<Event> events = requestService.getRequestAsDriver(request.getDriver().getAccount());
-        Notify notify = new Notify(requestMapper.toDto(request), events, "create");
-        StringWriter writer = new StringWriter();
-        try {
-            objectMapper.writeValue(writer, notify);
-            eventService.sendMessage(request.getDriver(), writer.toString());
-        }
-        catch (Exception e) {
-
-        }
+        sendMessage(request.getDriver(), "create", "Запрос создан");
     }
 
     public void requestConfirmed(RequestEntity request) {
 
-        List<Event> events = calendarService.getTransportEvents(
-                request.getCustomer().getAccount(),
-                request.getDay(),
-                request.getTransport().getId()
-        );
-        Notify notify = new Notify(requestMapper.toDto(request), events, "confirm");
-        StringWriter writer = new StringWriter();
-        try {
-            objectMapper.writeValue(writer, notify);
-            eventService.sendMessage(request.getCustomer(), writer.toString());
-        }
-        catch (Exception e) {
-
-        }
+        sendMessage(request.getCustomer(), "confirm", "Запрос подтверждён");
     }
 
     public void requestRejected(RequestEntity request) {
 
-        List<Event> events = calendarService.getTransportEvents(
-                request.getCustomer().getAccount(),
-                request.getDay(),
-                request.getTransport().getId()
-        );
-        Notify notify = new Notify(requestMapper.toDto(request), events, "reject");
-        StringWriter writer = new StringWriter();
-        try {
-            objectMapper.writeValue(writer, notify);
-            eventService.sendMessage(request.getCustomer(), writer.toString());
-        }
-        catch (Exception e) {
-
-        }
+        sendMessage(request.getCustomer(), "reject", "Запрос не может быть выполнен");
     }
 
     public void requestCanceled(CustomerEntity driver, CustomerEntity customer, TransportEntity transport, Long day, Integer[] hours) {
 
-        List<Event> events = calendarService.getTransportEvents(
-                customer.getAccount(),
-                day,
-                transport.getId()
-        );
+        sendMessage(driver, "cancel", "Запрос отменён");
+    }
 
-        Request request = new Request(
-                customerMapper.toDto(customer),
-                customerMapper.toDto(driver),
-                transportMapper.toDto(transport),
-                day,
-                hours
-        );
+    public void messageCreated(CustomerEntity customer) {
 
-        Notify notify = new Notify(request, events, "cancel");
-        StringWriter writer = new StringWriter();
-        try {
-            objectMapper.writeValue(writer, notify);
-            eventService.sendMessage(driver, writer.toString());
-        }
-        catch (Exception e) {
-
-        }
+        sendMessage(customer, "message", "Для вас есть новое сообщение");
     }
 }

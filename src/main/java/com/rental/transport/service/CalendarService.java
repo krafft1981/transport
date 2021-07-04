@@ -188,7 +188,7 @@ public class CalendarService {
         if (calendar.getType() == CalendarTypeEnum.NOTE)
             calendarRepository.delete(calendar);
         else
-            throw new IllegalArgumentException("Нельзя удалить подтверждённую запись");
+            throw new IllegalArgumentException("Нельзя удалить заказ");
 
         return getCustomerEvents(account, calendar.getDay());
     }

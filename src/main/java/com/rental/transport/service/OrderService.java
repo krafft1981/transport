@@ -92,7 +92,12 @@ public class OrderService {
 
         order.addMessage(message);
         orderRepository.save(order);
-        notifyService.messageCreated(order);
+
+        if (order.getCustomer().equals(customer))
+            notifyService.messageCreated(order.getDriver());
+        else
+            notifyService.messageCreated(order.getCustomer());
+
         return orderMapper.toDto(order);
     }
 

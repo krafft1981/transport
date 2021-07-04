@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
@@ -22,7 +23,7 @@ import org.springframework.security.web.authentication.www.DigestAuthenticationF
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(name = "transport.security.enabled", havingValue = "true", matchIfMissing = true)
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -46,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             public String encode(CharSequence rawPassword) {
                 return rawPassword.toString();
             }
+
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
                 return rawPassword
@@ -78,7 +80,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/registration/**").permitAll()
                 .antMatchers("/dist/**").permitAll()
                 .antMatchers("/websocket/**").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable();
     }
 
     @Bean
