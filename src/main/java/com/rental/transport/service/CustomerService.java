@@ -49,9 +49,9 @@ public class CustomerService implements UserDetailsService {
     private ValidatorFactory vf = new ValidatorFactory();
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws ObjectNotFoundException {
+    public UserDetails loadUserByUsername(String account) throws ObjectNotFoundException {
 
-        CustomerEntity entity = getEntity(username);
+        CustomerEntity entity = getEntity(account);
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         User user = new User(
@@ -64,6 +64,8 @@ public class CustomerService implements UserDetailsService {
     }
 
     public Customer create(String account, String password, String phone, String fio, String tz) throws IllegalArgumentException {
+
+        account = account.toLowerCase();
 
         if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account)))
             throw new IllegalArgumentException("Учётная запись уже существует");
@@ -105,6 +107,8 @@ public class CustomerService implements UserDetailsService {
     public Customer update(String account, Customer customer)
             throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
+        account = account.toLowerCase();
+
         if (!account.equals(customer.getAccount()))
             throw new AccessDeniedException("Change");
 
@@ -143,6 +147,8 @@ public class CustomerService implements UserDetailsService {
 
     public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
 
+        account = account.toLowerCase();
+
         CustomerEntity entity = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
@@ -160,13 +166,15 @@ public class CustomerService implements UserDetailsService {
     }
 
     public void check(String account) throws ObjectNotFoundException {
+
+        account = account.toLowerCase();
+
         CustomerEntity customer = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
         emailService.sendVerifyEmail(customer);
     }
 
     @Transactional
-    public Customer addCustomerImage(String account, byte[] data)
-            throws AccessDeniedException, ObjectNotFoundException {
+    public Customer addCustomerImage(String account, byte[] data) throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
         customer.addImage(new ImageEntity(data));
@@ -175,8 +183,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     @Transactional
-    public Customer delCustomerImage(String account, Long imageId)
-            throws AccessDeniedException, ObjectNotFoundException {
+    public Customer delCustomerImage(String account, Long imageId) throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
         customer.delImage(imageService.getEntity(imageId));
