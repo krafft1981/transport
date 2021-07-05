@@ -1,7 +1,6 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.dto.Parking;
-import com.rental.transport.dto.Transport;
 import com.rental.transport.service.ParkingService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
@@ -57,6 +56,17 @@ public class ParkingController {
             Principal principal) {
 
         return service.create(principal.getName());
+    }
+
+    @ApiOperation(
+            value = "Получение стоянки"
+    )
+    @GetMapping
+    public Parking goGetParking(
+            Principal principal,
+            @RequestParam(value = "id", required = true) Long id) {
+
+        return service.getDto(id);
     }
 
     @ApiOperation(
