@@ -53,7 +53,7 @@ public class TransportService {
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(id);
 
-        if (transport.getCustomer().contains(customer) == false)
+        if (!transport.getCustomer().contains(customer))
             throw new AccessDeniedException("Delete");
 
         transport.getProperty().clear();
@@ -103,7 +103,7 @@ public class TransportService {
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .filter(entity -> entity.getEnable())
+                .filter(TransportEntity::getEnable)
                 .filter(entity -> entity.getType().getEnable())
                 .map(entity -> transportMapper.toDto(entity))
                 .collect(Collectors.toList());
@@ -132,7 +132,7 @@ public class TransportService {
 
         return transportRepository
                 .findById(id)
-                .filter(entity -> entity.getEnable())
+                .filter(TransportEntity::getEnable)
                 .filter(entity -> entity.getType().getEnable())
                 .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
@@ -148,7 +148,7 @@ public class TransportService {
         return parkingService.getEntity(parkingId)
                 .getTransport()
                 .stream()
-                .filter(entity -> entity.getEnable())
+                .filter(TransportEntity::getEnable)
                 .filter(entity -> entity.getType().getEnable())
                 .map(transport -> transportMapper.toDto(transport))
                 .collect(Collectors.toList());

@@ -48,7 +48,7 @@ public class ParkingService {
 
         CustomerEntity customer = customerService.getEntity(account);
         ParkingEntity parking = getEntity(id);
-        if (parking.getCustomer().contains(customer) == false)
+        if (!parking.getCustomer().contains(customer))
             throw new AccessDeniedException("Delete");
 
         if (!parking.getTransport().isEmpty())
@@ -114,7 +114,7 @@ public class ParkingService {
 
         return parkingRepository
                 .findById(id)
-                .filter(entity -> entity.getEnable())
+                .filter(ParkingEntity::getEnable)
                 .orElseThrow(() -> new ObjectNotFoundException("Parking", id));
     }
 
