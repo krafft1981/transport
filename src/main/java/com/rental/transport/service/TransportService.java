@@ -100,10 +100,8 @@ public class TransportService {
     public List<Transport> getPage(Pageable pageable) {
 
         return transportRepository
-                .findAll(pageable)
-                .getContent()
+                .findAllByEnableTrue(pageable)
                 .stream()
-                .filter(TransportEntity::getEnable)
                 .filter(entity -> entity.getType().getEnable())
                 .map(entity -> transportMapper.toDto(entity))
                 .collect(Collectors.toList());
