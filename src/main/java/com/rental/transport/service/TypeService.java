@@ -27,7 +27,7 @@ public class TypeService {
         return repository
                 .findAllByEnableTrue(pageable)
                 .stream()
-                .filter(entity -> entity.getEnable())
+                .filter(TransportTypeEntity::getEnable)
                 .map(entity -> typeMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
@@ -36,7 +36,7 @@ public class TypeService {
 
         return repository
                 .findById(id)
-                .filter(entity -> entity.getEnable())
+                .filter(TransportTypeEntity::getEnable)
                 .orElseThrow(() -> new ObjectNotFoundException("Type", id));
     }
 
@@ -58,8 +58,7 @@ public class TypeService {
 
         try {
             return getEntity(name).getId();
-        }
-        catch (ObjectNotFoundException e) {
+        } catch (ObjectNotFoundException e) {
             TransportTypeEntity entity = new TransportTypeEntity(name);
             return repository.save(entity).getId();
         }
@@ -72,5 +71,7 @@ public class TypeService {
         create("Катамаран");
         create("Байдарка");
         create("Катер");
+        create("Кайт");
+        create("Сап");
     }
 }
