@@ -3,7 +3,6 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Event;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.enums.EventTypeEnum;
-import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
@@ -21,9 +20,9 @@ public class WorkTimeService {
     private PropertyService propertyService;
 
     private List<Event> getCustomerWorkTime(Long day, CustomerEntity customer)
-            throws ObjectNotFoundException, IllegalArgumentException {
+            throws ObjectNotFoundException {
 
-        List<Event> result = new ArrayList();
+        List<Event> result = new ArrayList<>();
         result.add(new Event(EventTypeEnum.GENERATED, day, 0, Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime"))));
         result.add(new Event(EventTypeEnum.FREE, day,
                 Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime")),
@@ -40,13 +39,13 @@ public class WorkTimeService {
         if (validator.validate(propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd")))
             return getCustomerWorkTime(day, customer);
 
-        List<Event> result = new ArrayList();
+        List<Event> result = new ArrayList<>();
         result.add(new Event(EventTypeEnum.GENERATED, day, 0, 24));
         return result;
     }
 
     public List<Event> getCustomerWeekTime(Long day, CustomerEntity customer)
-            throws ObjectNotFoundException, IllegalArgumentException {
+            throws ObjectNotFoundException {
 
         java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         calendar.setTimeInMillis(day);
@@ -59,12 +58,9 @@ public class WorkTimeService {
             case java.util.Calendar.FRIDAY: {
                 return getCustomerWorkTime(day, customer);
             }
-            case java.util.Calendar.SATURDAY:
-            case java.util.Calendar.SUNDAY: {
+            default: {
                 return getCustomerHolidayTime(day, customer);
             }
         }
-
-        throw new IllegalArgumentException("Что то пошло не так.");
     }
 }

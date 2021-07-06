@@ -85,7 +85,7 @@ public class OrderService {
             throw new IllegalArgumentException("Запрос устарел");
 
         if (!order.getCustomer().equals(customer) && !order.getDriver().equals(customer))
-            new AccessDeniedException("Message to");
+            throw new AccessDeniedException("Message to");
 
         if (body.getMessage().isEmpty())
             throw new IllegalArgumentException("Введите текст для отправки");
@@ -123,5 +123,9 @@ public class OrderService {
 
         propertyService.createType("order_driver_fio", "Имя капитана", PropertyTypeEnum.String);
         propertyService.createType("order_driver_phone", "Сотовый капитана", PropertyTypeEnum.Phone);
+
+        propertyService.createType("order_time_day", "День заказа", PropertyTypeEnum.Integer);
+        propertyService.createType("order_time_hours", "Часы заказа", PropertyTypeEnum.String);
+        propertyService.createType("order_time_duration", "Продолжительность заказа", PropertyTypeEnum.Integer);
     }
 }

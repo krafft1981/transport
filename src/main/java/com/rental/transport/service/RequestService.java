@@ -17,13 +17,11 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -78,7 +76,6 @@ public class RequestService {
                         request.getTransport().getId(),
                         request.getDay()
                 )
-                .stream()
                 .forEach(entity -> {
                     if (Objects.nonNull(driver) && entity.getDriver().equals(driver)) {
                         entity.setOrder(orderId);
@@ -112,11 +109,9 @@ public class RequestService {
 
         requestRepository
                 .findByCustomerAndTransportAndDayAndStatus(customer, transport, selectedDay, RequestStatusEnum.NEW)
-                .stream()
                 .forEach(entity ->
                         transport
                                 .getCustomer()
-                                .stream()
                                 .forEach(driverEntity -> notifyService.requestCanceled(driverEntity, customer, transport, selectedDay, hours))
                 );
 
@@ -131,14 +126,14 @@ public class RequestService {
         if (Objects.nonNull(hours)) {
             calendarService.obsolescenceСheck(selectedDay, customer, hours);
             calendarService.sequenceСheck(hours);
-            Integer minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
             calendarService.checkBusyByCustomer(customer, selectedDay, hours);
             calendarService.checkBusyByNote(customer, selectedDay, hours);
 
-            Integer requestCount = 0;
+            int requestCount = 0;
             for (CustomerEntity driver : transport.getCustomer()) {
                 try {
                     calendarService.checkBusyByCustomer(driver, selectedDay, hours);
@@ -148,6 +143,7 @@ public class RequestService {
                     notifyService.requestCreated(request);
                     requestCount++;
                 } catch (Exception e) {
+                    System.out.println(e.toString());
                 }
             }
 
@@ -188,9 +184,9 @@ public class RequestService {
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
         // calculate cost
-        Integer min = Collections.min(Arrays.asList(request.getHours()));
-        Integer max = Collections.max(Arrays.asList(request.getHours()));
-        Integer duration = max - min;
+        int min = Collections.min(Arrays.asList(request.getHours()));
+        int max = Collections.max(Arrays.asList(request.getHours()));
+        int duration = max - min;
         double cost = (duration + 1) * Double.parseDouble(price);
 
         order.addProperty(
@@ -208,7 +204,10 @@ public class RequestService {
                 propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
                 propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone"),
                 propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
-                propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone")
+                propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone"),
+                propertyService.create("order_time_day", request.getDay().toString()),
+                propertyService.create("order_time_hours", request.getHours().toString()),
+                propertyService.create("order_time_duration", String.valueOf(duration))
         );
 
         String customer_phone = propertyService.getValue(request.getCustomer().getProperty(), "customer_phone");
@@ -297,7 +296,6 @@ public class RequestService {
 
         requestRepository
                 .findNewByCustomerAndDay(request.getCustomer().getId(), request.getDay())
-                .stream()
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
@@ -309,7 +307,6 @@ public class RequestService {
 
         requestRepository
                 .findNewByDriverAndDay(request.getDriver().getId(), request.getDay())
-                .stream()
                 .forEach(entity -> {
                     for (Integer hour : request.getHours()) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {

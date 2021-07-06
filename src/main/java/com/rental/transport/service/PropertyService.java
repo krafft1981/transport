@@ -28,7 +28,8 @@ public class PropertyService {
     @Autowired
     private PropertyMapper propertyMapper;
 
-    public PropertyEntity searchProperty(Set<PropertyEntity> entryes, String name) throws ObjectNotFoundException {
+    public PropertyEntity searchProperty(Set<PropertyEntity> entryes, String name)
+            throws ObjectNotFoundException {
 
         return entryes
                 .stream()
@@ -43,7 +44,8 @@ public class PropertyService {
         return entity.getValue();
     }
 
-    public void setValue(Set<PropertyEntity> entryes, String name, String value) throws ObjectNotFoundException {
+    public void setValue(Set<PropertyEntity> entryes, String name, String value)
+            throws ObjectNotFoundException {
 
         PropertyEntity entity = searchProperty(entryes, name);
         entity.setValue(value);
