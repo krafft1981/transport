@@ -71,16 +71,17 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getCustomer().stream().forEach(customer -> destination.addCustomer(customer.getId()));
-        source.getImage().stream().forEach(image -> destination.addImage(image.getId()));
-        source.getParking().stream().forEach(parking -> destination.addParking(parking.getId()));
+        source.getCustomer().forEach(customer -> destination.addCustomer(customer.getId()));
+        source.getImage().forEach(image -> destination.addImage(image.getId()));
+        source.getParking().forEach(parking -> destination.addParking(parking.getId()));
     }
 
     public void mapSpecificFields(Transport source, TransportEntity destination) {
 
         destination.setId(source.getId());
 
-        source.getCustomer().stream()
+        source
+                .getCustomer()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
                     if (Objects.nonNull(customer)) {
@@ -88,7 +89,8 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     }
                 });
 
-        source.getImage().stream()
+        source
+                .getImage()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (Objects.nonNull(image)) {
@@ -96,7 +98,8 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
                     }
                 });
 
-        source.getParking().stream()
+        source
+                .getParking()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
                     if (Objects.nonNull(parking)) {
@@ -106,7 +109,8 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
         TransportEntity transport = transportRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(transport)) {
-            transport.getProperty().stream()
+            transport
+                    .getProperty()
                     .forEach(entity -> {
                         Property property = source.getProperty().stream()
                                 .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))

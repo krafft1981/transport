@@ -95,7 +95,7 @@ public class CalendarService {
 
         Integer currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
         if (day.equals(selectedDay)) {
-            Boolean last = false;
+            boolean last = false;
             for (Integer hour : hours) {
                 if (hour <= currentHour) {
                     last = true;
@@ -110,7 +110,7 @@ public class CalendarService {
         throw new IllegalArgumentException("Сорян, время уже прошло");
     }
 
-    public void sequenceСheck(Integer[] hours) throws IllegalArgumentException {
+    public void sequenceCheck(Integer[] hours) throws IllegalArgumentException {
 
         Arrays.sort(hours);
         Integer current = null;
@@ -135,7 +135,7 @@ public class CalendarService {
         final Long selectedDay = getDayIdByTime(day);
 
         obsolescenceСheck(selectedDay, customer, hours);
-        sequenceСheck(hours);
+        sequenceCheck(hours);
 
         checkBusyByCustomer(customer, selectedDay, hours);
         checkBusyByNote(customer, selectedDay, hours);
@@ -145,7 +145,6 @@ public class CalendarService {
 
         requestRepository
                 .findNewByCustomerAndDay(customer.getId(), selectedDay)
-                .stream()
                 .forEach(entity -> {
                     for (Integer hour : hours) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
@@ -157,7 +156,6 @@ public class CalendarService {
 
         requestRepository
                 .findNewByDriverAndDay(customer.getId(), selectedDay)
-                .stream()
                 .forEach(entity -> {
                     for (Integer hour : hours) {
                         if (Arrays.asList(entity.getHours()).contains(hour)) {
@@ -196,10 +194,9 @@ public class CalendarService {
     public void checkBusyByCustomer(CustomerEntity customer, Long day, Integer[] hours)
             throws IllegalArgumentException {
 
-        Set<Integer> busyHours = new HashSet();
+        Set<Integer> busyHours = new HashSet<>();
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
-                .stream()
                 .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
 
         for (Integer hour : hours) {
@@ -211,10 +208,9 @@ public class CalendarService {
     public void checkBusyByNote(CustomerEntity customer, Long day, Integer[] hours)
             throws IllegalArgumentException {
 
-        Set<Integer> busyHours = new HashSet();
+        Set<Integer> busyHours = new HashSet<>();
         calendarRepository
                 .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
-                .stream()
                 .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
 
         for (Integer hour : hours) {
@@ -239,12 +235,10 @@ public class CalendarService {
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, customer.getId())
-                .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, calendarMapper.toDto(entity))));
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
-                .stream()
                 .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, calendarMapper.toDto(entity))));
 
         return workTime;
@@ -274,7 +268,6 @@ public class CalendarService {
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, driver.getId())
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     workTime.add(new Event(EventTypeEnum.BUSY, calendar));
@@ -282,7 +275,6 @@ public class CalendarService {
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, driver.getId())
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     workTime.add(new Event(EventTypeEnum.BUSY, calendar));
@@ -290,7 +282,6 @@ public class CalendarService {
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.NOTE, customer.getId())
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     workTime.add(new Event(EventTypeEnum.BUSY, calendar));
@@ -298,7 +289,6 @@ public class CalendarService {
 
         calendarRepository
                 .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = calendarMapper.toDto(entity);
                     workTime.add(new Event(EventTypeEnum.BUSY, calendar));
@@ -306,7 +296,6 @@ public class CalendarService {
 
         orderRepository
                 .findByCustomerAndTransportAndDay(customer, transport, selectedDay)
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
                     workTime.add(new Event(EventTypeEnum.ORDER, calendar, entity.getId()));
@@ -314,7 +303,6 @@ public class CalendarService {
 
         requestRepository
                 .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), selectedDay)
-                .stream()
                 .forEach(entity -> {
                     Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
                     workTime.add(new Event(EventTypeEnum.REQUEST, calendar, entity.getId()));

@@ -64,17 +64,16 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getCustomer().stream()
-                .forEach(customer -> {
-                    destination.addCustomer(customer.getId());
-                });
+        source
+                .getCustomer()
+                .forEach(customer -> destination.addCustomer(customer.getId()));
 
-        source.getTransport().stream()
-                .forEach(transport -> {
-                    destination.addTransport(transport.getId());
-                });
+        source
+                .getTransport()
+                .forEach(transport -> destination.addTransport(transport.getId()));
 
-        source.getImage().stream()
+        source
+                .getImage()
                 .forEach(image -> destination.addImage(image.getId()));
     }
 
@@ -82,7 +81,8 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
         destination.setId(source.getId());
 
-        source.getCustomer().stream()
+        source
+                .getCustomer()
                 .forEach(id -> {
                     CustomerEntity customer = customerRepository.findById(id).orElse(null);
                     if (Objects.nonNull(customer)) {
@@ -90,7 +90,8 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                     }
                 });
 
-        source.getTransport().stream()
+        source
+                .getTransport()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
                     if (Objects.nonNull(transport)) {
@@ -98,7 +99,8 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
                     }
                 });
 
-        source.getImage().stream()
+        source
+                .getImage()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (Objects.nonNull(image)) {
@@ -108,7 +110,8 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
         ParkingEntity parking = parkingRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(parking)) {
-            parking.getProperty().stream()
+            parking
+                    .getProperty()
                     .forEach(entity -> {
                         Property property = source.getProperty().stream()
                                 .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))

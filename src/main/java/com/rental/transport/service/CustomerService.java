@@ -12,6 +12,7 @@ import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.ValidatorFactory;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,13 +55,11 @@ public class CustomerService implements UserDetailsService {
         CustomerEntity entity = getEntity(account);
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
-        User user = new User(
+        return new User(
                 entity.getAccount(),
                 entity.getPassword(),
-                Arrays.asList(authority)
+                Collections.singletonList(authority)
         );
-
-        return user;
     }
 
     public Customer create(String account, String password, String phone, String fio, String tz) throws IllegalArgumentException {
@@ -177,7 +176,8 @@ public class CustomerService implements UserDetailsService {
     public Customer addCustomerImage(String account, byte[] data) throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
-        customer.addImage(new ImageEntity(data));
+        ImageEntity image = new ImageEntity(data);
+        customer.addImage(image);
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
@@ -186,7 +186,8 @@ public class CustomerService implements UserDetailsService {
     public Customer delCustomerImage(String account, Long imageId) throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = getEntity(account);
-        customer.delImage(imageService.getEntity(imageId));
+        ImageEntity image = imageService.getEntity(imageId);
+        customer.delImage(image);
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }

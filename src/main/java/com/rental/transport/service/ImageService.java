@@ -23,9 +23,7 @@ public class ImageService {
 
     public void delete(List<Long> ids) {
 
-        ids
-                .stream()
-                .forEach(id -> imageRepository.deleteById(id));
+        ids.forEach(id -> imageRepository.deleteById(id));
     }
 
     public byte[] getImage(Long id) throws ObjectNotFoundException {
@@ -36,14 +34,12 @@ public class ImageService {
 
     public List<Long> getPage(Pageable pageable) {
 
-        List<Long> result = imageRepository
+        return imageRepository
                 .findAll(pageable)
                 .getContent()
                 .stream()
-                .map(entity -> entity.getId())
+                .map(ImageEntity::getId)
                 .collect(Collectors.toList());
-
-        return result;
     }
 
     public ImageEntity getEntity(Long id) throws ObjectNotFoundException {

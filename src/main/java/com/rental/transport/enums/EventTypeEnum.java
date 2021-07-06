@@ -10,10 +10,11 @@ public enum EventTypeEnum {
     REQUEST(3, "Request"),
     ORDER(4, "Order"),
     BUSY(5, "Busy"),
-    FREE(6, "Free");
+    FREE(6, "Free"),
+    EXPIRED(7, "Expired");
 
     @Getter
-    private int id = 0;
+    private int id;
     @Getter
     private String name;
 

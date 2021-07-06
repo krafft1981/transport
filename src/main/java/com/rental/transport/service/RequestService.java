@@ -125,7 +125,7 @@ public class RequestService {
 
         if (Objects.nonNull(hours)) {
             calendarService.obsolescenceСheck(selectedDay, customer, hours);
-            calendarService.sequenceСheck(hours);
+            calendarService.sequenceCheck(hours);
             int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
@@ -206,7 +206,7 @@ public class RequestService {
                 propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
                 propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone"),
                 propertyService.create("order_time_day", request.getDay().toString()),
-                propertyService.create("order_time_hours", request.getHours().toString()),
+                propertyService.create("order_time_hours", java.util.Arrays.toString(request.getHours())),
                 propertyService.create("order_time_duration", String.valueOf(duration))
         );
 

@@ -33,17 +33,16 @@ public class DistService {
     private String distPath;
 
     private String buildName(String name) {
-        StringBuilder builder = new StringBuilder(4096);
-        builder.append(distPath).append("/").append(name);
-        return builder.toString();
+
+        return distPath + "/" + name;
     }
 
     public Set<String> listFiles() {
 
         return Stream
                 .of(new File(distPath).listFiles())
-                .filter(file -> !file.isDirectory())
-                .map(file -> file.getName())
+                .filter(File::isFile)
+                .map(File::getName)
                 .collect(Collectors.toSet());
     }
 

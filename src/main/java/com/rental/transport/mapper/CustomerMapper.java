@@ -68,22 +68,17 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getTransport().stream().forEach(transport -> {
-            destination.addTransport(transport.getId());
-        });
-        source.getParking().stream().forEach(parking -> {
-            destination.addParking(parking.getId());
-        });
-        source.getImage().stream().forEach(image -> {
-            destination.addImage(image.getId());
-        });
+        source.getTransport().forEach(transport -> destination.addTransport(transport.getId()));
+        source.getParking().forEach(parking -> destination.addParking(parking.getId()));
+        source.getImage().forEach(image -> destination.addImage(image.getId()));
     }
 
     public void mapSpecificFields(Customer source, CustomerEntity destination) {
 
         destination.setId(source.getId());
 
-        source.getTransport().stream()
+        source
+                .getTransport()
                 .forEach(id -> {
                     TransportEntity transport = transportRepository.findById(id).orElse(null);
                     if (Objects.nonNull(transport)) {
@@ -91,7 +86,8 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
                     }
                 });
 
-        source.getParking().stream()
+        source
+                .getParking()
                 .forEach(id -> {
                     ParkingEntity parking = parkingRepository.findById(id).orElse(null);
                     if (Objects.nonNull(parking)) {
@@ -99,7 +95,8 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
                     }
                 });
 
-        source.getImage().stream()
+        source
+                .getImage()
                 .forEach(id -> {
                     ImageEntity image = imageRepository.findById(id).orElse(null);
                     if (Objects.nonNull(image)) {
@@ -111,7 +108,6 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
         if (Objects.nonNull(customer)) {
             customer
                     .getProperty()
-                    .stream()
                     .forEach(entity -> {
                         Property property = source.getProperty().stream()
                                 .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
