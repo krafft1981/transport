@@ -71,9 +71,9 @@ public class TransportMapper implements AbstractMapper<TransportEntity, Transpor
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getCustomer().forEach(customer -> destination.addCustomer(customer.getId()));
-        source.getImage().forEach(image -> destination.addImage(image.getId()));
-        source.getParking().forEach(parking -> destination.addParking(parking.getId()));
+        source.getCustomer().forEach(customer -> destination.getCustomer().add(customer.getId()));
+        source.getImage().forEach(image -> destination.getImage().add(image.getId()));
+        source.getParking().forEach(parking -> destination.getParking().add(parking.getId()));
     }
 
     public void mapSpecificFields(Transport source, TransportEntity destination) {

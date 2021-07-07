@@ -28,14 +28,4 @@ public class Customer extends AbstractIdDto {
     private Set<Long> transport = new HashSet<>();
     @JsonProperty("parking")
     private Set<Long> parking = new HashSet<>();
-
-    public void addImage(Long value) {
-        image.add(value);
-    }
-    public void addTransport(Long value) {
-        transport.add(value);
-    }
-    public void addParking(Long value) {
-        parking.add(value);
-    }
 }

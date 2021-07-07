@@ -68,9 +68,9 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
 
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
-        source.getTransport().forEach(transport -> destination.addTransport(transport.getId()));
-        source.getParking().forEach(parking -> destination.addParking(parking.getId()));
-        source.getImage().forEach(image -> destination.addImage(image.getId()));
+        source.getTransport().forEach(transport -> destination.getTransport().add(transport.getId()));
+        source.getParking().forEach(parking -> destination.getParking().add(parking.getId()));
+        source.getImage().forEach(image -> destination.getImage().add(image.getId()));
     }
 
     public void mapSpecificFields(Customer source, CustomerEntity destination) {

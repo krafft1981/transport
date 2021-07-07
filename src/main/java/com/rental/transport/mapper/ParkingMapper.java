@@ -66,15 +66,15 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
 
         source
                 .getCustomer()
-                .forEach(customer -> destination.addCustomer(customer.getId()));
+                .forEach(customer -> destination.getCustomer().add(customer.getId()));
 
         source
                 .getTransport()
-                .forEach(transport -> destination.addTransport(transport.getId()));
+                .forEach(transport -> destination.getTransport().add(transport.getId()));
 
         source
                 .getImage()
-                .forEach(image -> destination.addImage(image.getId()));
+                .forEach(image -> destination.getImage().add(image.getId()));
     }
 
     public void mapSpecificFields(Parking source, ParkingEntity destination) {

@@ -22,14 +22,4 @@ public class Parking extends AbstractIdDto {
     private Set<Long> transport = new HashSet<>();
     @JsonProperty("property")
     private Set<Property> property = new HashSet<>();
-
-    public void addImage(Long id) {
-        image.add(id);
-    }
-    public void addCustomer(Long id) {
-        customer.add(id);
-    }
-    public void addTransport(Long id) {
-        transport.add(id);
-    }
 }
