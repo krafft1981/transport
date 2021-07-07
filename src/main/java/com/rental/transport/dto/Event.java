@@ -23,12 +23,12 @@ public class Event extends AbstractDto {
     public Event(EventTypeEnum type, Long day, Integer start, Integer stop) {
 
         int index = 0;
-        Integer[] diapazon = new Integer[stop - start];
+        Integer[] hours = new Integer[stop - start];
         for (Integer hour = start; hour < stop; hour++, index++)
-            diapazon[index] = hour;
+            hours[index] = hour;
 
         setType(type.getId());
-        setCalendar(new Calendar(day, diapazon));
+        setCalendar(new Calendar(day, hours, ""));
     }
 
     public Event(EventTypeEnum type, Calendar calendar) {

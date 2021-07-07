@@ -83,7 +83,7 @@ public class CalendarService {
         return calendarRepository.save(entity);
     }
 
-    public void obsolescenceСheck(Long day, CustomerEntity customer, Integer[] hours)
+    public void checkObsolescence(Long day, CustomerEntity customer, Integer[] hours)
             throws IllegalArgumentException {
 
         java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone(customer.getTimeZone()));
@@ -134,7 +134,7 @@ public class CalendarService {
         CustomerEntity customer = customerService.getEntity(account);
         final Long selectedDay = getDayIdByTime(day);
 
-        obsolescenceСheck(selectedDay, customer, hours);
+        checkObsolescence(selectedDay, customer, hours);
         sequenceCheck(hours);
 
         checkBusyByCustomer(customer, selectedDay, hours);
@@ -297,14 +297,14 @@ public class CalendarService {
         orderRepository
                 .findByCustomerAndTransportAndDay(customer, transport, selectedDay)
                 .forEach(entity -> {
-                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours(), "");
                     workTime.add(new Event(EventTypeEnum.ORDER, calendar, entity.getId()));
                 });
 
         requestRepository
                 .findNewByCustomerAndTransportAndDay(customer.getId(), transport.getId(), selectedDay)
                 .forEach(entity -> {
-                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours(), "");
                     workTime.add(new Event(EventTypeEnum.REQUEST, calendar, entity.getId()));
                 });
 

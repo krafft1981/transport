@@ -18,10 +18,4 @@ public class Calendar extends AbstractIdDto {
     private Integer[] hours;
     @JsonProperty("note")
     private String note = "";
-
-    public Calendar(Long day, Integer[] hours) {
-
-        setDay(day);
-        setHours(hours);
-    }
 }

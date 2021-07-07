@@ -124,7 +124,7 @@ public class RequestService {
             throw new IllegalArgumentException("Данный транспорт не имеет водителей");
 
         if (Objects.nonNull(hours)) {
-            calendarService.obsolescenceСheck(selectedDay, customer, hours);
+            calendarService.checkObsolescence(selectedDay, customer, hours);
             calendarService.sequenceCheck(hours);
             int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
             if (hours.length < minTime)
@@ -171,7 +171,7 @@ public class RequestService {
         TransportEntity transport = request.getTransport();
         ParkingEntity parking = transport.getParking().iterator().next();
 
-        calendarService.obsolescenceСheck(request.getDay(), customer, request.getHours());
+        calendarService.checkObsolescence(request.getDay(), customer, request.getHours());
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
@@ -273,7 +273,7 @@ public class RequestService {
                 .findNewByCustomer(customer.getId())
                 .stream()
                 .map(entity -> {
-                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours(), "");
                     return new Event(EventTypeEnum.REQUEST, calendar, entity.getId());
                 })
                 .collect(Collectors.toList());
@@ -286,7 +286,7 @@ public class RequestService {
                 .findNewByDriver(driver.getId())
                 .stream()
                 .map(entity -> {
-                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours());
+                    Calendar calendar = new Calendar(entity.getDay(), entity.getHours(), "");
                     return new Event(EventTypeEnum.REQUEST, calendar, entity.getId());
                 })
                 .collect(Collectors.toList());
