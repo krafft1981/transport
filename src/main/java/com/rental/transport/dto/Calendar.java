@@ -24,20 +24,4 @@ public class Calendar extends AbstractIdDto {
         setDay(day);
         setHours(hours);
     }
-
-    public Calendar(Long id, Long day, Integer[] hours) {
-
-        setId(id);
-        setDay(day);
-        setHours(hours);
-    }
-
-    public Calendar(Long day, Integer start, Integer stop) {
-
-        setDay(day);
-        int id = 0;
-        hours = new Integer[stop - start];
-        for (Integer hour = start; hour < stop; hour++, id++)
-            hours[id] = hour;
-    }
 }
