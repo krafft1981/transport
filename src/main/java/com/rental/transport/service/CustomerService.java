@@ -72,8 +72,8 @@ public class CustomerService implements UserDetailsService {
         if (!vf.getValidator("Email").validate(account))
             throw new IllegalArgumentException("Неправильное значение поля 'почта'");
 
-        if (!vf.getValidator("Password").validate(password))
-            throw new IllegalArgumentException("Неправильное значение поля 'пароль'");
+        if (password.length() < 4)
+            throw new IllegalArgumentException("Пароль должен быть не короче 4х символов");
 
         if (!vf.getValidator("Phone").validate(phone))
             throw new IllegalArgumentException("Неправильное значение поля 'телефон'");

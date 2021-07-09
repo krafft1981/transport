@@ -1,7 +1,6 @@
 package com.rental.transport.entity;
 
 import com.rental.transport.enums.RequestStatusEnum;
-import java.util.Arrays;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
