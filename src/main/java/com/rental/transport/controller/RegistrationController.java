@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
+
 @RequestMapping(value = "/registration")
 @RestController
 public class RegistrationController {
@@ -26,7 +28,7 @@ public class RegistrationController {
             @RequestParam(value = "password", required = true) String password,
             @RequestParam(value = "phone", required = true) String phone,
             @RequestParam(value = "fio", required = true) String fio,
-            @RequestParam(value = "time_zone", required = true) String tz) {
+            @RequestParam(value = "time_zone", required = true) String tz) throws MessagingException {
 
         return service.create(account, password, phone, fio, tz);
     }
@@ -46,7 +48,7 @@ public class RegistrationController {
     )
     @PostMapping(value = "/email")
     public void doPostRegistrationEmailCheck(
-            @RequestParam(value = "account", required = true) String account) {
+            @RequestParam(value = "account", required = true) String account) throws MessagingException {
 
         service.check(account);
     }

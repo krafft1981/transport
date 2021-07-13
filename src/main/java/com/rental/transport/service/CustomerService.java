@@ -11,12 +11,6 @@ import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.ValidatorFactory;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +21,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import javax.mail.MessagingException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Primary
 @Service
@@ -56,13 +57,14 @@ public class CustomerService implements UserDetailsService {
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         return new User(
-                entity.getAccount(),
-                entity.getPassword(),
-                Collections.singletonList(authority)
+            entity.getAccount(),
+            entity.getPassword(),
+            Collections.singletonList(authority)
         );
     }
 
-    public Customer create(String account, String password, String phone, String fio, String tz) throws IllegalArgumentException {
+    public Customer create(String account, String password, String phone, String fio, String tz)
+        throws MessagingException, IllegalArgumentException {
 
         account = account.toLowerCase();
 
@@ -83,16 +85,17 @@ public class CustomerService implements UserDetailsService {
 
         CustomerEntity customer = new CustomerEntity(account, password, tz);
         customer.addProperty(
-                propertyService.create("customer_fio", fio),
-                propertyService.create("customer_phone", phone),
-                propertyService.create("customer_startWorkTime", "9"),
-                propertyService.create("customer_stopWorkTime", "20"),
-                propertyService.create("customer_workAtWeekEnd", "Да"),
-                propertyService.create("customer_description", "Не указано")
+            propertyService.create("customer_fio", fio),
+            propertyService.create("customer_phone", phone),
+            propertyService.create("customer_startWorkTime", "9"),
+            propertyService.create("customer_stopWorkTime", "20"),
+            propertyService.create("customer_workAtWeekEnd", "Да"),
+            propertyService.create("customer_description", "Не указано")
         );
 
         customerRepository.save(customer);
-        emailService.sendVerifyEmail(customer);
+        if (customer.getSendEmail())
+            emailService.sendVerifyEmail(customer);
         return customerMapper.toDto(customer);
     }
 
@@ -104,7 +107,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public Customer update(String account, Customer customer)
-            throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
+        throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         account = account.toLowerCase();
 
@@ -124,7 +127,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public Customer updatePassword(String account, String password)
-            throws ObjectNotFoundException, IllegalArgumentException {
+        throws ObjectNotFoundException, IllegalArgumentException {
 
         if (!vf.getValidator("Password").validate(password))
             throw new IllegalArgumentException("Ошибка в поле пароль");
@@ -138,10 +141,10 @@ public class CustomerService implements UserDetailsService {
     public List<Customer> getPage(Pageable pageable) {
 
         return customerRepository
-                .findAllByEnableTrueAndConfirmedTrue(pageable)
-                .stream()
-                .map(customer -> customerMapper.toDto(customer))
-                .collect(Collectors.toList());
+                   .findAllByEnableTrueAndConfirmedTrue(pageable)
+                   .stream()
+                   .map(customer -> customerMapper.toDto(customer))
+                   .collect(Collectors.toList());
     }
 
     public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
@@ -164,7 +167,7 @@ public class CustomerService implements UserDetailsService {
         return customerMapper.toDto(entity);
     }
 
-    public void check(String account) throws ObjectNotFoundException {
+    public void check(String account) throws MessagingException, ObjectNotFoundException {
 
         account = account.toLowerCase();
 
