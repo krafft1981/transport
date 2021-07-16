@@ -58,8 +58,7 @@ public class PropertyMapper implements AbstractMapper<PropertyEntity, Property> 
         destination.setId(source.getId());
 
         PropertyTypeEntity type = propertyTypeRepository.findByLogicName(source.getLogicName());
-        if (!Objects.isNull(type)) {
+        if (!Objects.isNull(type))
             destination.setType(type);
-        }
     }
 }

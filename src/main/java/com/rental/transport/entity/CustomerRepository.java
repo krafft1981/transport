@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CustomerRepository extends IRepository<CustomerEntity> {
 
-    CustomerEntity findByEnableTrueAndConfirmedTrueAndAccount(String account);
+    CustomerEntity findByAccountAndEnableTrueAndConfirmedTrue(String account);
     List<CustomerEntity> findAllByEnableTrueAndConfirmedTrue(Pageable pageable);
+    List<CustomerEntity> findAllByEnableTrue();
 }

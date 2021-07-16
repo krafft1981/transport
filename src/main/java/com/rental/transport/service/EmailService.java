@@ -4,19 +4,6 @@ import com.rental.transport.entity.CustomerEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.util.Properties;
-
 @Service
 public class EmailService {
 
@@ -41,7 +28,7 @@ public class EmailService {
     @Value("${mail.smtp.password}")
     private String mailSmtpPassword;
 
-    void sendVerifyEmail(CustomerEntity entity) throws MessagingException {
+    void sendVerifyEmail(CustomerEntity entity) {
     }
 
 //        Properties prop = new Properties();

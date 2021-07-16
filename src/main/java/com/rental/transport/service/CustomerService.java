@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.mail.MessagingException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -63,12 +62,13 @@ public class CustomerService implements UserDetailsService {
         );
     }
 
+    @Transactional
     public Customer create(String account, String password, String phone, String fio, String tz)
-        throws MessagingException, IllegalArgumentException {
+        throws IllegalArgumentException {
 
         account = account.toLowerCase();
 
-        if (Objects.nonNull(customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account)))
+        if (Objects.nonNull(customerRepository.findByAccountAndEnableTrueAndConfirmedTrue(account)))
             throw new IllegalArgumentException("Учётная запись уже существует");
 
         if (!vf.getValidator("Email").validate(account))
@@ -96,6 +96,7 @@ public class CustomerService implements UserDetailsService {
         customerRepository.save(customer);
         if (customer.getSendEmail())
             emailService.sendVerifyEmail(customer);
+
         return customerMapper.toDto(customer);
     }
 
@@ -151,7 +152,7 @@ public class CustomerService implements UserDetailsService {
 
         account = account.toLowerCase();
 
-        CustomerEntity entity = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
+        CustomerEntity entity = customerRepository.findByAccountAndEnableTrueAndConfirmedTrue(account);
         if (Objects.isNull(entity))
             throw new ObjectNotFoundException("Account", account);
 
@@ -167,11 +168,11 @@ public class CustomerService implements UserDetailsService {
         return customerMapper.toDto(entity);
     }
 
-    public void check(String account) throws MessagingException, ObjectNotFoundException {
+    public void check(String account) throws ObjectNotFoundException {
 
         account = account.toLowerCase();
 
-        CustomerEntity customer = customerRepository.findByEnableTrueAndConfirmedTrueAndAccount(account);
+        CustomerEntity customer = customerRepository.findByAccountAndEnableTrueAndConfirmedTrue(account);
         emailService.sendVerifyEmail(customer);
     }
 

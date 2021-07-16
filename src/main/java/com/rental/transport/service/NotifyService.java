@@ -7,12 +7,8 @@ import com.rental.transport.entity.NotifyEntity;
 import com.rental.transport.entity.NotifyRepository;
 import com.rental.transport.entity.RequestEntity;
 import com.rental.transport.entity.TransportEntity;
+import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -24,10 +20,16 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 public class NotifyService extends TextWebSocketHandler implements HandshakeInterceptor {
 
-    private List<WebSocketSession> sessions = new CopyOnWriteArrayList();
+    private ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap();
 
     @Autowired
     private CustomerService customerService;
@@ -47,8 +49,7 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
             String account = request.getHeaders().get("username").get(0);
             customerService.getEntity(account);
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -60,7 +61,7 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message)
-            throws InterruptedException, IOException {
+        throws InterruptedException, IOException {
 
         if (message.getPayload().isEmpty())
             session.sendMessage(message);
@@ -71,19 +72,17 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
 
         List<String> headers = session.getHandshakeHeaders().get("username");
         CustomerEntity customer = customerService.getEntity(headers.get(0));
-        sessions.add(session);
+        sessions.put(customer.getAccount(), session);
         notifyRepository
-                .findByCustomerOrderById(customer)
-                .stream()
-                .forEach(entity -> {
-                    try {
-                        sendMessage(entity.getCustomer(), entity.getAction(), entity.getMessage(), false);
-                        notifyRepository.deleteById(entity.getId());
-                    }
-                    catch (Exception e) {
-                        System.out.println(e);
-                    }
-                });
+            .findByCustomerOrderById(customer)
+            .forEach(entity -> {
+                try {
+                    sendMessage(entity.getCustomer(), entity.getAction(), entity.getMessage(), false);
+                    notifyRepository.deleteById(entity.getId());
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            });
     }
 
     @Override
@@ -95,49 +94,35 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 
         super.afterConnectionClosed(session, status);
+        List<String> headers = session.getHandshakeHeaders().get("username");
         session.close();
-        sessions.remove(session);
+        sessions.remove(headers.get(0));
     }
 
     private void sendMessage(CustomerEntity customer, String action, String text) {
 
         try {
             sendMessage(customer, action, text, true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
 
     private void sendMessage(CustomerEntity customer, String action, String text, Boolean save)
-            throws Exception {
+        throws Exception {
 
         try {
-            Boolean sended = false;
-            for (WebSocketSession session : sessions) {
-                List<String> headers = session.getHandshakeHeaders().get("username");
-                if (headers.get(0).equals(customer.getAccount())) {
-                    Notify notify = new Notify(text, action);
-                    StringWriter writer = new StringWriter();
-                    objectMapper.writeValue(writer, notify);
-                    session.sendMessage(new TextMessage(writer.toString()));
-                    sended = true;
-                    break;
-                }
-            }
+            if (!sessions.contains(customer.getAccount()))
+                throw new IllegalArgumentException("Пользователь отвалился (");
 
-            if (!sended)
-                throw new Exception("Failed send message to: " + customer.getAccount());
-        }
+            Notify notify = new Notify(text, action);
+            StringWriter writer = new StringWriter();
+            objectMapper.writeValue(writer, notify);
+            sessions.get(customer.getAccount()).sendMessage(new TextMessage(writer.toString()));
 
-        catch (Exception e) {
-            if (save) {
-                NotifyEntity entity = new NotifyEntity(customer, action, text);
-                notifyRepository.save(entity);
-            }
-
-            else
-                throw e;
+        } catch (Exception e) {
+            NotifyEntity entity = new NotifyEntity(customer, action, text);
+            notifyRepository.save(entity);
         }
     }
 

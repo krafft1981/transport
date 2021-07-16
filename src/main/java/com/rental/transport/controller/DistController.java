@@ -26,7 +26,7 @@ public class DistController {
             value = "Получение списка доступных файлов"
     )
     @GetMapping(value = "/list")
-    public Set<String> getDistList() throws IOException {
+    public Set<String> getDistList() {
         return distService.listFiles();
     }
 
@@ -41,7 +41,7 @@ public class DistController {
         HttpHeaders header = new HttpHeaders();
         header.set("Content-type", "application/octet-stream");
         header.set("Content-Disposition", "attachment; filename=" + name);
-        return new HttpEntity<byte[]>(distService.getFile(name), header);
+        return new HttpEntity(distService.getFile(name), header);
     }
 
     @ApiOperation(
