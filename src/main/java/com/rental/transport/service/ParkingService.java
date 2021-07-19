@@ -96,7 +96,7 @@ public class ParkingService {
 
         CustomerEntity customer = customerService.getEntity(account);
         return parkingRepository.findAllByCustomerId(customer.getId())
-                .stream()
+                .parallelStream()
                 .map(entity -> parkingMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
@@ -105,7 +105,7 @@ public class ParkingService {
 
         return parkingRepository
                 .findAllByEnableTrue(pageable)
-                .stream()
+                .parallelStream()
                 .map(entity -> parkingMapper.toDto(entity))
                 .collect(Collectors.toList());
     }

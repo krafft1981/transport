@@ -2,6 +2,7 @@ package com.rental.transport.enums;
 
 import lombok.Getter;
 
+@Getter
 public enum EventTypeEnum {
 
     UNCKNOWN(0, "Uncknown"),
@@ -13,14 +14,8 @@ public enum EventTypeEnum {
     FREE(6, "Free"),
     EXPIRED(7, "Expired");
 
-    @Getter
     private int id;
-    @Getter
     private String name;
-
-    public int id() {
-        return id;
-    }
 
     EventTypeEnum(int id, String name) {
         this.id = id;

@@ -13,13 +13,14 @@ import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.ValidatorFactory;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransportService {
@@ -48,7 +49,7 @@ public class TransportService {
     private ValidatorFactory vf = new ValidatorFactory();
 
     public void delete(String account, Long id)
-            throws AccessDeniedException, ObjectNotFoundException {
+        throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(id);
@@ -63,24 +64,24 @@ public class TransportService {
     }
 
     public Long create(String account, Long typeId)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
 
         CustomerEntity customerEntity = customerService.getEntity(account);
         TransportTypeEntity transportTypeEntity = typeService.getEntity(typeId);
         TransportEntity transport = new TransportEntity(customerEntity, transportTypeEntity);
         transport.addProperty(
-                propertyService.create("transport_name", "Не указано"),
-                propertyService.create("transport_capacity", "1"),
-                propertyService.create("transport_price", "1000"),
-                propertyService.create("transport_min_rent_time", "2"),
-                propertyService.create("transport_description", "Не указано")
+            propertyService.create("transport_name", "Не указано"),
+            propertyService.create("transport_capacity", "1"),
+            propertyService.create("transport_price", "1000"),
+            propertyService.create("transport_min_rent_time", "2"),
+            propertyService.create("transport_description", "Не указано")
         );
 
         return transportRepository.save(transport).getId();
     }
 
     public Transport update(String account, Transport transport)
-            throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
+        throws AccessDeniedException, ObjectNotFoundException, IllegalArgumentException {
 
         for (Property property : transport.getProperty()) {
             if (!vf.getValidator(property.getType()).validate(property.getValue()))
@@ -100,39 +101,39 @@ public class TransportService {
     public List<Transport> getPage(Pageable pageable) {
 
         return transportRepository
-                .findAllByEnableTrue(pageable)
-                .stream()
-                .filter(entity -> entity.getType().getEnable())
-                .map(entity -> transportMapper.toDto(entity))
-                .collect(Collectors.toList());
+                   .findAllByEnableTrue(pageable)
+                   .parallelStream()
+                   .filter(entity -> entity.getType().getEnable())
+                   .map(entity -> transportMapper.toDto(entity))
+                   .collect(Collectors.toList());
     }
 
     public List<Transport> getPageTyped(Pageable pageable, Long type) {
 
         return transportRepository
-                .findAllByEnableTrueAndTypeId(pageable, type)
-                .stream()
-                .filter(entity -> entity.getType().getEnable())
-                .map(entity -> transportMapper.toDto(entity))
-                .collect(Collectors.toList());
+                   .findAllByEnableTrueAndTypeId(pageable, type)
+                   .parallelStream()
+                   .filter(entity -> entity.getType().getEnable())
+                   .map(entity -> transportMapper.toDto(entity))
+                   .collect(Collectors.toList());
     }
 
     public List<Transport> getMyTransport(String account) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         return transportRepository.findAllByCustomerIdAndEnableTrue(customer.getId())
-                .stream()
-                .map(entity -> transportMapper.toDto(entity))
-                .collect(Collectors.toList());
+                   .parallelStream()
+                   .map(entity -> transportMapper.toDto(entity))
+                   .collect(Collectors.toList());
     }
 
     public TransportEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return transportRepository
-                .findById(id)
-                .filter(TransportEntity::getEnable)
-                .filter(entity -> entity.getType().getEnable())
-                .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
+                   .findById(id)
+                   .filter(TransportEntity::getEnable)
+                   .filter(entity -> entity.getType().getEnable())
+                   .orElseThrow(() -> new ObjectNotFoundException("Transport", id));
     }
 
     public Transport getDto(Long id) throws ObjectNotFoundException {
@@ -143,18 +144,19 @@ public class TransportService {
 
     public List<Transport> getParkingTransport(Long parkingId) throws ObjectNotFoundException {
 
-        return parkingService.getEntity(parkingId)
-                .getTransport()
-                .stream()
-                .filter(TransportEntity::getEnable)
-                .filter(entity -> entity.getType().getEnable())
-                .map(transport -> transportMapper.toDto(transport))
-                .collect(Collectors.toList());
+        return parkingService
+                   .getEntity(parkingId)
+                   .getTransport()
+                   .parallelStream()
+                   .filter(TransportEntity::getEnable)
+                   .filter(entity -> entity.getType().getEnable())
+                   .map(transport -> transportMapper.toDto(transport))
+                   .collect(Collectors.toList());
     }
 
     @Transactional
     public Transport addTransportImage(String account, Long transportId, byte[] data)
-            throws AccessDeniedException, ObjectNotFoundException {
+        throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(transportId);
@@ -166,7 +168,7 @@ public class TransportService {
 
     @Transactional
     public Transport delTransportImage(String account, Long transportId, Long imageId)
-            throws AccessDeniedException, ObjectNotFoundException {
+        throws AccessDeniedException, ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = getEntity(transportId);

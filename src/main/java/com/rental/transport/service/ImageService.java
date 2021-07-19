@@ -37,7 +37,7 @@ public class ImageService {
         return imageRepository
                 .findAll(pageable)
                 .getContent()
-                .stream()
+                .parallelStream()
                 .map(ImageEntity::getId)
                 .collect(Collectors.toList());
     }

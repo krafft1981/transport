@@ -32,7 +32,7 @@ public class PropertyService {
             throws ObjectNotFoundException {
 
         return entryes
-                .stream()
+                .parallelStream()
                 .filter(property -> property.getType().getLogicName().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new ObjectNotFoundException("Property", name));
@@ -57,7 +57,7 @@ public class PropertyService {
         return propertyRepository
                 .findAll(pageable)
                 .getContent()
-                .stream()
+                .parallelStream()
                 .map(entity -> propertyMapper.toDto(entity))
                 .collect(Collectors.toList());
     }

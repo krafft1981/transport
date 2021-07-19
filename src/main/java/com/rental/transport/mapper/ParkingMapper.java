@@ -10,8 +10,10 @@ import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.entity.ParkingRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.entity.TransportRepository;
+
 import java.util.Objects;
 import javax.annotation.PostConstruct;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,19 +47,19 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
     @PostConstruct
     public void postConstruct() {
         mapper.createTypeMap(ParkingEntity.class, Parking.class)
-                .addMappings(m -> m.skip(Parking::setId))
-                .addMappings(m -> m.skip(Parking::setCustomer))
-                .addMappings(m -> m.skip(Parking::setTransport))
-                .addMappings(m -> m.skip(Parking::setImage))
-                .setPostConverter(toDtoConverter());
+            .addMappings(m -> m.skip(Parking::setId))
+            .addMappings(m -> m.skip(Parking::setCustomer))
+            .addMappings(m -> m.skip(Parking::setTransport))
+            .addMappings(m -> m.skip(Parking::setImage))
+            .setPostConverter(toDtoConverter());
 
         mapper.createTypeMap(Parking.class, ParkingEntity.class)
-                .addMappings(m -> m.skip(ParkingEntity::setId))
-                .addMappings(m -> m.skip(ParkingEntity::setCustomer))
-                .addMappings(m -> m.skip(ParkingEntity::setTransport))
-                .addMappings(m -> m.skip(ParkingEntity::setImage))
-                .addMappings(m -> m.skip(ParkingEntity::setProperty))
-                .setPostConverter(toEntityConverter());
+            .addMappings(m -> m.skip(ParkingEntity::setId))
+            .addMappings(m -> m.skip(ParkingEntity::setCustomer))
+            .addMappings(m -> m.skip(ParkingEntity::setTransport))
+            .addMappings(m -> m.skip(ParkingEntity::setImage))
+            .addMappings(m -> m.skip(ParkingEntity::setProperty))
+            .setPostConverter(toEntityConverter());
     }
 
     public void mapSpecificFields(ParkingEntity source, Parking destination) {
@@ -65,16 +67,16 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
         destination.setId(Objects.isNull(source) || Objects.isNull(source.getId()) ? null : source.getId());
 
         source
-                .getCustomer()
-                .forEach(customer -> destination.getCustomer().add(customer.getId()));
+            .getCustomer()
+            .forEach(customer -> destination.getCustomer().add(customer.getId()));
 
         source
-                .getTransport()
-                .forEach(transport -> destination.getTransport().add(transport.getId()));
+            .getTransport()
+            .forEach(transport -> destination.getTransport().add(transport.getId()));
 
         source
-                .getImage()
-                .forEach(image -> destination.getImage().add(image.getId()));
+            .getImage()
+            .forEach(image -> destination.getImage().add(image.getId()));
     }
 
     public void mapSpecificFields(Parking source, ParkingEntity destination) {
@@ -82,44 +84,46 @@ public class ParkingMapper implements AbstractMapper<ParkingEntity, Parking> {
         destination.setId(source.getId());
 
         source
-                .getCustomer()
-                .forEach(id -> {
-                    CustomerEntity customer = customerRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(customer))
-                        destination.addCustomer(customer);
-                });
+            .getCustomer()
+            .forEach(id -> {
+                CustomerEntity customer = customerRepository.findById(id).orElse(null);
+                if (Objects.nonNull(customer))
+                    destination.addCustomer(customer);
+            });
 
         source
-                .getTransport()
-                .forEach(id -> {
-                    TransportEntity transport = transportRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(transport))
-                        destination.addTransport(transport);
-                });
+            .getTransport()
+            .forEach(id -> {
+                TransportEntity transport = transportRepository.findById(id).orElse(null);
+                if (Objects.nonNull(transport))
+                    destination.addTransport(transport);
+            });
 
         source
-                .getImage()
-                .forEach(id -> {
-                    ImageEntity image = imageRepository.findById(id).orElse(null);
-                    if (Objects.nonNull(image))
-                        destination.addImage(image);
-                });
+            .getImage()
+            .forEach(id -> {
+                ImageEntity image = imageRepository.findById(id).orElse(null);
+                if (Objects.nonNull(image))
+                    destination.addImage(image);
+            });
 
         ParkingEntity parking = parkingRepository.findById(source.getId()).orElse(null);
         if (Objects.nonNull(parking)) {
             parking
-                    .getProperty()
-                    .forEach(entity -> {
-                        Property property = source.getProperty().stream()
-                                .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
-                                .findFirst()
-                                .orElse(null);
+                .getProperty()
+                .forEach(entity -> {
+                    Property property = source
+                                            .getProperty()
+                                            .parallelStream()
+                                            .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
+                                            .findFirst()
+                                            .orElse(null);
 
-                        if (Objects.nonNull(property))
-                            entity.setValue(property.getValue());
+                    if (Objects.nonNull(property))
+                        entity.setValue(property.getValue());
 
-                        destination.addProperty(entity);
-                    });
+                    destination.addProperty(entity);
+                });
         }
     }
 }

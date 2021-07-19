@@ -45,7 +45,7 @@ public class OrderService {
         CustomerEntity driver = customerService.getEntity(account);
         return orderRepository
                 .findByDriver(driver.getId())
-                .stream()
+                .parallelStream()
                 .map(entity -> orderMapper.toDto(entity))
                 .collect(Collectors.toList());
     }
@@ -55,7 +55,7 @@ public class OrderService {
         CustomerEntity customer = customerService.getEntity(account);
         return orderRepository
                 .findByCustomer(customer.getId())
-                .stream()
+                .parallelStream()
                 .map(entity -> orderMapper.toDto(entity))
                 .collect(Collectors.toList());
     }

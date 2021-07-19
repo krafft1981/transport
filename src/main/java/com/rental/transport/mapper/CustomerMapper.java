@@ -107,14 +107,14 @@ public class CustomerMapper implements AbstractMapper<CustomerEntity, Customer> 
             customer
                 .getProperty()
                 .forEach(entity -> {
-                    Property property = source.getProperty().stream()
+                    Property property = source
+                                            .getProperty()
+                                            .parallelStream()
                                             .filter(it -> it.getLogicName().equals(entity.getType().getLogicName()))
                                             .findFirst()
                                             .orElse(null);
-
                     if (Objects.nonNull(property))
                         entity.setValue(property.getValue());
-
                     destination.addProperty(entity);
                 });
         }

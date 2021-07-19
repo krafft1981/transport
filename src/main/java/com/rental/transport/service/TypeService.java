@@ -26,7 +26,7 @@ public class TypeService {
 
         return repository
                 .findAllByEnableTrue(pageable)
-                .stream()
+                .parallelStream()
                 .filter(TransportTypeEntity::getEnable)
                 .map(entity -> typeMapper.toDto(entity))
                 .collect(Collectors.toList());

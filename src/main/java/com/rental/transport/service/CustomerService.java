@@ -143,7 +143,7 @@ public class CustomerService implements UserDetailsService {
 
         return customerRepository
                    .findAllByEnableTrueAndConfirmedTrue(pageable)
-                   .stream()
+                   .parallelStream()
                    .map(customer -> customerMapper.toDto(customer))
                    .collect(Collectors.toList());
     }
