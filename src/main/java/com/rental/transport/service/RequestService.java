@@ -17,6 +17,8 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -189,6 +191,8 @@ public class RequestService {
         int max = Collections.max(Arrays.asList(request.getHours()));
         int duration = max - min;
         double cost = (duration + 1) * Double.parseDouble(price);
+
+        
 
         order.addProperty(
             propertyService.copy("order_parking_name", parking.getProperty(), "parking_name"),

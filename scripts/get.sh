@@ -1,12 +1,12 @@
 #!/bin/bash
 
-user=krafft1981@mail.ru
+user=katamaran1981@mail.ru
 pass=12345Q
 
 #url="http://127.0.0.1:8080"
 url="http://138.124.187.10:8080"
 
-create=""
+create="yes"
 
 if [ ! -z $create ]
 then

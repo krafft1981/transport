@@ -45,7 +45,7 @@ public class ImageService {
     public ImageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return imageRepository
-                .findById(id)
+                .findById(id) 
                 .orElseThrow(() -> new ObjectNotFoundException("Image", id));
     }
 
