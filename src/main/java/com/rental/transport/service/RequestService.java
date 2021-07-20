@@ -17,17 +17,18 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -57,6 +58,8 @@ public class RequestService {
 
     @Autowired
     private RequestMapper requestMapper;
+
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Scheduled(cron = "0 0 * * * *")
     public void setRequestExpired() {
@@ -192,7 +195,8 @@ public class RequestService {
         int duration = max - min;
         double cost = (duration + 1) * Double.parseDouble(price);
 
-        
+        java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.setTimeInMillis(request.getDay());
 
         order.addProperty(
             propertyService.copy("order_parking_name", parking.getProperty(), "parking_name"),
@@ -210,7 +214,13 @@ public class RequestService {
             propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone"),
             propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
             propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone"),
-            propertyService.create("order_time_day", request.getDay().toString()),
+            propertyService.create("order_time_day", dateFormatter.format(
+                LocalDate.of(
+                    calendar.get(java.util.Calendar.YEAR),
+                    calendar.get(java.util.Calendar.MONTH),
+                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                )
+            )),
             propertyService.create("order_time_hours", java.util.Arrays.toString(request.getHours())),
             propertyService.create("order_time_duration", String.valueOf(duration))
         );

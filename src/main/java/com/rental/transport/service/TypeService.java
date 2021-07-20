@@ -5,13 +5,14 @@ import com.rental.transport.entity.TransportTypeEntity;
 import com.rental.transport.entity.TransportTypeRepository;
 import com.rental.transport.mapper.TypeMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class TypeService {
@@ -25,28 +26,28 @@ public class TypeService {
     public List<Type> getPage(Pageable pageable) {
 
         return repository
-                .findAllByEnableTrue(pageable)
-                .parallelStream()
-                .filter(TransportTypeEntity::getEnable)
-                .map(entity -> typeMapper.toDto(entity))
-                .collect(Collectors.toList());
+                   .findAllByEnableTrue(pageable)
+                   .parallelStream()
+                   .filter(TransportTypeEntity::getEnable)
+                   .map(entity -> typeMapper.toDto(entity))
+                   .collect(Collectors.toList());
     }
 
     public TransportTypeEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return repository
-                .findById(id)
-                .filter(TransportTypeEntity::getEnable)
-                .orElseThrow(() -> new ObjectNotFoundException("Type", id));
+                   .findById(id)
+                   .filter(TransportTypeEntity::getEnable)
+                   .orElseThrow(() -> new ObjectNotFoundException("Type", id));
     }
 
     public TransportTypeEntity getEntity(String name) throws ObjectNotFoundException {
 
         TransportTypeEntity entity = repository.findByEnableTrueAndName(name);
-        if (Objects.nonNull(entity))
-            return entity;
+        if (Objects.isNull(entity))
+            throw new ObjectNotFoundException("Type", name);
 
-        throw new ObjectNotFoundException("Type", name);
+        return entity;
     }
 
     public Type getDto(Long id) throws ObjectNotFoundException {
