@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RequestMapping(value = "/review")
 @RestController
@@ -23,7 +24,7 @@ public class ReviewController {
         value = "Добавление отзыва"
     )
     @PostMapping
-    public Long doPostReview(
+    public Map<String, Long> doPostReview(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId,
         @RequestParam(value = "score", required = true) Long score) {
@@ -35,7 +36,7 @@ public class ReviewController {
         value = "Удаление отзыва"
     )
     @DeleteMapping
-    public Long doDeleteReview(
+    public Map<String, Long> doDeleteReview(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId) {
 
@@ -46,7 +47,7 @@ public class ReviewController {
         value = "Получение отзывов"
     )
     @GetMapping
-    public Long doGetReview(
+    public Map<String, Long> doGetReview(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId) {
 

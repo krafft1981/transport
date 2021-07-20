@@ -8,7 +8,9 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,7 +26,7 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    public Long addReview(String account, Long transportId, Long score) throws ObjectNotFoundException {
+    public Map<String, Long> addReview(String account, Long transportId, Long score) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
@@ -35,34 +37,42 @@ public class ReviewService {
         return getScore(customer, transport);
     }
 
-    public Long delReview(String account, Long transportId) throws ObjectNotFoundException {
+    public Map<String, Long> delReview(String account, Long transportId) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
-        reviewRepository.deleteByCustomerAndTransport(customer, transport);
+        ReviewEntity review = reviewRepository.findByCustomerAndTransport(customer, transport);
+        if (Objects.nonNull(review))
+            reviewRepository.delete(review);
         return getScore(customer, transport);
     }
 
-    public Long getScore(String account, Long transportId) throws ObjectNotFoundException {
+    public Map<String, Long> getScore(String account, Long transportId) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
         return getScore(customer, transport);
     }
 
-    private Long getScore(CustomerEntity customer, TransportEntity transport) throws ObjectNotFoundException {
+    private Map<String, Long> getScore(CustomerEntity customer, TransportEntity transport) throws ObjectNotFoundException {
 
         List<ReviewEntity> reviews = reviewRepository.findByTransport(transport);
 
+        Map<String, Long> result = new HashMap();
+        result.put("review", 0L);
+        result.put("score", 0L);
+        result.put("total", Long.valueOf(reviews.size()));
+
         if (reviews.isEmpty())
-            return -1L;
+            return result;
 
         AtomicLong sum = new AtomicLong(0L);
         reviews.parallelStream().forEach(entity -> sum.addAndGet(entity.getScore()));
 
-        Long result = Long.valueOf(Math.round(sum.get() / reviews.size()));
-        if (Objects.isNull(reviewRepository.findByCustomerAndTransport(customer, transport)))
-            result *= -1;
+        result.put("score", Long.valueOf(Math.round(Math.floor(sum.get() / reviews.size()))));
+        ReviewEntity review = reviewRepository.findByCustomerAndTransport(customer, transport);
+        if (Objects.nonNull(review))
+            result.put("review", review.getScore());
 
         return result;
     }
