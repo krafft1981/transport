@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ReviewService {
@@ -56,20 +54,17 @@ public class ReviewService {
 
     private Map<String, Long> getScore(CustomerEntity customer, TransportEntity transport) throws ObjectNotFoundException {
 
-        List<ReviewEntity> reviews = reviewRepository.findByTransport(transport);
+        Long count = reviewRepository.findCountByTransport(transport.getId());
+        Long summ = reviewRepository.findSumByTransport(transport.getId());
 
         Map<String, Long> result = new HashMap();
-        result.put("review", 0L);
         result.put("score", 0L);
-        result.put("total", Long.valueOf(reviews.size()));
+        result.put("total", count);
 
-        if (reviews.isEmpty())
+        if (count == 0L)
             return result;
 
-        AtomicLong sum = new AtomicLong(0L);
-        reviews.parallelStream().forEach(entity -> sum.addAndGet(entity.getScore()));
-
-        result.put("score", Long.valueOf(Math.round(Math.floor(sum.get() / reviews.size()))));
+        result.put("score", Math.round(Math.floor(summ / count)));
         ReviewEntity review = reviewRepository.findByCustomerAndTransport(customer, transport);
         if (Objects.nonNull(review))
             result.put("review", review.getScore());
