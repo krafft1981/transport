@@ -192,8 +192,9 @@ public class RequestService {
         // calculate cost
         int min = Collections.min(Arrays.asList(request.getHours()));
         int max = Collections.max(Arrays.asList(request.getHours()));
-        int duration = max - min;
-        double cost = (duration + 1) * Double.parseDouble(price);
+
+        int duration = max - min + 1;
+        double cost = duration * Double.parseDouble(price);
 
         java.util.Calendar calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.setTimeInMillis(request.getDay());
