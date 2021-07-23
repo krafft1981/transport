@@ -48,14 +48,4 @@ public class ImageService {
                 .findById(id) 
                 .orElseThrow(() -> new ObjectNotFoundException("Image", id));
     }
-
-    public String getImageString(Long id) {
-
-        StringBuilder builder = new StringBuilder();
-        for (byte b : getImage(id)) {
-            char c = (char)b;
-            builder.append(c);
-        }
-        return builder.toString();
-    }
 }
