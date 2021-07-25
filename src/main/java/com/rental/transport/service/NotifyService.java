@@ -40,7 +40,11 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+    public boolean beforeHandshake(ServerHttpRequest request,
+                                   ServerHttpResponse response,
+                                   WebSocketHandler wsHandler,
+                                   Map<String, Object> attributes)
+        throws Exception {
 
         if (request.getHeaders().get("username").size() == 0)
             return false;
@@ -55,7 +59,10 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
     }
 
     @Override
-    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+    public void afterHandshake(ServerHttpRequest request,
+                               ServerHttpResponse response,
+                               WebSocketHandler wsHandler,
+                               Exception exception) {
 
     }
 
@@ -68,7 +75,8 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception, ObjectNotFoundException {
+    public void afterConnectionEstablished(WebSocketSession session)
+        throws Exception, ObjectNotFoundException {
 
         List<String> headers = session.getHandshakeHeaders().get("username");
         CustomerEntity customer = customerService.getEntity(headers.get(0));
@@ -83,11 +91,6 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
                     System.out.println(e);
                 }
             });
-    }
-
-    @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-
     }
 
     @Override
@@ -121,8 +124,12 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
             sessions.get(customer.getAccount()).sendMessage(new TextMessage(writer.toString()));
 
         } catch (Exception e) {
-            NotifyEntity entity = new NotifyEntity(customer, action, text);
-            notifyRepository.save(entity);
+            if (save) {
+                NotifyEntity entity = new NotifyEntity(customer, action, text);
+                notifyRepository.save(entity);
+            }
+
+            throw e;
         }
     }
 
@@ -141,7 +148,11 @@ public class NotifyService extends TextWebSocketHandler implements HandshakeInte
         sendMessage(request.getCustomer(), "reject", "Запрос не может быть выполнен");
     }
 
-    public void requestCanceled(CustomerEntity driver, CustomerEntity customer, TransportEntity transport, Long day, Integer[] hours) {
+    public void requestCanceled(CustomerEntity driver,
+                                CustomerEntity customer,
+                                TransportEntity transport,
+                                Long day,
+                                Integer[] hours) {
 
         sendMessage(driver, "cancel", "Запрос отменён");
     }
