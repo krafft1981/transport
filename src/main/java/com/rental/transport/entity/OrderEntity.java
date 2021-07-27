@@ -12,6 +12,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,14 +20,15 @@ import org.hibernate.annotations.Type;
 
 @Entity(name = "orders")
 @Table(
-        name = "orders",
-        schema = "public",
-        catalog = "relationship",
-        indexes = {
-                @Index(columnList = "customer_id", name = "order_customer_idx"),
-                @Index(columnList = "driver_id", name = "order_driver_idx"),
-                @Index(columnList = "transport_id", name = "order_transport_idx")
-        }
+    name = "orders",
+    schema = "public",
+    catalog = "relationship",
+    indexes = {
+        @Index(columnList = "customer_id", name = "order_customer_idx"),
+        @Index(columnList = "driver_id", name = "order_driver_idx"),
+        @Index(columnList = "transport_id", name = "order_transport_idx"),
+        @Index(columnList = "day", name = "order_day_idx")
+    }
 )
 
 @Setter
@@ -90,8 +92,8 @@ public class OrderEntity extends AbstractEntity {
 
     @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "orders_message",
-            joinColumns = @JoinColumn(name = "orders_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
+        joinColumns = @JoinColumn(name = "orders_id", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "message_id", nullable = false)
     )
     public Set<MessageEntity> getMessage() {
         return message;
@@ -102,9 +104,9 @@ public class OrderEntity extends AbstractEntity {
         String name = entity.getType().getLogicName();
 
         entity = property.stream()
-                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                .findFirst()
-                .orElse(entity);
+                     .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                     .findFirst()
+                     .orElse(entity);
 
         property.add(entity);
     }

@@ -1,6 +1,7 @@
 package com.rental.transport.entity;
 
 import com.rental.transport.enums.RequestStatusEnum;
+
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,15 +23,16 @@ import org.hibernate.annotations.Type;
 
 @Entity(name = "request")
 @Table(
-        name = "request",
-        schema = "public",
-        catalog = "relationship",
-        indexes = {
-                @Index(columnList = "driver_id", name = "request_driver_id_idx"),
-                @Index(columnList = "customer_id", name = "request_customer_id_idx"),
-                @Index(columnList = "transport_id", name = "request_transport_id_idx"),
-                @Index(columnList = "status", name = "request_status_idx")
-        }
+    name = "request",
+    schema = "public",
+    catalog = "relationship",
+    indexes = {
+        @Index(columnList = "driver_id", name = "request_driver_id_idx"),
+        @Index(columnList = "customer_id", name = "request_customer_id_idx"),
+        @Index(columnList = "transport_id", name = "request_transport_id_idx"),
+        @Index(columnList = "status", name = "request_status_idx"),
+        @Index(columnList = "day", name = "request_day_idx")
+    }
 )
 
 @Setter
