@@ -99,14 +99,14 @@ public class RequestService {
     public List<Request> getRequest(String account, Long[] ids) throws ObjectNotFoundException {
 
         CustomerEntity customer = customerService.getEntity(account);
-        return StreamSupport.stream(requestRepository
-                                        .findAllById(Arrays.asList(ids)).spliterator(), true)
+        return StreamSupport
+                   .stream(requestRepository.findAllById(Arrays.asList(ids)).spliterator(), true)
                    .map(entity -> requestMapper.toDto(entity))
                    .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
+    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours, Boolean blocked)
         throws ObjectNotFoundException, IllegalArgumentException {
 
         final Long selectedDay = calendarService.getDayIdByTime(day);
@@ -146,6 +146,19 @@ public class RequestService {
                     calendarService.checkBusyByNote(driver, selectedDay, hours);
                     RequestEntity request = new RequestEntity(customer, driver, transport, selectedDay, hours);
                     requestRepository.save(request);
+                    if (blocked) {
+                        String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
+                        String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
+                        calendarService.getEntity(
+                            selectedDay,
+                            hours,
+                            CalendarTypeEnum.REQUEST,
+                            customer.getId(),
+                            null,
+                            customer_phone + " " + customer_fio
+                        );
+
+                    }
                     notifyService.requestCreated(request);
                     requestCount++;
                 } catch (Exception e) {

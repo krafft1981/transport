@@ -5,8 +5,9 @@ import lombok.Getter;
 @Getter
 public enum CalendarTypeEnum {
 
-    CUSTOMER(1, "CUSTOMER"),
-    NOTE(2, "NOTE");
+    CUSTOMER(1, "CUSTOMER"),    // запись пришедшая из заказа
+    NOTE(2, "NOTE"),            // запись записной книги
+    REQUEST(3, "REQUEST");      // запись пришедшая из запроса
 
     private int id = 0;
     private String name;
