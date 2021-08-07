@@ -6,6 +6,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -111,7 +112,7 @@ public class CustomerEntity extends AbstractEnabledEntity {
         return parking;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinTable(name = "customer_property",
             joinColumns = @JoinColumn(name = "customer_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "property_id", nullable = false)

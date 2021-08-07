@@ -13,7 +13,10 @@ import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.ValidatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -90,7 +93,8 @@ public class CustomerService implements UserDetailsService {
             propertyService.create("customer_startWorkTime", "9"),
             propertyService.create("customer_stopWorkTime", "20"),
             propertyService.create("customer_workAtWeekEnd", "Да"),
-            propertyService.create("customer_description", "Не указано")
+            propertyService.create("customer_description", "Не указано"),
+            propertyService.create("customer_request_duration", "60")
         );
 
         customerRepository.save(customer);
@@ -196,6 +200,7 @@ public class CustomerService implements UserDetailsService {
         return customerMapper.toDto(customer);
     }
 
+    @Transactional
     @PostConstruct
     public void postConstruct() {
 
@@ -205,5 +210,18 @@ public class CustomerService implements UserDetailsService {
         propertyService.createType("customer_stopWorkTime", "Час окончания работы", PropertyTypeEnum.Hour);
         propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
         propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
+        propertyService.createType("customer_request_duration", "Продолжительность запроса(минут)", PropertyTypeEnum.Integer);
+
+        Integer page = 0;
+        while (true) {
+            Page<CustomerEntity> customers = customerRepository.findAll(PageRequest.of(page, 100, Sort.by("id")));
+            if (customers.isEmpty())
+                break;
+
+            customers.forEach(entity -> entity.addProperty(
+//                propertyService.create("customer_request_duration", "60")
+            ));
+            page++;
+        }
     }
 }

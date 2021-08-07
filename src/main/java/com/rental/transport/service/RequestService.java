@@ -3,6 +3,7 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Calendar;
 import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Request;
+import com.rental.transport.entity.CalendarRepository;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
@@ -40,6 +41,9 @@ public class RequestService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private CalendarRepository calendarRepository;
 
     @Autowired
     private CustomerService customerService;
@@ -98,7 +102,6 @@ public class RequestService {
 
     public List<Request> getRequest(String account, Long[] ids) throws ObjectNotFoundException {
 
-        CustomerEntity customer = customerService.getEntity(account);
         return StreamSupport
                    .stream(requestRepository.findAllById(Arrays.asList(ids)).spliterator(), true)
                    .map(entity -> requestMapper.toDto(entity))
@@ -106,7 +109,7 @@ public class RequestService {
     }
 
     @Transactional
-    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours, Boolean blocked)
+    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
         throws ObjectNotFoundException, IllegalArgumentException {
 
         final Long selectedDay = calendarService.getDayIdByTime(day);
@@ -136,29 +139,14 @@ public class RequestService {
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
-            calendarService.checkBusyByCustomer(customer, selectedDay, hours);
-            calendarService.checkBusyByNote(customer, selectedDay, hours);
+            calendarService.checkBusy(customer, selectedDay, hours);
 
             int requestCount = 0;
             for (CustomerEntity driver : transport.getCustomer()) {
                 try {
-                    calendarService.checkBusyByCustomer(driver, selectedDay, hours);
-                    calendarService.checkBusyByNote(driver, selectedDay, hours);
+                    calendarService.checkBusy(driver, selectedDay, hours);
                     RequestEntity request = new RequestEntity(customer, driver, transport, selectedDay, hours);
                     requestRepository.save(request);
-                    if (blocked) {
-                        String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
-                        String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
-                        calendarService.getEntity(
-                            selectedDay,
-                            hours,
-                            CalendarTypeEnum.REQUEST,
-                            customer.getId(),
-                            null,
-                            customer_phone + " " + customer_fio
-                        );
-
-                    }
                     notifyService.requestCreated(request);
                     requestCount++;
                 } catch (Exception e) {
@@ -168,6 +156,95 @@ public class RequestService {
 
             if (requestCount == 0)
                 throw new IllegalArgumentException("Извините, некому принять заявку, попробуйте сделать заказ на другое время");
+        }
+
+        return calendarService.getTransportEvents(account, selectedDay, transportId);
+    }
+
+    @Transactional
+    public List<Event> createBlockedRequest(String account, Long transportId, Long day, Integer[] hours)
+        throws ObjectNotFoundException, IllegalArgumentException {
+
+        final Long selectedDay = calendarService.getDayIdByTime(day);
+        CustomerEntity customer = customerService.getEntity(account);
+        TransportEntity transport = transportService.getEntity(transportId);
+
+        requestRepository
+            .findByCustomerAndTransportAndDayAndStatus(customer, transport, selectedDay, RequestStatusEnum.NEW)
+            .forEach(entity ->
+                         transport
+                             .getCustomer()
+                             .forEach(driverEntity -> {
+                                 notifyService.requestCanceled(
+                                     driverEntity,
+                                     customer,
+                                     transport,
+                                     selectedDay,
+                                     hours
+                                 );
+                                 calendarRepository.deleteByDayAndTypeAndObjectId(
+                                     selectedDay,
+                                     CalendarTypeEnum.REQUEST,
+                                     driverEntity.getId()
+                                 );
+                             })
+            );
+
+        calendarRepository.deleteByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.REQUEST, customer.getId());
+        requestRepository.deleteByCustomerAndTransportByDay(customer.getId(), transport.getId(), selectedDay);
+
+        if (transport.getParking().isEmpty())
+            throw new IllegalArgumentException("Данный транспорт не имеет стоянки");
+
+        if (transport.getCustomer().isEmpty())
+            throw new IllegalArgumentException("Данный транспорт не имеет водителей");
+
+        if (Objects.nonNull(hours)) {
+            calendarService.checkObsolescence(selectedDay, customer, hours);
+            calendarService.sequenceCheck(hours);
+            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            if (hours.length < minTime)
+                throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
+
+            calendarService.checkBusy(customer, selectedDay, hours);
+
+            String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
+            String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
+
+            int requestCount = 0;
+            for (CustomerEntity driver : transport.getCustomer()) {
+                try {
+                    calendarService.checkBusy(driver, selectedDay, hours);
+                    RequestEntity request = new RequestEntity(customer, driver, transport, selectedDay, hours);
+                    requestRepository.save(request);
+
+                    calendarService.getEntity(
+                        selectedDay,
+                        hours,
+                        CalendarTypeEnum.REQUEST,
+                        driver.getId(),
+                        null,
+                        customer_phone + " " + customer_fio
+                    );
+
+                    notifyService.requestCreated(request);
+                    requestCount++;
+                } catch (Exception e) {
+                    System.out.println(e.toString());
+                }
+            }
+
+            if (requestCount == 0)
+                throw new IllegalArgumentException("Извините, некому принять заявку, попробуйте сделать заказ на другое время");
+
+            calendarService.getEntity(
+                selectedDay,
+                hours,
+                CalendarTypeEnum.REQUEST,
+                customer.getId(),
+                null,
+                "Создан запрос на заказ"
+            );
         }
 
         return calendarService.getTransportEvents(account, selectedDay, transportId);
@@ -194,11 +271,8 @@ public class RequestService {
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
-        calendarService.checkBusyByCustomer(customer, request.getDay(), request.getHours());
-        calendarService.checkBusyByNote(customer, request.getDay(), request.getHours());
-
-        calendarService.checkBusyByCustomer(driver, request.getDay(), request.getHours());
-        calendarService.checkBusyByNote(driver, request.getDay(), request.getHours());
+        calendarService.checkBusy(customer, request.getDay(), request.getHours());
+        calendarService.checkBusy(driver, request.getDay(), request.getHours());
 
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
@@ -255,7 +329,7 @@ public class RequestService {
         calendarService.getEntity(
             request.getDay(),
             request.getHours(),
-            CalendarTypeEnum.CUSTOMER,
+            CalendarTypeEnum.ORDER,
             customer.getId(),
             order.getId(),
             driver_phone + " " + driver_fio
@@ -264,7 +338,7 @@ public class RequestService {
         calendarService.getEntity(
             request.getDay(),
             request.getHours(),
-            CalendarTypeEnum.CUSTOMER,
+            CalendarTypeEnum.ORDER,
             driver.getId(),
             order.getId(),
             customer_phone + " " + customer_fio

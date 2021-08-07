@@ -3,6 +3,7 @@ package com.rental.transport.entity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,7 +30,7 @@ public class PropertyEntity extends AbstractEntity {
     private PropertyTypeEntity type;
     private String value = "";
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "property_type_id", referencedColumnName = "id")
     public PropertyTypeEntity getType() {
         return type;

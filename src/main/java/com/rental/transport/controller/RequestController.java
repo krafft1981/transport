@@ -52,10 +52,9 @@ public class RequestController {
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transport_id,
         @RequestParam(value = "day", required = true) Long day,
-        @RequestParam(value = "hour", required = false) Integer[] hours,
-        @RequestParam(value = "blocked", required = true) Boolean blocked) {
+        @RequestParam(value = "hour", required = false) Integer[] hours) {
 
-        return requestService.createRequest(principal.getName(), transport_id, day, hours, blocked);
+        return requestService.createBlockedRequest(principal.getName(), transport_id, day, hours);
     }
 
     @ApiOperation(
