@@ -106,7 +106,7 @@ public class RequestService {
     }
 
     @Transactional
-    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours, Boolean blocked)
+    public List<Event> createRequest(String account, Long transportId, Long day, Integer[] hours)
         throws ObjectNotFoundException, IllegalArgumentException {
 
         final Long selectedDay = calendarService.getDayIdByTime(day);
@@ -136,29 +136,38 @@ public class RequestService {
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
-            calendarService.checkBusyByCustomer(customer, selectedDay, hours);
-            calendarService.checkBusyByNote(customer, selectedDay, hours);
+            calendarService.checkCalendarBusyByType(
+                customer,
+                selectedDay,
+                hours,
+                CalendarTypeEnum.ORDER,
+                CalendarTypeEnum.NOTE,
+                CalendarTypeEnum.REQUEST
+            );
 
             int requestCount = 0;
             for (CustomerEntity driver : transport.getCustomer()) {
                 try {
-                    calendarService.checkBusyByCustomer(driver, selectedDay, hours);
-                    calendarService.checkBusyByNote(driver, selectedDay, hours);
+                    calendarService.checkCalendarBusyByType(
+                        driver,
+                        selectedDay,
+                        hours,
+                        CalendarTypeEnum.ORDER,
+                        CalendarTypeEnum.NOTE,
+                        CalendarTypeEnum.REQUEST
+                    );
                     RequestEntity request = new RequestEntity(customer, driver, transport, selectedDay, hours);
                     requestRepository.save(request);
-                    if (blocked) {
-                        String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
-                        String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
-                        calendarService.getEntity(
-                            selectedDay,
-                            hours,
-                            CalendarTypeEnum.REQUEST,
-                            customer.getId(),
-                            null,
-                            customer_phone + " " + customer_fio
-                        );
-
-                    }
+                    String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
+                    String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
+                    calendarService.getEntity(
+                        selectedDay,
+                        hours,
+                        CalendarTypeEnum.REQUEST,
+                        customer.getId(),
+                        null,
+                        customer_phone + " " + customer_fio
+                    );
                     notifyService.requestCreated(request);
                     requestCount++;
                 } catch (Exception e) {
@@ -194,11 +203,14 @@ public class RequestService {
 
         OrderEntity order = new OrderEntity(customer, transport, driver, request.getDay(), request.getHours());
 
-        calendarService.checkBusyByCustomer(customer, request.getDay(), request.getHours());
-        calendarService.checkBusyByNote(customer, request.getDay(), request.getHours());
-
-        calendarService.checkBusyByCustomer(driver, request.getDay(), request.getHours());
-        calendarService.checkBusyByNote(driver, request.getDay(), request.getHours());
+        calendarService.checkCalendarBusyByType(
+            customer,
+            request.getDay(),
+            request.getHours(),
+            CalendarTypeEnum.ORDER,
+            CalendarTypeEnum.NOTE,
+            CalendarTypeEnum.REQUEST
+        );
 
         String price = propertyService.getValue(transport.getProperty(), "transport_price");
 
@@ -255,7 +267,7 @@ public class RequestService {
         calendarService.getEntity(
             request.getDay(),
             request.getHours(),
-            CalendarTypeEnum.CUSTOMER,
+            CalendarTypeEnum.ORDER,
             customer.getId(),
             order.getId(),
             driver_phone + " " + driver_fio
@@ -264,7 +276,7 @@ public class RequestService {
         calendarService.getEntity(
             request.getDay(),
             request.getHours(),
-            CalendarTypeEnum.CUSTOMER,
+            CalendarTypeEnum.ORDER,
             driver.getId(),
             order.getId(),
             customer_phone + " " + customer_fio

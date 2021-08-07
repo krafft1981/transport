@@ -4,16 +4,15 @@ import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Request;
 import com.rental.transport.service.RequestService;
 import io.swagger.annotations.ApiOperation;
-
-import java.security.Principal;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+import java.util.List;
 
 @RequestMapping(value = "/request")
 @RestController
@@ -52,10 +51,9 @@ public class RequestController {
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transport_id,
         @RequestParam(value = "day", required = true) Long day,
-        @RequestParam(value = "hour", required = false) Integer[] hours,
-        @RequestParam(value = "blocked", required = true) Boolean blocked) {
+        @RequestParam(value = "hour", required = false) Integer[] hours) {
 
-        return requestService.createRequest(principal.getName(), transport_id, day, hours, blocked);
+        return requestService.createRequest(principal.getName(), transport_id, day, hours);
     }
 
     @ApiOperation(

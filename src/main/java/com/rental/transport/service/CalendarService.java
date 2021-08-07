@@ -138,8 +138,7 @@ public class CalendarService {
         checkObsolescence(selectedDay, customer, hours);
         sequenceCheck(hours);
 
-        checkBusyByCustomer(customer, selectedDay, hours);
-        checkBusyByNote(customer, selectedDay, hours);
+        checkCalendarBusyByType(customer, selectedDay, hours, CalendarTypeEnum.ORDER, CalendarTypeEnum.NOTE);
 
         calendarRepository.save(new CalendarEntity(selectedDay, hours, CalendarTypeEnum.NOTE, customer.getId(), null, body.getMessage()));
 
@@ -205,31 +204,19 @@ public class CalendarService {
         return getCustomerEvents(account, calendar.getDay());
     }
 
-    public void checkBusyByCustomer(CustomerEntity customer, Long day, Integer[] hours)
+    public void checkCalendarBusyByType(CustomerEntity customer, Long day, Integer[] hours, CalendarTypeEnum... types)
         throws IllegalArgumentException {
 
-        Set<Integer> busyHours = new HashSet<>();
-        calendarRepository
-            .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.CUSTOMER, customer.getId())
-            .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
+        for (CalendarTypeEnum type : types) {
+            Set<Integer> busyHours = new HashSet<>();
+            calendarRepository
+                .findByDayAndTypeAndObjectId(day, type, customer.getId())
+                .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
 
-        for (Integer hour : hours) {
-            if (busyHours.contains(hour))
-                throw new IllegalArgumentException("Пользователь занят");
-        }
-    }
-
-    public void checkBusyByNote(CustomerEntity customer, Long day, Integer[] hours)
-        throws IllegalArgumentException {
-
-        Set<Integer> busyHours = new HashSet<>();
-        calendarRepository
-            .findByDayAndTypeAndObjectId(day, CalendarTypeEnum.NOTE, customer.getId())
-            .forEach(entity -> busyHours.addAll(Arrays.asList(entity.getHours().clone())));
-
-        for (Integer hour : hours) {
-            if (busyHours.contains(hour))
-                throw new IllegalArgumentException("Пользователь занят");
+            for (Integer hour : hours) {
+                if (busyHours.contains(hour))
+                    throw new IllegalArgumentException("Пользователь занят");
+            }
         }
     }
 
@@ -252,7 +239,7 @@ public class CalendarService {
             .forEach(entity -> workTime.add(new Event(EventTypeEnum.NOTE, calendarMapper.toDto(entity))));
 
         calendarRepository
-            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
+            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.ORDER, customer.getId())
             .forEach(entity -> workTime.add(new Event(EventTypeEnum.ORDER, calendarMapper.toDto(entity))));
 
         return workTime;
@@ -288,7 +275,7 @@ public class CalendarService {
             });
 
         calendarRepository
-            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, driver.getId())
+            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.ORDER, driver.getId())
             .forEach(entity -> {
                 Calendar calendar = calendarMapper.toDto(entity);
                 workTime.add(new Event(EventTypeEnum.BUSY, calendar));
@@ -302,7 +289,7 @@ public class CalendarService {
             });
 
         calendarRepository
-            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.CUSTOMER, customer.getId())
+            .findByDayAndTypeAndObjectId(selectedDay, CalendarTypeEnum.ORDER, customer.getId())
             .forEach(entity -> {
                 Calendar calendar = calendarMapper.toDto(entity);
                 workTime.add(new Event(EventTypeEnum.BUSY, calendar));
