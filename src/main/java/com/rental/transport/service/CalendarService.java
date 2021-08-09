@@ -17,6 +17,7 @@ import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
@@ -314,5 +316,13 @@ public class CalendarService {
             });
 
         return workTime;
+    }
+
+    public List<Event> getPage(Pageable pageable) {
+
+        return calendarRepository
+                   .findAll(pageable)
+                   .map(entity -> new Event(EventTypeEnum.BUSY, calendarMapper.toDto(entity)))
+                   .stream().collect(Collectors.toList());
     }
 }
