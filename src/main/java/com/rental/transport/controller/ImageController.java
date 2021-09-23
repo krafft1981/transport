@@ -3,10 +3,12 @@ package com.rental.transport.controller;
 import com.rental.transport.service.ImageService;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import io.swagger.annotations.ApiOperation;
+import java.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,13 +52,10 @@ public class ImageController {
     @ApiOperation(
             value = "Получение картинки по пути"
     )
-    @GetMapping(value = "/{id}", produces = "image/jpeg")
-    public void doGetImageByPath(@PathVariable Long id, HttpServletResponse response)
-        throws ObjectNotFoundException, ServletException, IOException {
+    @GetMapping(value = "/{id}", produces = "image/jpeg;base64")
+    public String doGetImageByPath(@PathVariable Long id, HttpServletResponse response) throws ObjectNotFoundException {
 
-                response.setContentType("image/jpeg, image/jpg, image/png, image/gif");
-                response.getOutputStream().write(service.getImage(id));
-                response.getOutputStream().close();
+        return Base64.getMimeEncoder().encodeToString(service.getImage(id));
     }
 
     @ApiOperation(

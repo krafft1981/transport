@@ -59,15 +59,15 @@ public class CustomerService implements UserDetailsService {
 
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_TRANSPORT");
         return new User(
-            entity.getAccount(),
-            entity.getPassword(),
-            Collections.singletonList(authority)
+                entity.getAccount(),
+                entity.getPassword(),
+                Collections.singletonList(authority)
         );
     }
 
     @Transactional
     public Customer create(String account, String password, String phone, String fio, String tz)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         account = account.toLowerCase();
 
@@ -88,13 +88,14 @@ public class CustomerService implements UserDetailsService {
 
         CustomerEntity customer = new CustomerEntity(account, password, tz);
         customer.addProperty(
-            propertyService.create("customer_fio", fio),
-            propertyService.create("customer_phone", phone),
-            propertyService.create("customer_startWorkTime", "9"),
-            propertyService.create("customer_stopWorkTime", "20"),
-            propertyService.create("customer_workAtWeekEnd", "Да"),
-            propertyService.create("customer_description", "Не указано"),
-            propertyService.create("customer_request_duration", "60")
+                propertyService.create("customer_fio", fio),
+                propertyService.create("customer_phone", phone),
+                propertyService.create("customer_startWorkTime", "9"),
+                propertyService.create("customer_stopWorkTime", "20"),
+                propertyService.create("customer_workAtWeekEnd", "Да"),
+                propertyService.create("customer_description", "Не указано"),
+                propertyService.create("customer_request_duration", "60"),
+                propertyService.create("customer_card_number", "Не указано")
         );
 
         customerRepository.save(customer);
@@ -112,7 +113,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public Customer update(String account, Customer customer)
-        throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
+            throws ObjectNotFoundException, AccessDeniedException, IllegalArgumentException {
 
         account = account.toLowerCase();
 
@@ -132,7 +133,7 @@ public class CustomerService implements UserDetailsService {
     }
 
     public Customer updatePassword(String account, String password)
-        throws ObjectNotFoundException, IllegalArgumentException {
+            throws ObjectNotFoundException, IllegalArgumentException {
 
         if (!vf.getValidator("Password").validate(password))
             throw new IllegalArgumentException("Ошибка в поле пароль");
@@ -146,10 +147,10 @@ public class CustomerService implements UserDetailsService {
     public List<Customer> getPage(Pageable pageable) {
 
         return customerRepository
-                   .findAllByEnableTrueAndConfirmedTrue(pageable)
-                   .parallelStream()
-                   .map(customer -> customerMapper.toDto(customer))
-                   .collect(Collectors.toList());
+                .findAllByEnableTrueAndConfirmedTrue(pageable)
+                .parallelStream()
+                .map(customer -> customerMapper.toDto(customer))
+                .collect(Collectors.toList());
     }
 
     public CustomerEntity getEntity(String account) throws ObjectNotFoundException {
@@ -211,17 +212,6 @@ public class CustomerService implements UserDetailsService {
         propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
         propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
         propertyService.createType("customer_request_duration", "Продолжительность запроса(минут)", PropertyTypeEnum.Integer);
-
-        Integer page = 0;
-        while (true) {
-            Page<CustomerEntity> customers = customerRepository.findAll(PageRequest.of(page, 100, Sort.by("id")));
-            if (customers.isEmpty())
-                break;
-
-            customers.forEach(entity -> entity.addProperty(
-//                propertyService.create("customer_request_duration", "60")
-            ));
-            page++;
-        }
+        propertyService.createType("customer_card_number", "Номар карты", PropertyTypeEnum.String);
     }
 }
