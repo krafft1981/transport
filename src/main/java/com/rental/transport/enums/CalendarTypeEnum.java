@@ -7,7 +7,8 @@ public enum CalendarTypeEnum {
 
     ORDER(1, "ORDER"),          // запись пришедшая из заказа
     NOTE(2, "NOTE"),            // запись записной книги
-    REQUEST(3, "REQUEST");      // запись пришедшая из запроса
+    REQUEST(3, "REQUEST"),      // запись пришедшая из запроса
+    GOOGLE(4, "GOOGLE");        // запись пришедшая из календаря google
 
     private int id = 0;
     private String name;

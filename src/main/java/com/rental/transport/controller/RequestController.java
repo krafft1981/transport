@@ -54,8 +54,22 @@ public class RequestController {
         @RequestParam(value = "day", required = true) Long day,
         @RequestParam(value = "hour", required = false) Integer[] hours) {
 
+        return requestService.createRequest(principal.getName(), transport_id, day, hours);
+    }
+
+    @ApiOperation(
+        value = "Создание монопольного запроса на заказ (на время реагирования)"
+    )
+    @PostMapping(value = "/blocked")
+    public List<Event> doPostBlockedRequest(
+        Principal principal,
+        @RequestParam(value = "transport_id", required = true) Long transport_id,
+        @RequestParam(value = "day", required = true) Long day,
+        @RequestParam(value = "hour", required = false) Integer[] hours) {
+
         return requestService.createBlockedRequest(principal.getName(), transport_id, day, hours);
     }
+
 
     @ApiOperation(
         value = "Получение группы запросов"

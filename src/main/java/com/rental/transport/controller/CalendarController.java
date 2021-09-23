@@ -7,6 +7,9 @@ import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CalendarController {
 
     @Autowired
-    private CalendarService calendarService;
+    private CalendarService service;
 
     @ApiOperation(
             value = "Получение календаря заказчика транспорта"
@@ -32,7 +35,7 @@ public class CalendarController {
             @RequestParam(value = "transport_id", required = true) Long transport_id,
             @RequestParam(value = "day", required = true) Long day) {
 
-        return calendarService.getTransportEvents(principal.getName(), day, transport_id);
+        return service.getTransportEvents(principal.getName(), day, transport_id);
     }
 
     @ApiOperation(
@@ -43,7 +46,7 @@ public class CalendarController {
             Principal principal,
             @RequestParam(value = "day", required = true) Long day) {
 
-        return calendarService.getCustomerEvents(principal.getName(), day);
+        return service.getCustomerEvents(principal.getName(), day);
     }
 
     @ApiOperation(
@@ -56,7 +59,7 @@ public class CalendarController {
             @RequestParam(value = "day", required = true) Long day,
             @RequestBody Text body) {
 
-        return calendarService.createCalendarWithNote(principal.getName(), day, hour, body);
+        return service.createCalendarWithNote(principal.getName(), day, hour, body);
     }
 
     @ApiOperation(
@@ -68,7 +71,7 @@ public class CalendarController {
             @RequestParam(value = "calendar_id", required = true) Long calendarId,
             @RequestBody Text body) {
 
-        return calendarService.updateCalendarNote(principal.getName(), calendarId, body);
+        return service.updateCalendarNote(principal.getName(), calendarId, body);
     }
 
     @ApiOperation(
@@ -79,6 +82,19 @@ public class CalendarController {
             Principal principal,
             @RequestParam(value = "calendar_id", required = true) Long calendarId) {
 
-        return calendarService.deleteCalendarNote(principal.getName(), calendarId);
+        return service.deleteCalendarNote(principal.getName(), calendarId);
+    }
+
+    @ApiOperation(
+        value = "Получение списка записей в календаре"
+    )
+    @GetMapping(value = "/list")
+    public List<Event> doGetPagesCalendar(
+        Principal principal,
+        @RequestParam(value = "page", required = true) Integer page,
+        @RequestParam(value = "size", required = true) Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        return service.getPage(pageable);
     }
 }
