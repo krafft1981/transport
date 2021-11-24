@@ -3,11 +3,12 @@ package com.rental.transport.service;
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -35,17 +36,29 @@ public class ImageService {
     public List<Long> getPage(Pageable pageable) {
 
         return imageRepository
-                .findAll(pageable)
-                .getContent()
-                .parallelStream()
-                .map(ImageEntity::getId)
-                .collect(Collectors.toList());
+                   .findAll(pageable)
+                   .getContent()
+                   .parallelStream()
+                   .map(ImageEntity::getId)
+                   .collect(Collectors.toList());
     }
 
     public ImageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return imageRepository
-                .findById(id) 
-                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
+                   .findById(id)
+                   .orElseThrow(() -> new ObjectNotFoundException("Image", id));
+    }
+
+    public String getImageString(Long id) throws ObjectNotFoundException {
+
+        byte[] image = getImage(id);
+        StringBuilder builder = new StringBuilder(image.length);
+        for (byte c : image) {
+            char v = Character.forDigit(c, 10);
+            builder.append(v);
+        }
+
+        return builder.toString();
     }
 }
