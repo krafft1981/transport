@@ -212,6 +212,6 @@ public class CustomerService implements UserDetailsService {
         propertyService.createType("customer_workAtWeekEnd", "Работает в выходные", PropertyTypeEnum.Boolean);
         propertyService.createType("customer_description", "Описание", PropertyTypeEnum.String);
         propertyService.createType("customer_request_duration", "Продолжительность запроса(минут)", PropertyTypeEnum.Integer);
-        propertyService.createType("customer_card_number", "Номар карты", PropertyTypeEnum.String);
+        propertyService.createType("customer_card_number", "Номер карты", PropertyTypeEnum.String);
     }
 }
