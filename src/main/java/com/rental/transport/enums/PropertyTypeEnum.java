@@ -7,14 +7,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum PropertyTypeEnum {
 
-    STRING("String"),
-    PHONE("Phone"),
-    INTEGER("Integer"),
-    HOUR("Hour"),
-    DOUBLE("Double"),
-    BOOLEAN("Boolean"),
-    EMAIL("Email"),
-    PASSWORD("Password");
-
-    private String type;
+    STRING,
+    PHONE,
+    INTEGER,
+    HOUR,
+    DOUBLE,
+    BOOLEAN,
+    EMAIL,
+    PASSWORD
 }

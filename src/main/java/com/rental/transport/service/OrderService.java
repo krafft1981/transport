@@ -10,14 +10,12 @@ import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +23,6 @@ public class OrderService {
 
     private final CalendarService calendarService;
     private final CustomerService customerService;
-    private final PropertyService propertyService;
     private final OrderRepository orderRepository;
     private final NotifyService notifyService;
     private final OrderMapper orderMapper;

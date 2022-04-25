@@ -15,6 +15,7 @@ public enum PropertyNameEnum {
     CUSTOMER_DESCRIPTION("customer_description", "Описание", PropertyTypeEnum.STRING),
     CUSTOMER_REQUEST_DURATION("customer_request_duration", "Продолжительность запроса(минут)", PropertyTypeEnum.INTEGER),
     CUSTOMER_CARD_NUMBER("customer_card_number", "Номер карты", PropertyTypeEnum.STRING),
+    CUSTOMER_CARD_TYPE("customer_card_type", "Тип карты", PropertyTypeEnum.STRING),
 
     TRANSPORT_NAME("transport_name", "Название", PropertyTypeEnum.STRING),
     TRANSPORT_CAPACITY("transport_capacity", "Максимальное количество гостей", PropertyTypeEnum.INTEGER),
@@ -49,7 +50,7 @@ public enum PropertyNameEnum {
     ORDER_TIME_HOURS("order_time_hours", "Часы заказа", PropertyTypeEnum.STRING),
     ORDER_TIME_DURATION("order_time_duration", "Продолжительность заказа", PropertyTypeEnum.INTEGER);
 
-    private String logicName;
-    private String humanName;
-    private PropertyTypeEnum type;
+    private final String logicName;
+    private final String humanName;
+    private final PropertyTypeEnum type;
 }

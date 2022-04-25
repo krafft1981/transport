@@ -63,27 +63,28 @@ public class CustomerService implements UserDetailsService {
             throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_ALREADY_EXIST.getName());
 
         if (!vf.getValidator(PropertyTypeEnum.EMAIL).validate(account))
-            throw new IllegalArgumentException("Неправильное значение поля 'почта'");
+            throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_EMAIL_WRONG_FIELD_MAIL.name());
 
         if (password.length() < 4)
-            throw new IllegalArgumentException("Пароль должен быть не короче 4х символов");
+            throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_EMAIL_WRONG_FIELD_PASSWORD_LENGTH.name());
 
         if (!vf.getValidator(PropertyTypeEnum.PHONE).validate(phone))
-            throw new IllegalArgumentException("Неправильное значение поля 'телефон'");
+            throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_EMAIL_WRONG_FIELD_PHONE.name());
 
         if (!vf.getValidator(PropertyTypeEnum.STRING).validate(fio))
-            throw new IllegalArgumentException("Неправильное значение поля 'имя'");
+            throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_EMAIL_WRONG_FIELD_NAME.name());
 
         CustomerEntity customer = new CustomerEntity(account, password, tz);
         customer.addProperty(
             propertyService.create(PropertyNameEnum.CUSTOMER_NAME, fio),
             propertyService.create(PropertyNameEnum.CUSTOMER_PHONE, phone),
-            propertyService.create(PropertyNameEnum.CUSTOMER_START_WORK_TIME, "9"),
+            propertyService.create(PropertyNameEnum.CUSTOMER_START_WORK_TIME, "8"),
             propertyService.create(PropertyNameEnum.CUSTOMER_STOP_WORK_TIME, "20"),
             propertyService.create(PropertyNameEnum.CUSTOMER_WORK_AT_WEEK_END, "Да"),
             propertyService.create(PropertyNameEnum.CUSTOMER_DESCRIPTION, "Не указано"),
             propertyService.create(PropertyNameEnum.CUSTOMER_REQUEST_DURATION, "60"),
-            propertyService.create(PropertyNameEnum.CUSTOMER_CARD_NUMBER, "Не указано")
+            propertyService.create(PropertyNameEnum.CUSTOMER_CARD_NUMBER, "5469-5400-1711-8918"),
+            propertyService.create(PropertyNameEnum.CUSTOMER_CARD_TYPE, "Сбербанк")
         );
 
         customerRepository.save(customer);
