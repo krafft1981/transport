@@ -5,7 +5,7 @@ import com.rental.transport.entity.TransportTypeEntity;
 import com.rental.transport.entity.TransportTypeRepository;
 import com.rental.transport.mapper.TypeMapper;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class TypeService {
 
-    @Autowired
-    private TransportTypeRepository repository;
-
-    @Autowired
-    private TypeMapper typeMapper;
+    private final TransportTypeRepository repository;
+    private final TypeMapper typeMapper;
 
     public List<Type> getPage(Pageable pageable) {
 

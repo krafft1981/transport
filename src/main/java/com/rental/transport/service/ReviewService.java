@@ -5,7 +5,7 @@ import com.rental.transport.entity.ReviewEntity;
 import com.rental.transport.entity.ReviewRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,16 +13,12 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@AllArgsConstructor
 public class ReviewService {
 
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
-    private TransportService transportService;
-
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final CustomerService customerService;
+    private final TransportService transportService;
+    private final ReviewRepository reviewRepository;
 
     public Map<String, Long> addReview(String account, Long transportId, Long score) throws ObjectNotFoundException {
 
@@ -57,7 +53,7 @@ public class ReviewService {
         Long count = reviewRepository.findCountByTransport(transport.getId());
         Long summ = reviewRepository.findSumByTransport(transport.getId());
 
-        Map<String, Long> result = new HashMap();
+        Map<String, Long> result = new HashMap<>();
         result.put("score", 0L);
         result.put("total", count);
 

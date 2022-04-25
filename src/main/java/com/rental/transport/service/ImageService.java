@@ -5,15 +5,15 @@ import com.rental.transport.entity.ImageRepository;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class ImageService {
 
-    @Autowired
-    private ImageRepository imageRepository;
+    private final ImageRepository imageRepository;
 
     public Long create(byte[] data) {
 
@@ -35,26 +35,29 @@ public class ImageService {
     public List<Long> getPage(Pageable pageable) {
 
         return imageRepository
-                .findAll(pageable)
-                .getContent()
-                .parallelStream()
-                .map(ImageEntity::getId)
-                .collect(Collectors.toList());
+                   .findAll(pageable)
+                   .getContent()
+                   .parallelStream()
+                   .map(ImageEntity::getId)
+                   .collect(Collectors.toList());
     }
 
     public ImageEntity getEntity(Long id) throws ObjectNotFoundException {
 
         return imageRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
+                   .findById(id)
+                   .orElseThrow(() -> new ObjectNotFoundException("Image", id));
     }
 
     public String getStringImage(Long id) throws ObjectNotFoundException {
 
         byte[] image = getImage(id);
-        Long count = 0L;
-        for (byte b : image) { count++; }
-        System.out.println(image.length + " " + count);
-        return new String(image);
+        StringBuilder builder = new StringBuilder(image.length);
+        for (byte c : image) {
+            char v = Character.forDigit(c, 10);
+            builder.append(v);
+        }
+
+        return builder.toString();
     }
 }

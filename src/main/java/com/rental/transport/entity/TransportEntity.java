@@ -1,7 +1,8 @@
 package com.rental.transport.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -11,23 +12,21 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "transport")
 @Table(
-        name = "transport",
-        schema = "public",
-        catalog = "relationship",
-        indexes = {
-                @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
-                @Index(columnList = "enable", name = "transport_enable_idx")
-        }
+    name = "transport",
+    schema = "public",
+    catalog = "relationship",
+    indexes = {
+        @Index(columnList = "transport_type_id", name = "transport_type_id_idx"),
+        @Index(columnList = "enable", name = "transport_enable_idx")
+    }
 )
 
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class TransportEntity extends AbstractEnabledEntity {
 
@@ -41,11 +40,9 @@ public class TransportEntity extends AbstractEnabledEntity {
 
         addCustomer(customer);
         setType(type);
-        customer.getParking()
-                .stream()
-                .forEach(parking -> {
-                    addParking(parking);
-                });
+        customer
+            .getParking()
+            .forEach(parking -> addParking(parking));
     }
 
     @OneToMany(cascade = {CascadeType.ALL})
@@ -61,8 +58,8 @@ public class TransportEntity extends AbstractEnabledEntity {
 
     @OneToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "transport_image",
-            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
+        joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "image_id", nullable = false)
     )
     public Set<ImageEntity> getImage() {
         return image;
@@ -70,8 +67,8 @@ public class TransportEntity extends AbstractEnabledEntity {
 
     @ManyToMany
     @JoinTable(name = "parking_transport",
-            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
+        joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "parking_id", nullable = false)
     )
     public Set<ParkingEntity> getParking() {
         return parking;
@@ -79,8 +76,8 @@ public class TransportEntity extends AbstractEnabledEntity {
 
     @ManyToMany
     @JoinTable(name = "customer_transport",
-            joinColumns = @JoinColumn(name = "transport_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
+        joinColumns = @JoinColumn(name = "transport_id", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "customer_id", nullable = false)
     )
     public Set<CustomerEntity> getCustomer() {
         return customer;
@@ -113,10 +110,10 @@ public class TransportEntity extends AbstractEnabledEntity {
 
         String name = entity.getType().getLogicName();
         property.add(
-                property.stream()
-                        .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
-                        .findFirst()
-                        .orElse(entity)
+            property.stream()
+                .filter(propertyEntity -> propertyEntity.getType().getLogicName().equals(name))
+                .findFirst()
+                .orElse(entity)
         );
     }
 

@@ -1,11 +1,10 @@
 package com.rental.transport.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental.transport.service.ReviewService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/review")
 @RestController
+@AllArgsConstructor
 public class ReviewController {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ReviewService service;
+    private final ReviewService service;
 
     @ApiOperation(
         value = "Добавление отзыва"
@@ -30,7 +26,7 @@ public class ReviewController {
     public Map<String, Long> doPostReview(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId,
-        @RequestParam(value = "score", required = true) Long score) throws Exception {
+        @RequestParam(value = "score", required = true) Long score) {
         return service.addReview(principal.getName(), transportId, score);
     }
 
@@ -40,7 +36,7 @@ public class ReviewController {
     @DeleteMapping
     public Map<String, Long> doDeleteReview(
         Principal principal,
-        @RequestParam(value = "transport_id", required = true) Long transportId) throws Exception {
+        @RequestParam(value = "transport_id", required = true) Long transportId) {
         return service.delReview(principal.getName(), transportId);
     }
 
@@ -50,7 +46,7 @@ public class ReviewController {
     @GetMapping
     public Map<String, Long> doGetReview(
         Principal principal,
-        @RequestParam(value = "transport_id", required = true) Long transportId) throws Exception {
+        @RequestParam(value = "transport_id", required = true) Long transportId) {
         return service.getScore(principal.getName(), transportId);
     }
 }

@@ -13,12 +13,13 @@ import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.CalendarTypeEnum;
 import com.rental.transport.enums.EventTypeEnum;
+import com.rental.transport.enums.PropertyNameEnum;
 import com.rental.transport.enums.RequestStatusEnum;
 import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,34 +35,18 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class RequestService {
 
-    @Autowired
-    private RequestRepository requestRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private CalendarRepository calendarRepository;
-
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
-    private TransportService transportService;
-
-    @Autowired
-    private CalendarService calendarService;
-
-    @Autowired
-    private PropertyService propertyService;
-
-    @Autowired
-    private NotifyService notifyService;
-
-    @Autowired
-    private RequestMapper requestMapper;
+    private final RequestRepository requestRepository;
+    private final OrderRepository orderRepository;
+    private final CalendarRepository calendarRepository;
+    private final CustomerService customerService;
+    private final TransportService transportService;
+    private final CalendarService calendarService;
+    private final PropertyService propertyService;
+    private final NotifyService notifyService;
+    private final RequestMapper requestMapper;
 
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -135,7 +120,7 @@ public class RequestService {
         if (Objects.nonNull(hours)) {
             calendarService.checkObsolescence(selectedDay, customer, hours);
             calendarService.sequenceCheck(hours);
-            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), PropertyNameEnum.TRANSPORT_MIN_RENT));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
@@ -202,14 +187,14 @@ public class RequestService {
         if (Objects.nonNull(hours)) {
             calendarService.checkObsolescence(selectedDay, customer, hours);
             calendarService.sequenceCheck(hours);
-            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), "transport_min_rent_time"));
+            int minTime = Integer.parseInt(propertyService.getValue(transport.getProperty(), PropertyNameEnum.TRANSPORT_MIN_RENT));
             if (hours.length < minTime)
                 throw new IllegalArgumentException("Выберите не менее чем " + minTime + " часа");
 
             calendarService.checkBusy(customer, selectedDay, hours);
 
-            String customer_phone = propertyService.getValue(customer.getProperty(), "customer_phone");
-            String customer_fio = propertyService.getValue(customer.getProperty(), "customer_fio");
+            String customer_phone = propertyService.getValue(customer.getProperty(), PropertyNameEnum.CUSTOMER_PHONE);
+            String customer_fio = propertyService.getValue(customer.getProperty(), PropertyNameEnum.CUSTOMER_NAME);
 
             int requestCount = 0;
             for (CustomerEntity driver : transport.getCustomer()) {
@@ -274,7 +259,7 @@ public class RequestService {
         calendarService.checkBusy(customer, request.getDay(), request.getHours());
         calendarService.checkBusy(driver, request.getDay(), request.getHours());
 
-        String price = propertyService.getValue(transport.getProperty(), "transport_price");
+        String price = propertyService.getValue(transport.getProperty(), PropertyNameEnum.TRANSPORT_PRICE);
 
         // calculate cost
         int min = Collections.min(Arrays.asList(request.getHours()));
@@ -287,36 +272,36 @@ public class RequestService {
         calendar.setTimeInMillis(request.getDay());
 
         order.addProperty(
-            propertyService.copy("order_parking_name", parking.getProperty(), "parking_name"),
-            propertyService.copy("order_parking_latitude", parking.getProperty(), "parking_latitude"),
-            propertyService.copy("order_parking_longitude", parking.getProperty(), "parking_longitude"),
-            propertyService.copy("order_parking_address", parking.getProperty(), "parking_address"),
-            propertyService.copy("order_parking_locality", parking.getProperty(), "parking_locality"),
-            propertyService.copy("order_parking_region", parking.getProperty(), "parking_region"),
-            propertyService.create("order_transport_type", transport.getType().getName()),
-            propertyService.copy("order_transport_name", transport.getProperty(), "transport_name"),
-            propertyService.copy("order_transport_capacity", transport.getProperty(), "transport_capacity"),
-            propertyService.copy("order_transport_price", transport.getProperty(), "transport_price"),
-            propertyService.create("order_transport_cost", String.format("%.2f", cost)),
-            propertyService.copy("order_driver_fio", driver.getProperty(), "customer_fio"),
-            propertyService.copy("order_driver_phone", driver.getProperty(), "customer_phone"),
-            propertyService.copy("order_customer_fio", customer.getProperty(), "customer_fio"),
-            propertyService.copy("order_customer_phone", customer.getProperty(), "customer_phone"),
-            propertyService.create("order_time_day", dateFormatter.format(
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_NAME, parking.getProperty(), PropertyNameEnum.PARKING_NAME),
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_LATITUDE, parking.getProperty(),PropertyNameEnum.PARKING_LATITUDE),
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_LONGITUDE, parking.getProperty(), PropertyNameEnum.PARKING_LONGITUDE),
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_ADDRESS, parking.getProperty(), PropertyNameEnum.PARKING_ADDRESS),
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_LOCALITY, parking.getProperty(), PropertyNameEnum.PARKING_LOCALITY),
+            propertyService.copy(PropertyNameEnum.ORDER_PARKING_REGION, parking.getProperty(), PropertyNameEnum.PARKING_REGION),
+            propertyService.create(PropertyNameEnum.ORDER_TRANSPORT_TYPE, transport.getType().getName()),
+            propertyService.copy(PropertyNameEnum.ORDER_TRANSPORT_NAME, transport.getProperty(), PropertyNameEnum.TRANSPORT_NAME),
+            propertyService.copy(PropertyNameEnum.ORDER_TRANSPORT_CAPACITY, transport.getProperty(), PropertyNameEnum.TRANSPORT_CAPACITY),
+            propertyService.copy(PropertyNameEnum.ORDER_TRANSPORT_PRICE, transport.getProperty(), PropertyNameEnum.TRANSPORT_PRICE),
+            propertyService.create(PropertyNameEnum.ORDER_TRANSPORT_COST, String.format("%.2f", cost)),
+            propertyService.copy(PropertyNameEnum.ORDER_DRIVER_NAME, driver.getProperty(), PropertyNameEnum.CUSTOMER_NAME),
+            propertyService.copy(PropertyNameEnum.ORDER_DRIVER_PHONE, driver.getProperty(), PropertyNameEnum.CUSTOMER_PHONE),
+            propertyService.copy(PropertyNameEnum.ORDER_CUSTOMER_NAME, customer.getProperty(), PropertyNameEnum.CUSTOMER_NAME),
+            propertyService.copy(PropertyNameEnum.ORDER_CUSTOMER_PHONE, customer.getProperty(), PropertyNameEnum.CUSTOMER_PHONE),
+            propertyService.create(PropertyNameEnum.ORDER_TIME_DAY, dateFormatter.format(
                 LocalDate.of(
                     calendar.get(java.util.Calendar.YEAR),
                     calendar.get(java.util.Calendar.MONTH),
                     calendar.get(java.util.Calendar.DAY_OF_MONTH)
                 )
             )),
-            propertyService.create("order_time_hours", java.util.Arrays.toString(request.getHours())),
-            propertyService.create("order_time_duration", String.valueOf(duration))
+            propertyService.create(PropertyNameEnum.ORDER_TIME_HOURS, java.util.Arrays.toString(request.getHours())),
+            propertyService.create(PropertyNameEnum.ORDER_TIME_DURATION, String.valueOf(duration))
         );
 
-        String customer_phone = propertyService.getValue(request.getCustomer().getProperty(), "customer_phone");
-        String customer_fio = propertyService.getValue(request.getCustomer().getProperty(), "customer_fio");
-        String driver_phone = propertyService.getValue(request.getDriver().getProperty(), "customer_phone");
-        String driver_fio = propertyService.getValue(request.getDriver().getProperty(), "customer_fio");
+        String customer_phone = propertyService.getValue(request.getCustomer().getProperty(), PropertyNameEnum.CUSTOMER_PHONE);
+        String customer_fio = propertyService.getValue(request.getCustomer().getProperty(), PropertyNameEnum.CUSTOMER_NAME);
+        String driver_phone = propertyService.getValue(request.getDriver().getProperty(), PropertyNameEnum.CUSTOMER_PHONE);
+        String driver_fio = propertyService.getValue(request.getDriver().getProperty(), PropertyNameEnum.CUSTOMER_NAME);
 
         order.setCustomer(customer);
         order.setTransport(transport);

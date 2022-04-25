@@ -6,7 +6,7 @@ import com.rental.transport.service.RequestService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/request")
 @RestController
+@AllArgsConstructor
 public class RequestController {
 
-    @Autowired
-    private RequestService requestService;
+    private final RequestService requestService;
 
     @ApiOperation(
         value = "Подтверждение в возможности выполнения заказа"

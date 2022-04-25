@@ -6,39 +6,29 @@ import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.MessageEntity;
 import com.rental.transport.entity.OrderEntity;
 import com.rental.transport.entity.OrderRepository;
-import com.rental.transport.enums.PropertyTypeEnum;
 import com.rental.transport.mapper.OrderMapper;
 import com.rental.transport.utils.exceptions.AccessDeniedException;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
+@AllArgsConstructor
 public class OrderService {
 
-    @Autowired
-    private CalendarService calendarService;
-
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
-    private PropertyService propertyService;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private NotifyService notifyService;
-
-    @Autowired
-    private OrderMapper orderMapper;
+    private final CalendarService calendarService;
+    private final CustomerService customerService;
+    private final PropertyService propertyService;
+    private final OrderRepository orderRepository;
+    private final NotifyService notifyService;
+    private final OrderMapper orderMapper;
 
     public List<Order> getOrderByDriver(String account) throws ObjectNotFoundException {
 
@@ -46,7 +36,7 @@ public class OrderService {
         return orderRepository
                 .findByDriver(driver.getId())
                 .parallelStream()
-                .map(entity -> orderMapper.toDto(entity))
+                .map(orderMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -56,7 +46,7 @@ public class OrderService {
         return orderRepository
                 .findByCustomer(customer.getId())
                 .parallelStream()
-                .map(entity -> orderMapper.toDto(entity))
+                .map(orderMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -99,33 +89,5 @@ public class OrderService {
             notifyService.messageCreated(order.getCustomer());
 
         return orderMapper.toDto(order);
-    }
-
-    @PostConstruct
-    public void postConstruct() {
-
-        propertyService.createType("order_parking_name", "Название стоянки", PropertyTypeEnum.String);
-        propertyService.createType("order_parking_latitude", "Широта", PropertyTypeEnum.Double);
-        propertyService.createType("order_parking_longitude", "Долгота", PropertyTypeEnum.Double);
-        propertyService.createType("order_parking_address", "Адрес стоянки", PropertyTypeEnum.String);
-        propertyService.createType("order_parking_locality", "Местонахождение", PropertyTypeEnum.String);
-        propertyService.createType("order_parking_region", "Район", PropertyTypeEnum.String);
-
-        propertyService.createType("order_transport_type", "Тип транспорта", PropertyTypeEnum.String);
-        propertyService.createType("order_transport_name", "Название транспорта", PropertyTypeEnum.String);
-        propertyService.createType("order_transport_capacity", "Количество гостей", PropertyTypeEnum.Integer);
-
-        propertyService.createType("order_transport_cost", "Стоимость заказа", PropertyTypeEnum.Double);
-        propertyService.createType("order_transport_price", "Стоимость за час", PropertyTypeEnum.Double);
-
-        propertyService.createType("order_customer_fio", "Имя заказчика", PropertyTypeEnum.String);
-        propertyService.createType("order_customer_phone", "Сотовый заказчика", PropertyTypeEnum.Phone);
-
-        propertyService.createType("order_driver_fio", "Имя капитана", PropertyTypeEnum.String);
-        propertyService.createType("order_driver_phone", "Сотовый капитана", PropertyTypeEnum.Phone);
-
-        propertyService.createType("order_time_day", "День заказа", PropertyTypeEnum.Integer);
-        propertyService.createType("order_time_hours", "Часы заказа", PropertyTypeEnum.String);
-        propertyService.createType("order_time_duration", "Продолжительность заказа", PropertyTypeEnum.Integer);
     }
 }

@@ -6,7 +6,7 @@ import com.rental.transport.service.OrderService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/order")
 @RestController
+@AllArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @ApiOperation(
             value = "Получение списка заказов одобренных клиенту"

@@ -6,7 +6,7 @@ import com.rental.transport.service.CalendarService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,66 +21,66 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/calendar")
 @RestController
+@AllArgsConstructor
 public class CalendarController {
 
-    @Autowired
-    private CalendarService service;
+    private final CalendarService service;
 
     @ApiOperation(
-            value = "Получение календаря заказчика транспорта"
+        value = "Получение календаря заказчика транспорта"
     )
     @GetMapping(value = "/transport")
     public List<Event> doGetTransportCalendar(
-            Principal principal,
-            @RequestParam(value = "transport_id", required = true) Long transport_id,
-            @RequestParam(value = "day", required = true) Long day) {
+        Principal principal,
+        @RequestParam(value = "transport_id", required = true) Long transport_id,
+        @RequestParam(value = "day", required = true) Long day) {
 
         return service.getTransportEvents(principal.getName(), day, transport_id);
     }
 
     @ApiOperation(
-            value = "Получение календаря владельца транспорта"
+        value = "Получение календаря владельца транспорта"
     )
     @GetMapping(value = "/customer")
     public List<Event> doGetCustomerCalendar(
-            Principal principal,
-            @RequestParam(value = "day", required = true) Long day) {
+        Principal principal,
+        @RequestParam(value = "day", required = true) Long day) {
 
         return service.getCustomerEvents(principal.getName(), day);
     }
 
     @ApiOperation(
-            value = "Создание записи в календаре"
+        value = "Создание записи в календаре"
     )
     @PostMapping(value = "/note")
     public List<Event> doPostCalendarNote(
-            Principal principal,
-            @RequestParam(value = "hour", required = true) Integer[] hour,
-            @RequestParam(value = "day", required = true) Long day,
-            @RequestBody Text body) {
+        Principal principal,
+        @RequestParam(value = "hour", required = true) Integer[] hour,
+        @RequestParam(value = "day", required = true) Long day,
+        @RequestBody Text body) {
 
         return service.createCalendarWithNote(principal.getName(), day, hour, body);
     }
 
     @ApiOperation(
-            value = "Обновление записи в календаре"
+        value = "Обновление записи в календаре"
     )
     @PutMapping(value = "/note")
     public List<Event> doPutCalendarNote(
-            Principal principal,
-            @RequestParam(value = "calendar_id", required = true) Long calendarId,
-            @RequestBody Text body) {
+        Principal principal,
+        @RequestParam(value = "calendar_id", required = true) Long calendarId,
+        @RequestBody Text body) {
 
         return service.updateCalendarNote(principal.getName(), calendarId, body);
     }
 
     @ApiOperation(
-            value = "Удаление записи из календаря"
+        value = "Удаление записи из календаря"
     )
     @DeleteMapping(value = "/note")
     public List<Event> doDeleteCalendarNote(
-            Principal principal,
-            @RequestParam(value = "calendar_id", required = true) Long calendarId) {
+        Principal principal,
+        @RequestParam(value = "calendar_id", required = true) Long calendarId) {
 
         return service.deleteCalendarNote(principal.getName(), calendarId);
     }

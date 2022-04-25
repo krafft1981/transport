@@ -3,7 +3,7 @@ package com.rental.transport.controller;
 import com.rental.transport.dto.Customer;
 import com.rental.transport.service.CustomerService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/registration")
 @RestController
+@AllArgsConstructor
 public class RegistrationController {
 
-    @Autowired
-    private CustomerService service;
+    private final CustomerService service;
 
     @ApiOperation(
         value = "Регистрирование пользователя"

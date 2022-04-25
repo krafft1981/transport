@@ -1,7 +1,8 @@
 package com.rental.transport.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,9 +15,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -32,7 +32,6 @@ import lombok.Setter;
         }
 )
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class CustomerEntity extends AbstractEnabledEntity {
 

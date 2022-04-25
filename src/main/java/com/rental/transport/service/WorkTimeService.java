@@ -3,40 +3,80 @@ package com.rental.transport.service;
 import com.rental.transport.dto.Event;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.enums.EventTypeEnum;
+import com.rental.transport.enums.PropertyNameEnum;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import com.rental.transport.utils.validator.BooleanYesValidator;
 import com.rental.transport.utils.validator.IStringValidator;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class WorkTimeService {
 
-    @Autowired
-    private PropertyService propertyService;
+    private final PropertyService propertyService;
 
     private List<Event> getCustomerWorkTime(Long day, CustomerEntity customer)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
 
         List<Event> result = new ArrayList<>();
-        result.add(new Event(EventTypeEnum.GENERATED, day, 0, Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime"))));
-        result.add(new Event(EventTypeEnum.FREE, day,
-                Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_startWorkTime")),
-                Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime")))
+        result.add(
+            new Event(
+                EventTypeEnum.GENERATED,
+                day,
+                0,
+                Integer.parseInt(
+                    propertyService.getValue(
+                        customer.getProperty(),
+                        PropertyNameEnum.CUSTOMER_START_WORK_TIME
+                    )
+                )
+            )
         );
-        result.add(new Event(EventTypeEnum.GENERATED, day, Integer.parseInt(propertyService.getValue(customer.getProperty(), "customer_stopWorkTime")), 24));
+        result.add(
+            new Event(
+                EventTypeEnum.FREE,
+                day,
+                Integer.parseInt(
+                    propertyService.getValue(
+                        customer.getProperty(),
+                        PropertyNameEnum.CUSTOMER_START_WORK_TIME
+                    )
+                ),
+                Integer.parseInt(
+                    propertyService.getValue(
+                        customer.getProperty(),
+                        PropertyNameEnum.CUSTOMER_STOP_WORK_TIME
+                    )
+                )
+            )
+        );
+        result.add(
+            new Event(
+                EventTypeEnum.GENERATED,
+                day,
+                Integer.parseInt(
+                    propertyService.getValue(
+                        customer.getProperty(),
+                        PropertyNameEnum.CUSTOMER_STOP_WORK_TIME
+                    )
+                ),
+                24
+            )
+        );
         return result;
     }
 
     private List<Event> getCustomerHolidayTime(Long day, CustomerEntity customer)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
 
         IStringValidator validator = new BooleanYesValidator();
-        if (validator.validate(propertyService.getValue(customer.getProperty(), "customer_workAtWeekEnd")))
+        if (validator.validate(propertyService.getValue(customer.getProperty(), PropertyNameEnum.CUSTOMER_WORK_AT_WEEK_END)))
             return getCustomerWorkTime(day, customer);
 
         List<Event> result = new ArrayList<>();
@@ -45,7 +85,7 @@ public class WorkTimeService {
     }
 
     public List<Event> getCustomerWeekTime(Long day, CustomerEntity customer)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
 
         java.util.Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         calendar.setTimeInMillis(day);

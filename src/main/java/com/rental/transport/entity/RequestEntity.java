@@ -1,8 +1,10 @@
 package com.rental.transport.entity;
 
 import com.rental.transport.enums.RequestStatusEnum;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
 
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,11 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Type;
+import java.util.Date;
 
 @Entity(name = "request")
 @Table(
@@ -36,7 +34,6 @@ import org.hibernate.annotations.Type;
 )
 
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class RequestEntity extends AbstractEntity {
 

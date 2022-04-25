@@ -2,7 +2,10 @@ package com.rental.transport.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import java.util.Date;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,10 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.TypeDef;
+import java.util.Date;
 
 @Entity
 @Table(
@@ -31,7 +31,6 @@ import org.hibernate.annotations.TypeDef;
         defaultForType = JsonNode.class
 )
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class NotifyEntity extends AbstractEntity {
 

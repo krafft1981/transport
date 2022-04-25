@@ -2,6 +2,7 @@ package com.rental.transport.enums;
 
 import lombok.Getter;
 
+@Getter
 public enum RequestStatusEnum {
 
     NEW(1, "NEW"),
@@ -9,9 +10,7 @@ public enum RequestStatusEnum {
     REJECTED(3, "REJECTED"),
     EXPIRED(4, "EXPIRED");
 
-    @Getter
-    private int id = 0;
-    @Getter
+    private int id;
     private String name;
 
     RequestStatusEnum(int id, String name) {

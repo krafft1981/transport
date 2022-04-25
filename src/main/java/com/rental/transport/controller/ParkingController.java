@@ -5,7 +5,7 @@ import com.rental.transport.service.ParkingService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/parking")
 @RestController
+@AllArgsConstructor
 public class ParkingController {
 
-    @Autowired
-    private ParkingService service;
+    private final ParkingService service;
 
     @ApiOperation(
             value = "Удаление стоянки"

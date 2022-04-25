@@ -1,6 +1,8 @@
 package com.rental.transport.entity;
 
-import java.util.Date;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,9 +10,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Date;
 
 @Entity(name = "dist")
 @Table(
@@ -23,7 +23,6 @@ import lombok.Setter;
 )
 
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class DistEntity extends AbstractEntity {
 

@@ -1,12 +1,11 @@
 package com.rental.transport.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rental.transport.dto.Transport;
 import com.rental.transport.service.TransportService;
 import io.swagger.annotations.ApiOperation;
 import java.security.Principal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,13 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/transport")
 @RestController
+@AllArgsConstructor
 public class TransportController {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private TransportService service;
+    private final TransportService service;
 
     @ApiOperation(
         value = "Удаление транспортного средства"
@@ -45,7 +41,7 @@ public class TransportController {
     @GetMapping(value = "/list")
     public List<Transport> doGetPagesTransport(
         @RequestParam(value = "page", required = true) Integer page,
-        @RequestParam(value = "size", required = true) Integer size) throws Exception {
+        @RequestParam(value = "size", required = true) Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getPage(pageable);
     }
@@ -57,7 +53,7 @@ public class TransportController {
     public List<Transport> doGetPagesTransportByType(
         @RequestParam(value = "type", required = true) Long type,
         @RequestParam(value = "page", required = true) Integer page,
-        @RequestParam(value = "size", required = true) Integer size) throws Exception {
+        @RequestParam(value = "size", required = true) Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
         return service.getPageTyped(pageable, type);
     }
@@ -78,7 +74,7 @@ public class TransportController {
     @PutMapping
     public Transport doPutTransport(
         Principal principal,
-        @RequestBody Transport transport) throws Exception {
+        @RequestBody Transport transport) {
         return service.update(principal.getName(), transport);
     }
 
@@ -86,7 +82,8 @@ public class TransportController {
         value = "Получение списка своих транспортных средств"
     )
     @GetMapping(value = "/my")
-    public List<Transport> doGetMyTransport(Principal principal) throws Exception {
+    public List<Transport> doGetMyTransport(Principal principal) {
+
         return service.getMyTransport(principal.getName());
     }
 
@@ -95,7 +92,7 @@ public class TransportController {
     )
     @GetMapping(value = "/parking")
     public List<Transport> doGetParkingTransport(
-        @RequestParam(value = "parking_id", required = true) Long parkingId) throws Exception {
+        @RequestParam(value = "parking_id", required = true) Long parkingId) {
         return service.getParkingTransport(parkingId);
     }
 
@@ -106,7 +103,7 @@ public class TransportController {
     public Transport doPostTransportImage(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId,
-        @RequestBody byte[] data) throws Exception {
+        @RequestBody byte[] data) {
         return service.addTransportImage(principal.getName(), transportId, data);
     }
 
@@ -117,7 +114,7 @@ public class TransportController {
     public Transport doDeleteTransportImage(
         Principal principal,
         @RequestParam(value = "transport_id", required = true) Long transportId,
-        @RequestParam(value = "image_id", required = true) Long imageId) throws Exception {
+        @RequestParam(value = "image_id", required = true) Long imageId) {
         return service.delTransportImage(principal.getName(), transportId, imageId);
     }
 }

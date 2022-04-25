@@ -10,10 +10,9 @@ import com.rental.transport.entity.OrderRepository;
 import com.rental.transport.entity.RequestRepository;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.enums.CalendarTypeEnum;
+import com.rental.transport.enums.ErrorTypeEnum;
 import com.rental.transport.enums.EventTypeEnum;
 import com.rental.transport.mapper.CalendarMapper;
-import com.rental.transport.mapper.OrderMapper;
-import com.rental.transport.mapper.RequestMapper;
 import com.rental.transport.utils.exceptions.IllegalArgumentException;
 import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +33,6 @@ public class CalendarService {
 
     @Autowired
     private CalendarMapper calendarMapper;
-
-    @Autowired
-    private OrderMapper orderMapper;
-
-    @Autowired
-    private RequestMapper requestMapper;
 
     @Autowired
     private TransportService transportService;
@@ -109,7 +102,7 @@ public class CalendarService {
                 return;
         }
 
-        throw new IllegalArgumentException("Сорян, время уже прошло");
+        throw new IllegalArgumentException(ErrorTypeEnum.TIME_IS_OUT.getName());
     }
 
     public void sequenceCheck(Integer[] hours) throws IllegalArgumentException {
@@ -123,7 +116,7 @@ public class CalendarService {
             }
 
             if ((current + 1) != hour)
-                throw new IllegalArgumentException("Выберите часы последовательно");
+                throw new IllegalArgumentException(ErrorTypeEnum.SELECT_CLOCK_SEQUENCE.getName());
 
             current = hour;
         }
@@ -205,8 +198,11 @@ public class CalendarService {
                 calendarRepository.delete(calendar);
                 break;
             }
+            case ORDER:
+            case REQUEST:
+            case GOOGLE:
             default:
-                throw new IllegalArgumentException("Нельзя удалить запись");
+                throw new IllegalArgumentException(ErrorTypeEnum.REMOVE_RECORD_DENY.getName());
         }
 
         return getCustomerEvents(account, calendar.getDay());
@@ -222,7 +218,7 @@ public class CalendarService {
 
         for (Integer hour : hours) {
             if (busyHours.contains(hour))
-                throw new IllegalArgumentException("Пользователь занят");
+                throw new IllegalArgumentException(ErrorTypeEnum.CUSTOMER_BUSY.getName());
         }
     }
 
@@ -264,7 +260,7 @@ public class CalendarService {
         CustomerEntity customer = customerService.getEntity(account);
         TransportEntity transport = transportService.getEntity(transportId);
         if (transport.getCustomer().isEmpty())
-            throw new IllegalArgumentException("Данный транспорт не имеет водителей");
+            throw new IllegalArgumentException(ErrorTypeEnum.TRANSPORT_NO_DRIVER.getName());
 
         CustomerEntity driver = transport.getCustomer().iterator().next();
 

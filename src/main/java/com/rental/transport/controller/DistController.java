@@ -6,24 +6,24 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/dist")
 @RestController
+@AllArgsConstructor
 public class DistController {
 
-    @Autowired
-    private DistService distService;
+    private final DistService distService;
 
     @ApiOperation(
-            value = "Получение списка доступных файлов"
+        value = "Получение списка доступных файлов"
     )
     @GetMapping(value = "/list")
     public Set<String> getDistList() {
@@ -31,11 +31,11 @@ public class DistController {
     }
 
     @ApiOperation(
-            value = "Получение файла"
+        value = "Получение файла"
     )
     @GetMapping(produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public HttpEntity<byte[]> getDistFile(
-            @PathVariable(value = "name", required = true) String name
+        @RequestParam(value = "name", required = true) String name
     ) throws IOException {
 
         HttpHeaders header = new HttpHeaders();
@@ -45,7 +45,7 @@ public class DistController {
     }
 
     @ApiOperation(
-            value = "Получение количества загрузок"
+        value = "Получение количества загрузок"
     )
     @GetMapping(value = "/score")
     public Map<String, AtomicLong> getDistScore() {
