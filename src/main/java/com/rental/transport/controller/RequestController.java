@@ -4,10 +4,8 @@ import com.rental.transport.dto.Event;
 import com.rental.transport.dto.Request;
 import com.rental.transport.service.RequestService;
 import io.swagger.annotations.ApiOperation;
-
 import java.security.Principal;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

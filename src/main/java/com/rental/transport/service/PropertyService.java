@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PropertyService {
 
+    private final static String PROPERTY_TYPE_STRING = "Property type";
+
     @Autowired
     private PropertyRepository propertyRepository;
 
@@ -66,7 +68,7 @@ public class PropertyService {
 
         PropertyTypeEntity type = propertyTypeRepository.findByLogicName(name);
         if (Objects.isNull(type))
-            throw new ObjectNotFoundException("Property Type", name);
+            throw new ObjectNotFoundException(PROPERTY_TYPE_STRING, name);
 
         PropertyEntity property = new PropertyEntity(type, value);
         propertyRepository.save(property);
@@ -87,11 +89,11 @@ public class PropertyService {
 
         PropertyTypeEntity pNew = propertyTypeRepository.findByLogicName(newType);
         if (Objects.isNull(pNew))
-            throw new ObjectNotFoundException("PropertyType", newType);
+            throw new ObjectNotFoundException(PROPERTY_TYPE_STRING, newType);
 
         PropertyTypeEntity pOld = propertyTypeRepository.findByLogicName(oldType);
         if (Objects.isNull(pOld))
-            throw new ObjectNotFoundException("PropertyType", oldType);
+            throw new ObjectNotFoundException(PROPERTY_TYPE_STRING, oldType);
 
         PropertyEntity entity = searchProperty(entryes, oldType);
         return create(newType, entity.getValue());
