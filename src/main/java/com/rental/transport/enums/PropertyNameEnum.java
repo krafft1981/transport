@@ -13,7 +13,6 @@ public enum PropertyNameEnum {
     CUSTOMER_PHONE("customer_phone", "Сотовый", PropertyTypeEnum.PHONE),
     CUSTOMER_WORK_AT_WEEK_END("customer_work_at_week_end", "Работает в выходные", PropertyTypeEnum.BOOLEAN),
     CUSTOMER_DESCRIPTION("customer_description", "Описание", PropertyTypeEnum.STRING),
-    CUSTOMER_REQUEST_DURATION("customer_request_duration", "Продолжительность запроса(минут)", PropertyTypeEnum.INTEGER),
     CUSTOMER_CARD_NUMBER("customer_card_number", "Номер карты", PropertyTypeEnum.STRING),
     CUSTOMER_CARD_TYPE("customer_card_type", "Тип карты", PropertyTypeEnum.STRING),
 

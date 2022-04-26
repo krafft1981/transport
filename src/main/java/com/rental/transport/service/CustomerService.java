@@ -82,7 +82,6 @@ public class CustomerService implements UserDetailsService {
             propertyService.create(PropertyNameEnum.CUSTOMER_STOP_WORK_TIME, "20"),
             propertyService.create(PropertyNameEnum.CUSTOMER_WORK_AT_WEEK_END, "Да"),
             propertyService.create(PropertyNameEnum.CUSTOMER_DESCRIPTION, "Не указано"),
-            propertyService.create(PropertyNameEnum.CUSTOMER_REQUEST_DURATION, "60"),
             propertyService.create(PropertyNameEnum.CUSTOMER_CARD_NUMBER, "5469-5400-1711-8918"),
             propertyService.create(PropertyNameEnum.CUSTOMER_CARD_TYPE, "Сбербанк")
         );

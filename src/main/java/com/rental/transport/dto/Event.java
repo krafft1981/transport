@@ -18,7 +18,7 @@ public class Event extends AbstractDto {
     @JsonProperty("object_id")
     private Long objectId = null;
     @JsonProperty("type")
-    private Integer type = 0;
+    private String type = EventTypeEnum.UNCKNOWN.name();
 
     public Event(EventTypeEnum type, Long day, Integer start, Integer stop) {
 
@@ -27,19 +27,19 @@ public class Event extends AbstractDto {
         for (Integer hour = start; hour < stop; hour++, index++)
             hours[index] = hour;
 
-        setType(type.getId());
+        setType(type.name());
         setCalendar(new Calendar(day, hours, ""));
     }
 
     public Event(EventTypeEnum type, Calendar calendar) {
 
-        setType(type.getId());
+        setType(type.name());
         setCalendar(calendar);
     }
 
     public Event(EventTypeEnum type, Calendar calendar, Long objectId) {
 
-        setType(type.getId());
+        setType(type.name());
         setCalendar(calendar);
         setObjectId(objectId);
     }

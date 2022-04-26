@@ -1,10 +1,5 @@
 package com.rental.transport.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum PropertyTypeEnum {
 
     STRING,
