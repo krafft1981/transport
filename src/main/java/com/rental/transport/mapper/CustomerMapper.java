@@ -24,7 +24,12 @@ public abstract class CustomerMapper {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Mapping(target = "transport", ignore = true)
+    @Mapping(target = "parking", ignore = true)
     public abstract CustomerEntity dtoToEntity(CustomerDto dto);
+
+    @Mapping(target = "transport", ignore = true)
+    @Mapping(target = "parking", ignore = true)
     public abstract CustomerDto entityToDto(CustomerEntity entity);
 
     public CustomerEntity uuidToEntity(UUID id) {

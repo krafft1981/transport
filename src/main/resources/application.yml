@@ -2,7 +2,8 @@ spring:
   dist:
     path: /mnt
 
-  application.name: transport
+  application:
+    name: transport
 
   datasource:
     url: jdbc:postgresql://localhost:5432/oacq?currentSchema=transport

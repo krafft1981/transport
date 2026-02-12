@@ -1,11 +1,11 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.ParkingDto;
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.ParkingEntity;
 import com.rental.transport.repository.ParkingRepository;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
@@ -24,8 +24,10 @@ public abstract class ParkingMapper {
     @Autowired
     private ParkingRepository parkingRepository;
 
+    @Mapping(target = "transport", ignore = true)
     public abstract ParkingEntity dtoToEntity(ParkingDto dto);
 
+    @Mapping(target = "transport", ignore = true)
     public abstract ParkingDto entityToDto(ParkingEntity entity);
 
     public UUID entityToUuid(ParkingEntity entity) {

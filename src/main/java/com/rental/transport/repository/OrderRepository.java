@@ -1,15 +1,8 @@
 package com.rental.transport.repository;
 
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.OrderEntity;
-import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.repository.template.IRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends IRepository<OrderEntity> {

@@ -38,8 +38,9 @@ public class TypeService {
     public TransportTypeEntity getEntity(UUID id) {
 
         final var entity = repository.getReferenceById(id);
-        if (entity.getEnable())
+        if (entity.getEnable()) {
             return entity;
+        }
         throw new EntityNotFoundException();
     }
 

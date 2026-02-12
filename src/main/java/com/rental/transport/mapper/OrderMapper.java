@@ -13,5 +13,6 @@ import org.mapstruct.Mapper;
 public interface OrderMapper {
 
     OrderEntity dtoToEntity(OrderDto dto);
+
     OrderDto entityToDto(OrderEntity entity);
 }

@@ -1,15 +1,12 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.TransportDto;
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.TransportEntity;
 import com.rental.transport.repository.TransportRepository;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Mapper(
@@ -28,6 +25,7 @@ public abstract class TransportMapper {
     private TransportRepository transportRepository;
 
     public abstract TransportEntity dtoToEntity(TransportDto dto);
+
     public abstract TransportDto entityToDto(TransportEntity entity);
 
     public TransportEntity idToEntity(UUID id) {

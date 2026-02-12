@@ -13,5 +13,5 @@ public interface TransportRepository extends IRepository<TransportEntity> {
 
     List<TransportEntity> findAllByEnableTrue(Pageable pageable);
     List<TransportEntity> findAllByEnableTrueAndTypeId(Pageable pageable, Long type);
-//    List<TransportEntity> findAllByCustomerIdAndEnableTrue(UUID id);
+    List<TransportEntity> findAllByCustomerIdAndEnableTrue(UUID id);
 }

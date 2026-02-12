@@ -1,7 +1,6 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.dto.PropertyDto;
-import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.entity.PropertyEntity;
 import com.rental.transport.repository.PropertyRepository;
 import org.hibernate.ObjectDeletedException;

@@ -15,5 +15,6 @@ import org.mapstruct.Mapper;
 public abstract class CalendarMapper {
 
     public abstract CalendarEntity dtoToEntity(CalendarDto dto);
+
     public abstract CalendarDto entityToDto(CalendarEntity entity);
 }

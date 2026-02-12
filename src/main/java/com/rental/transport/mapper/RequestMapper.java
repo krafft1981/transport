@@ -16,5 +16,6 @@ import org.mapstruct.Mapper;
 public interface RequestMapper {
 
     RequestEntity dtoToEntity(RequestDto dto);
+
     RequestDto entityToDto(RequestEntity entity);
 }
