@@ -1,4 +1,4 @@
-package com.rental.transport.utils.validator;
+package com.rental.transport.validator;
 
 import java.util.regex.Pattern;
 

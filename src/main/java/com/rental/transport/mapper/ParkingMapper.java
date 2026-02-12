@@ -16,6 +16,7 @@ import java.util.UUID;
         uses = {
                 TransportMapper.class,
                 CustomerMapper.class,
+                PropertyMapper.class,
                 ImageMapper.class
         })
 public abstract class ParkingMapper {
@@ -23,19 +24,15 @@ public abstract class ParkingMapper {
     @Autowired
     private ParkingRepository parkingRepository;
 
-//    public abstract ParkingEntity toEntity(ParkingDto dto);
+    public abstract ParkingEntity dtoToEntity(ParkingDto dto);
 
-    public abstract ParkingDto toDto(ParkingEntity entity);
+    public abstract ParkingDto entityToDto(ParkingEntity entity);
 
-    public UUID mapEntityToUuid(ParkingEntity entity) {
+    public UUID entityToUuid(ParkingEntity entity) {
         return UUID.randomUUID();
     }
 
-    public ParkingEntity mapUuidToEntity(UUID id) {
+    public ParkingEntity uuidToEntity(UUID id) {
         return parkingRepository.getReferenceById(id);
-    }
-
-    public CustomerEntity mapCustomer(UUID id) {
-        return new CustomerEntity();
     }
 }

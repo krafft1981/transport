@@ -2,11 +2,19 @@ package com.rental.transport.mapper;
 
 import com.rental.transport.dto.MessageDto;
 import com.rental.transport.entity.MessageEntity;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+import java.util.HashSet;
+
+@Mapper(
+        componentModel = "spring",
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        uses = {
+                CustomerMapper.class
+        })
 public interface MessageMapper {
 
-    MessageEntity toEntity(MessageDto dto);
-    MessageDto toDto(MessageEntity entity);
+    MessageEntity dtoToEntity(MessageDto dto);
+    MessageDto entityToDto(MessageEntity entity);
 }

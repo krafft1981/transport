@@ -1,15 +1,24 @@
 package com.rental.transport.mapper;
 
 import com.rental.transport.entity.ImageEntity;
-import org.mapstruct.Mapper;
+import com.rental.transport.repository.ImageRepository;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.ObjectDeletedException;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Mapper(componentModel = "spring")
-public abstract class ImageMapper {
+@Service
+@RequiredArgsConstructor
+public class ImageMapper {
 
-    public abstract ImageEntity toEntity(UUID id);
-    public UUID toDto(ImageEntity entity) {
-        return UUID.randomUUID();
+    private final ImageRepository repository;
+
+    public ImageEntity idToEntity(UUID id) throws ObjectDeletedException {
+        return repository.getReferenceById(id);
+    }
+
+    public UUID entityToUuid(ImageEntity entity) {
+        return entity.getId();
     }
 }

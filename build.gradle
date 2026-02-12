@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.statemachine:spring-statemachine-core:4.0.1'
     implementation 'org.postgresql:postgresql'
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.42'
     implementation 'org.springdoc:springdoc-openapi-starter-common:3.0.1'

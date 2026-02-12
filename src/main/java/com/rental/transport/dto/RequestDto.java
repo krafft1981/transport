@@ -21,10 +21,12 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RequestDto extends AbstractCreatableDto {
 
-    private Integer[] hours;
-    private Long day;
+    private CalendarDto calendar;
     private RequestStatusEnum status;
     private UUID customer;
     private UUID driver;
     private UUID transport;
+    private Set<UUID> properties;
+    private OrderDto order;
+    private Set<MessageDto> message;
 }

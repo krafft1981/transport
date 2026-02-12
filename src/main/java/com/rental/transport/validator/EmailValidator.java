@@ -1,11 +1,11 @@
-package com.rental.transport.utils.validator;
+package com.rental.transport.validator;
 
 import java.util.regex.Pattern;
 
-public class BooleanValidator implements IStringValidator {
+public class EmailValidator implements IStringValidator {
 
     StringValidator validator = new StringValidator();
-    private Pattern pattern = Pattern.compile("[Нн][Ее][Тт]|[Дд][Аа]|[Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee]|0|1|[Yy][Ee][Ss]|[Nn][Oo]");
+    private Pattern pattern = Pattern.compile("\\b[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}\\b");
 
     @Override
     public Boolean validate(String value) {

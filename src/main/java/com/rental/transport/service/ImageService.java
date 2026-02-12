@@ -2,7 +2,6 @@ package com.rental.transport.service;
 
 import com.rental.transport.entity.ImageEntity;
 import com.rental.transport.repository.ImageRepository;
-import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,10 +26,8 @@ public class ImageService {
         ids.forEach(imageRepository::deleteById);
     }
 
-    public byte[] getImage(UUID id) throws ObjectNotFoundException {
-
-        ImageEntity entity = getEntity(id);
-        return entity.getBody();
+    public byte[] getImage(UUID id) {
+        return getEntity(id).getBody();
     }
 
     public List<UUID> getPage(Pageable pageable) {
@@ -43,14 +40,11 @@ public class ImageService {
                 .toList();
     }
 
-    public ImageEntity getEntity(UUID id) throws ObjectNotFoundException {
-
-        return imageRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Image", id));
+    public ImageEntity getEntity(UUID id) {
+        return imageRepository.getReferenceById(id);
     }
 
-    public String getStringImage(UUID id) throws ObjectNotFoundException {
+    public String getStringImage(UUID id) {
 
         byte[] image = getImage(id);
         Long count = 0L;

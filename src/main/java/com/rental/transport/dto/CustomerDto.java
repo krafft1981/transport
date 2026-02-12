@@ -14,8 +14,8 @@ import java.util.UUID;
 public class CustomerDto extends AbstractEnabledDto {
 
     private String timeZone;
-    private Set<UUID> images;
-    private Set<UUID> transports;
-    private Set<UUID> parkings;
-    private Set<UUID> propertyes;
+    private Set<UUID> image;
+    private Set<UUID> transport;
+    private Set<UUID> parking;
+    private Set<UUID> properties;
 }

@@ -13,5 +13,4 @@ public class MessageDto extends AbstractEnabledDto {
 
     private String text;
     private CustomerDto customer;
-    private CalendarEntity calendar;
 }

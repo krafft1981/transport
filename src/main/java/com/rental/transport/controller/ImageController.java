@@ -1,7 +1,6 @@
 package com.rental.transport.controller;
 
 import com.rental.transport.service.ImageService;
-import com.rental.transport.utils.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +44,7 @@ public class ImageController {
             value = "/{id}",
             produces = MediaType.IMAGE_JPEG_VALUE
     )
-    public String doGetImageByPath(@PathVariable UUID id) throws ObjectNotFoundException {
+    public String doGetImageByPath(@PathVariable UUID id) {
 
         return service.getStringImage(id);
     }

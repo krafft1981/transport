@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.Calendar;
+
 @Entity
 @Table(name = "message")
 @Setter

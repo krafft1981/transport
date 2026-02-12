@@ -13,8 +13,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ParkingDto extends AbstractEnabledDto {
 
-    private Set<UUID> customers;
-    private Set<UUID> transports;
-    private Set<UUID> images;
-    private Set<UUID> propertyes;
+    private Set<UUID> customer;
+    private Set<UUID> transport;
+    private Set<UUID> image;
+    private Set<UUID> properties;
 }

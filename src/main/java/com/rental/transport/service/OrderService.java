@@ -1,6 +1,7 @@
 package com.rental.transport.service;
 
 import com.rental.transport.entity.*;
+import com.rental.transport.enums.CalendarTypeEnum;
 import com.rental.transport.enums.RequestStatusEnum;
 import com.rental.transport.repository.*;
 import jakarta.annotation.PostConstruct;
@@ -44,7 +45,8 @@ public class OrderService {
                 .setParking(Set.of(parking))
                 .addImage(ti)
                 .addCustomer(driver)
-                .setType(type));
+                .setType(type)
+        );
         var request = new RequestEntity(
                 customer,
                 driver,
@@ -68,6 +70,7 @@ public class OrderService {
         requestRepository.save(entity.getRequest());
 
         entity.getRequest().getCalendar().setOrderId(order.getId());
+        entity.getRequest().getCalendar().setType(CalendarTypeEnum.ORDER);
         calendarRepository.save(entity.getRequest().getCalendar());
 
         return order;

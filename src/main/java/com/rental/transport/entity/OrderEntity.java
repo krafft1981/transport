@@ -4,14 +4,13 @@ import com.rental.transport.entity.template.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Entity
-@Table(
-        name = "orders"
-)
-
+@Table(name = "orders")
 @Getter
+@Setter
 @NoArgsConstructor
 @Accessors(chain = true)
 public class OrderEntity extends AbstractEntity {

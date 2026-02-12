@@ -1,11 +1,11 @@
-package com.rental.transport.utils.validator;
+package com.rental.transport.validator;
 
 import java.util.regex.Pattern;
 
-public class CardNumberValidator implements IStringValidator {
+public class BooleanNoValidator implements IStringValidator {
 
     StringValidator validator = new StringValidator();
-    private Pattern pattern = Pattern.compile("(?<=^|[^0-9])[0-9]{16}(?=[^0-9]|$)|[0-9]{4}[-| |_][0-9]{4}[-| |_][0-9]{4}[-| |_][0-9]{4}");
+    private Pattern pattern = Pattern.compile("[Нн][Ее][Тт]|[Ff][aA][Ll][Ss][Ee]|0|[Nn][Oo]");
 
     @Override
     public Boolean validate(String value) {

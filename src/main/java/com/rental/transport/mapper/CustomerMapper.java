@@ -1,9 +1,11 @@
 package com.rental.transport.mapper;
 
+import com.rental.transport.dto.CustomerDto;
 import com.rental.transport.entity.CustomerEntity;
 import com.rental.transport.repository.CustomerRepository;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
@@ -11,9 +13,10 @@ import java.util.UUID;
 @Mapper(
         componentModel = "spring",
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        imports = {
-                TransportMapper.class,
+        uses = {
                 ParkingMapper.class,
+                TransportMapper.class,
+                PropertyMapper.class,
                 ImageMapper.class
         })
 public abstract class CustomerMapper {
@@ -21,15 +24,14 @@ public abstract class CustomerMapper {
     @Autowired
     private CustomerRepository customerRepository;
 
-//    public abstract CustomerEntity toEntity(CustomerDto dto);
+    public abstract CustomerEntity dtoToEntity(CustomerDto dto);
+    public abstract CustomerDto entityToDto(CustomerEntity entity);
 
-//    public abstract CustomerDto toDto(CustomerEntity entity);
-
-    public CustomerEntity mapUuidToEntity(UUID id) {
+    public CustomerEntity uuidToEntity(UUID id) {
         return customerRepository.getReferenceById(id);
     }
 
-    public UUID mapEntityToUuid(CustomerEntity entity) {
-        return UUID.randomUUID();
+    public UUID entityToUuid(CustomerEntity entity) {
+        return entity.getId();
     }
 }

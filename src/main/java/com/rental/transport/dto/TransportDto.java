@@ -18,8 +18,8 @@ import java.util.UUID;
 public class TransportDto extends AbstractEnabledDto {
 
     private TransportTypeDto type;
-    private Set<UUID> images;
+    private Set<UUID> image;
     private Set<UUID> customers;
-    private Set<UUID> parkings;
-    private Set<UUID> propertyes;
+    private Set<UUID> parking;
+    private Set<UUID> properties;
 }
