@@ -1,8 +1,13 @@
 package com.rental.transport.service;
 
-import com.google.common.io.ByteStreams;
 import com.rental.transport.entity.DistEntity;
-import com.rental.transport.entity.DistRepository;
+import com.rental.transport.repository.DistRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,11 +19,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Service
 public class DistService {
@@ -51,7 +51,7 @@ public class DistService {
         Long len = file.length();
         InputStream fis = new FileInputStream(new File(buildName(name)));
         byte[] data = new byte[len.intValue()];
-        ByteStreams.read(fis, data, 0, len.intValue());
+//        ByteStreams.read(fis, data, 0, len.intValue());
         appendScore(name, 0);
         distRepository.save(new DistEntity(name));
         return data;

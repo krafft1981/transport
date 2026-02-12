@@ -1,49 +1,43 @@
 package com.rental.transport.entity;
 
-import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.rental.transport.entity.template.AbstractEnabledEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Entity(name = "dist")
+import java.util.Objects;
+
+@Entity
 @Table(
         name = "dist",
-        schema = "public",
-        catalog = "relationship",
-        indexes = {
-                @Index(columnList = "program", name = "dist_program_idx")
-        }
+        indexes = {@Index(columnList = "program", name = "dist_program_idx")}
 )
-
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DistEntity extends AbstractEntity {
+@Accessors(chain = true)
+public class DistEntity extends AbstractEnabledEntity {
 
-    private String program = "";
-    private Date createdAt = currentTime();
+    @Column(columnDefinition = "text")
+    private String program;
 
-    public DistEntity(String program) {
-        setProgram(program);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DistEntity that = (DistEntity) o;
+        return Objects.equals(this.getProgram(), that.getProgram());
     }
 
-    @Basic
-    @Column(name = "program", nullable = false, insertable = true, updatable = true)
-    public String getProgram() {
-        return program;
-    }
-
-    @Basic
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp with time zone not null default CURRENT_TIMESTAMP")
-    public Date getCreatedAt() {
-        return createdAt;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getProgram());
     }
 }

@@ -1,107 +1,40 @@
 package com.rental.transport.config;
 
-import com.rental.transport.service.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
 
-@Order(99)
 @Configuration
 @EnableWebSecurity
+@Order(99)
 @ConditionalOnProperty(name = "transport.security.enabled", havingValue = "true", matchIfMissing = true)
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private CustomerService userService;
-
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring().antMatchers("/v2/api-docs",
-//                "/configuration/ui",
-//                "/swagger-resources/**",
-//                "/configuration/**",
-//                "/swagger-ui.html",
-//                "/webjars/**"
-//        );
-//    }
+public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return rawPassword
-                        .toString()
-                        .equals(encodedPassword);
-            }
-        };
-    }
-
-    @Override
-    @Bean
-    public UserDetailsService userDetailsServiceBean() {
-        return userService;
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder registry) throws Exception {
-        registry.userDetailsService(userDetailsServiceBean());
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .exceptionHandling()
-                .authenticationEntryPoint(digestEntryPoint())
-                .and()
-                .addFilterAfter(digestAuthenticationFilter(digestEntryPoint()), BasicAuthenticationFilter.class)
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/registration/**").permitAll()
-                .antMatchers("/dist/**").permitAll()
-                .antMatchers("/image/**").permitAll()
-                .antMatchers("/websocket/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .csrf().disable();
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs*/**",
+                        "/**"
+                );
     }
 
     @Bean
-    public DigestAuthenticationEntryPoint digestEntryPoint() {
-        DigestAuthenticationEntryPoint digestAuthenticationEntryPoint = new DigestAuthenticationEntryPoint();
-        digestAuthenticationEntryPoint.setKey("acegi");
-        digestAuthenticationEntryPoint.setRealmName("Transport");
-        digestAuthenticationEntryPoint.setNonceValiditySeconds(10);
-        return digestAuthenticationEntryPoint;
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http.authorizeHttpRequests(
+                        authorizeRequests -> authorizeRequests
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/api-docs*/**").permitAll()
+                )
+                .build();
     }
 
-    @Bean
-    public DigestAuthenticationFilter digestAuthenticationFilter(
-            DigestAuthenticationEntryPoint digestAuthenticationEntryPoint) {
-        DigestAuthenticationFilter digestAuthenticationFilter = new DigestAuthenticationFilter();
-        digestAuthenticationFilter.setAuthenticationEntryPoint(digestEntryPoint());
-        digestAuthenticationFilter.setUserDetailsService(userDetailsServiceBean());
-        return digestAuthenticationFilter;
-    }
+//    http://localhost:8080/swagger-ui/index.html
 }
 

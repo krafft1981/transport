@@ -1,35 +1,36 @@
 package com.rental.transport.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import com.rental.transport.entity.template.AbstractEnabledEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Entity(name = "transport_type")
+@Entity
 @Table(
         name = "transport_type",
-        schema = "public",
-        catalog = "relationship",
         indexes = {
                 @Index(columnList = "name", name = "transport_type_name_idx"),
                 @Index(columnList = "enable", name = "transport_type_enabled_idx")
         }
 )
-
+@Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 public class TransportTypeEntity extends AbstractEnabledEntity {
 
+    @Column(unique = true, nullable = false)
     private String name;
 
-    @Basic
-    @Column(name = "name", unique = true, nullable = false, insertable = true, updatable = true)
-    public String getName() {
-        return name;
+    public TransportTypeEntity isEnable(boolean isEnable) {
+        this.setEnable(isEnable);
+        return this;
     }
 }

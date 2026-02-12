@@ -1,25 +1,12 @@
 package com.rental.transport.mapper;
 
-import com.rental.transport.dto.Order;
+import com.rental.transport.dto.OrderDto;
 import com.rental.transport.entity.OrderEntity;
-import java.util.Objects;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class OrderMapper implements AbstractMapper<OrderEntity, Order> {
+@Mapper(componentModel = "spring")
+public interface OrderMapper {
 
-    @Autowired
-    private ModelMapper mapper;
-
-    @Override
-    public OrderEntity toEntity(Order dto) {
-        return Objects.isNull(dto) ? null : mapper.map(dto, OrderEntity.class);
-    }
-
-    @Override
-    public Order toDto(OrderEntity entity) {
-        return Objects.isNull(entity) ? null : mapper.map(entity, Order.class);
-    }
+//    OrderEntity toEntity(OrderDto dto);
+//    OrderDto toDto(OrderEntity entity);
 }

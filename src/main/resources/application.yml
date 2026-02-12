@@ -1,0 +1,31 @@
+spring:
+  dist:
+    path: /mnt
+
+  application.name: transport
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/oacq?currentSchema=transport
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    disable-swagger-default-url: false
+    tags-sorter: alpha
+    operations-sorter: alpha
+  writer-with-order-by-keys: true
+  api-docs:
+    version: OPENAPI_3_1

@@ -1,25 +1,12 @@
 package com.rental.transport.mapper;
 
-import com.rental.transport.dto.Calendar;
+import com.rental.transport.dto.CalendarDto;
 import com.rental.transport.entity.CalendarEntity;
-import java.util.Objects;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class CalendarMapper implements AbstractMapper<CalendarEntity, Calendar> {
+@Mapper(componentModel = "spring")
+public abstract class CalendarMapper {
 
-    @Autowired
-    private ModelMapper mapper;
-
-    @Override
-    public CalendarEntity toEntity(Calendar dto) {
-        return Objects.isNull(dto) ? null : mapper.map(dto, CalendarEntity.class);
-    }
-
-    @Override
-    public Calendar toDto(CalendarEntity entity) {
-        return Objects.isNull(entity) ? null : mapper.map(entity, Calendar.class);
-    }
+    public abstract CalendarEntity toEntity(CalendarDto dto);
+    public abstract CalendarDto toDto(CalendarEntity entity);
 }

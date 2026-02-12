@@ -1,23 +1,19 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.entity.template.AbstractEnabledEntity;
 import com.rental.transport.enums.CalendarTypeEnum;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import lombok.experimental.Accessors;
 
-@Entity(name = "calendar")
+import java.util.UUID;
+
+@Entity
 @Table(
         name = "calendar",
-        schema = "public",
-        catalog = "relationship",
         indexes = {
                 @Index(columnList = "day", name = "calendar_day_num_id_idx"),
                 @Index(columnList = "type", name = "calendar_type_idx")
@@ -25,48 +21,36 @@ import org.hibernate.annotations.Type;
 )
 
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CalendarEntity extends AbstractEntity {
+@Accessors(chain = true)
+public class CalendarEntity extends AbstractEnabledEntity {
 
+    @Column(nullable = false)
     private Long day;
+
     private Integer[] hours;
-    private CalendarTypeEnum type;
-    private Long objectId;
-    private Long orderId;
-    private String note = "";
 
-    @Basic
-    @Column(name = "day", nullable = false, insertable = true, updatable = true)
-    public Long getDay() {
-        return day;
-    }
-
-    @Type(type = "int-array")
-    @Column(
-            name = "hours",
-            columnDefinition = "integer[]"
-    )
-    public Integer[] getHours() {
-        return hours;
-    }
-
-    @Basic
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, insertable = true, updatable = true)
-    public CalendarTypeEnum getType() {
-        return type;
-    }
+    @Column(nullable = false, length = 16)
+    private CalendarTypeEnum type = CalendarTypeEnum.NOTE;
 
-    @Basic
-    @Column(name = "object_id", nullable = false, insertable = true, updatable = true)
-    public Long getObjectId() {
-        return objectId;
-    }
+//    @Column(nullable = false)
+    private UUID objectId;
 
-    @Basic
-    @Column(name = "note", nullable = false, insertable = true, updatable = true)
-    public String getNote() {
-        return note;
+    private UUID orderId;
+
+    @OneToOne(
+            cascade = CascadeType.REMOVE,
+            fetch = FetchType.EAGER
+    )
+    @JoinColumn(nullable = false)
+    private MessageEntity message;
+
+    public CalendarEntity(Long day, Integer[] hours, MessageEntity message) {
+        setDay(day);
+        setHours(hours);
+        setMessage(message);
     }
 }

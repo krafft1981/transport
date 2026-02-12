@@ -1,44 +1,40 @@
 package com.rental.transport.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import com.rental.transport.entity.template.AbstractUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Entity(name = "property")
-@Table(
-        name = "property",
-        schema = "public",
-        catalog = "relationship",
-        indexes = {
-                @Index(columnList = "property_type_id", name = "property_type_id_idx")
-        }
-)
+import java.util.Objects;
 
+@Entity
+@Table(name = "property")
+@Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PropertyEntity extends AbstractEntity {
+@Accessors(chain = true)
+public class PropertyEntity extends AbstractUpdatableEntity {
 
-    private PropertyTypeEntity type;
-    private String value = "";
+    @Column(nullable = false, length = 32)
+    private String name;
+    private String value;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "property_type_id", referencedColumnName = "id")
-    public PropertyTypeEntity getType() {
-        return type;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PropertyEntity that = (PropertyEntity) o;
+        return Objects.equals(name, that.name);
     }
 
-    @Basic
-    @Column(name = "value", nullable = false, insertable = true, updatable = true)
-    public String getValue() {
-        return value;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 }

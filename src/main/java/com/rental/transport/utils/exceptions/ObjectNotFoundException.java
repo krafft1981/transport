@@ -1,8 +1,10 @@
 package com.rental.transport.utils.exceptions;
 
+import java.util.UUID;
+
 public class ObjectNotFoundException extends RuntimeException {
 
-    public ObjectNotFoundException(String type, Long id) {
+    public ObjectNotFoundException(String type, UUID id) {
 
         super(String.format("%s с id(%d) не найден", type, id));
     }

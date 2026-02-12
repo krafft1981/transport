@@ -1,31 +1,26 @@
 package com.rental.transport.entity;
 
+import com.rental.transport.entity.template.AbstractEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.JdbcTypeCode;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.sql.Types;
 
 @Entity
-@Table(
-        name = "image",
-        schema = "public",
-        catalog = "relationship"
-)
-
+@Table(name = "image")
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 public class ImageEntity extends AbstractEntity {
 
-    private byte[] data;
-
-    @Basic
-    @Column(name = "data", nullable = false, insertable = true, updatable = true)
-    public byte[] getData() {
-        return data;
-    }
+    @JdbcTypeCode(Types.BINARY)
+    private byte[] body;
 }
